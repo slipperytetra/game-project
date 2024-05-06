@@ -75,15 +75,15 @@ public class Game extends GameEngine {
 
     public void init() {
         setWindowSize(1500, 600);
-        bg = loadImage("Images/background.jpg");
+        bg = loadImage("resources/background.jpg");
         mRandom = new Random();
         loadRunFrames("run");
-        idle = loadImage("Images/idle.png");
-        key = loadImage("Images/key.png");
-        keyImage = loadImage("Images/keyy.gif");
-        floor = loadImage("Images/floor.png");
-        door = loadImage("Images/door.png");
-        dummy = loadImage("Images/dummy.png");
+        idle = loadImage("resources/idle.png");
+        key = loadImage("resources/key.png");
+        keyImage = loadImage("resources/keyy.gif");
+        floor = loadImage("resources/floor.png");
+        door = loadImage("resources/door.png");
+        dummy = loadImage("resources/dummy.png");
         int rectangleHeight = -50;
         int windowHeight = height();
         yRectangle = windowHeight - rectangleHeight;
@@ -117,7 +117,7 @@ public class Game extends GameEngine {
     private void loadRunFrames(String prefix) {
         runFrames = new Image[4];
         for (int i = 0; i < 4; i++) {
-            runFrames[i] = loadImage("Images/" + prefix + i + ".png");
+            runFrames[i] = loadImage("resources/" + prefix + i + ".png");
         }
     }
 
@@ -203,15 +203,15 @@ public class Game extends GameEngine {
 
     private void welcome() {
         drawText(100, 100, "Welcome to our game!");
-        drawTextHelp(100, 300, "Press 'D' to move right and 'A' to move left.");
-        drawTextHelp(100, 330, "Hold 'Q' to attack with your sword.");
-        drawTextHelp(100, 360, "Press 'Space' to jump!");
-        drawTextHelp(700, 400, "Grab key to unlock door to proceed to next level!");
-        drawTextHelp(1250, 450, "Press 'E' on door to enter!");
+        drawText(100, 300, "Press 'D' to move right and 'A' to move left.");
+        drawText(100, 330, "Hold 'Q' to attack with your sword.");
+        drawText(100, 360, "Press 'Space' to jump!");
+        drawText(700, 400, "Grab key to unlock door to proceed to next level!");
+        drawText(1250, 450, "Press 'E' on door to enter!");
     }
-    Image gifImage = Toolkit.getDefaultToolkit().createImage("Images/keyy.gif");
-    Image gifImage2 = Toolkit.getDefaultToolkit().createImage("Images/keyy.gif");
-    Image level1 = Toolkit.getDefaultToolkit().createImage("Images/level1.gif");
+    Image gifImage = Toolkit.getDefaultToolkit().createImage("resources/keyy.gif");
+    Image gifImage2 = Toolkit.getDefaultToolkit().createImage("resources/keyy.gif");
+    Image level1 = Toolkit.getDefaultToolkit().createImage("resources/level1.gif");
 
 
 
@@ -232,14 +232,14 @@ public class Game extends GameEngine {
         }
         if (keyObtained) {
             keyImage = null;
-            drawTextHelp(1400, 50, "Key: ");
+            drawText(1400, 50, "Key: ");
             drawImage(gifImage2, 1420, -10, 100, 100);
         }
         Rectangle doorBox = new Rectangle(1400, 483, 100, 100);
         if (characterBox.intersects(doorBox) && keyObtained) {
             doorTouched = true;
         }
-        drawTextHelp(1400, 50, "Key: ");
+        drawText(1400, 50, "Key: ");
         welcome();
         int rectangleHeight = 50;
         int windowHeight = height();
