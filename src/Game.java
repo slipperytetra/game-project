@@ -10,6 +10,7 @@ public class Game extends GameEngine {
 
     private int LEVEL = 0;
     private int yRectangle;
+    ///ngjjegjhgehu
 
     private Image bg;
     private Image key;
