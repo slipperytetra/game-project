@@ -196,6 +196,9 @@ public class Game extends GameEngine {
         this.mFrame.repaint();
     }
 
+
+
+
     private void welcome() {
         this.drawText(100.0, 100.0, "Welcome to our game!");
         this.drawText(100.0, 300.0, "Press 'D' to move right and 'A' to move left.");
