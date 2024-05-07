@@ -80,6 +80,23 @@ public class Player {
         return this.playerLoc;
     }
 
+    public void setLocation(double x, double y) {
+        this.getLocation().setX(x);
+        this.getLocation().setY(y);
+    }
+
+    public void move(double x, double y) {
+        this.setLocation(getLocation().getX() + x, getLocation().getY() + y);
+    }
+
+    public void moveX(double x) {
+        this.setLocation(getLocation().getX() + x, getLocation().getY());
+    }
+
+    public void moveY(double y) {
+        this.setLocation(getLocation().getX(), getLocation().getY() + y);
+    }
+
     public double getJumpVelocity() {
         return -15.0;
     }
