@@ -42,6 +42,9 @@ public class Game extends GameEngine {
     Image level1 = Toolkit.getDefaultToolkit().createImage("resources/images/level1.gif");
     LevelManager lvlManager;
 
+    public static int WIDTH = 800;
+    public static int HEIGHT = 800;
+
     public Game() {
     }
 
@@ -53,14 +56,14 @@ public class Game extends GameEngine {
         this.processMovement();
         if (this.player.isJumping()) {
             this.velY += lvlManager.DEMO.getGravity();
-            this.player.getLocation().setY(this.player.getLocation().getY() + this.velY);
+            this.player.moveY(velY);
             if (this.player.getLocation().getY() >= (double)(this.yRectangle - this.idle.getHeight((ImageObserver)null))) {
                 this.player.getLocation().setY((double)(this.yRectangle - this.idle.getHeight((ImageObserver)null)));
                 this.player.setJumping(false);
                 this.velY = 0.0;
             }
         } else {
-            this.player.getLocation().setY(this.player.getLocation().getY() + this.velY);
+            this.player.moveY(this.velY);
             if (this.player.getLocation().getY() > (double)(this.yRectangle - this.idle.getHeight((ImageObserver)null))) {
                 this.player.getLocation().setY((double)(this.yRectangle - this.idle.getHeight((ImageObserver)null)));
                 this.velY = 0.0;
@@ -70,9 +73,9 @@ public class Game extends GameEngine {
     }
 
     public void init() {
+        this.setWindowSize(WIDTH, HEIGHT);
         this.player = new Player();
         this.lvlManager = new LevelManager(this);
-        this.setWindowSize(1500, 600);
         this.bg = this.loadImage("resources/images/background.jpg");
         this.mRandom = new Random();
         this.loadRunFrames("run");
@@ -85,8 +88,9 @@ public class Game extends GameEngine {
         int rectangleHeight = -50;
         int windowHeight = this.height();
         this.yRectangle = windowHeight - rectangleHeight;
-        this.player.getLocation().setX(0.0);
-        this.player.getLocation().setY((double)(this.idle.getHeight((ImageObserver)null) + 480));
+        this.player.setLocation(lvlManager.DEMO.getSpawnPoint().getX(), lvlManager.DEMO.getSpawnPoint().getY());
+        //this.player.getLocation().setX(0.0);
+        //this.player.getLocation().setY((double)(this.idle.getHeight((ImageObserver)null) + 480));
         System.out.println("Starting X position: " + this.player.getLocation().getX());
         System.out.println("Starting Y position: " + this.player.getLocation().getY());
         this.animationTimer = new Timer(200, new ActionListener() {
@@ -210,14 +214,14 @@ public class Game extends GameEngine {
 
     public void paintComponent() {
         this.drawImage(this.bg, 0.0, 0.0);
-        this.drawImage(this.door, 1400.0, 483.0, 100.0, 100.0);
-        this.drawImage(this.dummy, 500.0, 483.0, 100.0, 100.0);
+        this.drawImage(this.door, lvlManager.DEMO.getDoorLocation().getX(), lvlManager.DEMO.getDoorLocation().getY(), 100.0, 100.0);
+        //this.drawImage(this.dummy, 500.0, 483.0, 100.0, 100.0);
         int keyHitboxWidth = 50;
         int keyHitboxHeight = 50;
         int dHitboxW = 100;
         int dHitboxH = 60;
         Rectangle characterBox = new Rectangle((int)this.player.getLocation().getX() - 40, (int)this.player.getLocation().getY(), this.idle.getWidth((ImageObserver)null), this.idle.getHeight((ImageObserver)null));
-        Rectangle keyBox = new Rectangle(900, 475, keyHitboxWidth, keyHitboxHeight);
+        Rectangle keyBox = new Rectangle((int)lvlManager.DEMO.getKeyLocation().getX(), (int)lvlManager.DEMO.getKeyLocation().getY(), keyHitboxWidth, keyHitboxHeight);
         Rectangle dummyBox = new Rectangle(500, 483, dHitboxH, dHitboxW);
         if (characterBox.intersects(keyBox)) {
             this.player.setKeyObtained(true);
@@ -226,21 +230,30 @@ public class Game extends GameEngine {
         if (this.player.hasObtainedKey()) {
             this.keyImage = null;
             this.drawText(1400.0, 50.0, "Key: ",20);
-            this.drawImage(this.gifImage2, 1420.0, -10.0, 100.0, 100.0);
+            this.drawImage(this.gifImage2, 550, -10.0, 100.0, 100.0);
         }
 
-        Rectangle doorBox = new Rectangle(1400, 483, 100, 100);
+        Rectangle doorBox = new Rectangle((int)lvlManager.DEMO.getDoorLocation().getX(), (int)lvlManager.DEMO.getDoorLocation().getY(), 100, 100);
         if (characterBox.intersects(doorBox) && this.player.hasObtainedKey()) {
             this.player.setTouchingDoor(true);
         }
 
-        this.drawText(1400.0, 50.0, "Key: ",20);
+        this.drawText(500.0, 50.0, "Key: ",20);
         this.welcome();
         int rectangleHeight = 50;
         int windowHeight = this.height();
         int yRectangle = windowHeight - rectangleHeight;
-        this.drawSolidRectangle(0.0, (double)yRectangle, 1500.0, (double)rectangleHeight);
+        //this.drawSolidRectangle(0.0, (double)yRectangle, 1500.0, (double)rectangleHeight);
         Rectangle characterAttackBox;
+
+        int blockSize = WIDTH / lvlManager.DEMO.getSize();
+        for (Block b : lvlManager.DEMO.getBlocks()) {
+            if (b instanceof BlockGround) {
+                this.changeColor(b.getColor());
+                this.drawSolidRectangle(b.getLocation().getX(), b.getLocation().getY(), blockSize, blockSize);
+                //System.out.println("Drawing block at: " + b.getLocation().toString());
+            }
+        }
         if (this.player.isAttacking() && this.runFrames != null && this.runFrames.length > 0) {
             characterAttackBox = new Rectangle((int)this.player.getLocation().getX(), (int)this.player.getLocation().getY(), this.runFrames[this.currentFrameIndex].getWidth((ImageObserver)null), this.runFrames[this.currentFrameIndex].getHeight((ImageObserver)null));
             if (characterAttackBox.intersects(dummyBox) && !this.player.hasRegisteredAttack()) {
@@ -262,12 +275,12 @@ public class Game extends GameEngine {
         }
 
         if (this.keyImage != null) {
-            this.drawImage(this.gifImage, 900.0, 475.0, 100.0, 100.0);
+            this.drawImage(this.gifImage, lvlManager.DEMO.getKeyLocation().getX(), lvlManager.DEMO.getKeyLocation().getY(), 100.0, 100.0);
         }
 
         if (this.LEVEL == 1) {
             this.changeBackgroundColor(Color.BLACK);
-            this.clearBackground(1500, 800);
+            this.clearBackground(mWidth, mHeight);
             if (this.player.getLocation().getX() == 0.0 && this.player.getLocation().getY() == (double)(this.idle.getHeight((ImageObserver)null) + 480)) {
                 this.player.getLocation().setX(0.0);
                 this.player.getLocation().setY((double)(this.idle.getHeight((ImageObserver)null) + 480));

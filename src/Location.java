@@ -27,4 +27,8 @@ public class Location {
     public void setY(double newY) {
         this.locY = newY;
     }
+
+    public String toString() {
+        return "Location={x:" + getX() + ", y:" + getY() + "}";
+    }
 }
