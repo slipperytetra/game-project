@@ -37,10 +37,10 @@ public class Game extends GameEngine {
     private Timer startAnimationTimer;
     private Set<Integer> keysPressed = new HashSet();
     Player player;
-    Level demoLevel;
-    Image gifImage = Toolkit.getDefaultToolkit().createImage("resources/keyy.gif");
-    Image gifImage2 = Toolkit.getDefaultToolkit().createImage("resources/keyy.gif");
-    Image level1 = Toolkit.getDefaultToolkit().createImage("resources/level1.gif");
+    Image gifImage = Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif");
+    Image gifImage2 = Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif");
+    Image level1 = Toolkit.getDefaultToolkit().createImage("resources/images/level1.gif");
+    LevelManager lvlManager;
 
     public Game() {
     }
@@ -52,7 +52,7 @@ public class Game extends GameEngine {
     public void update(double dt) {
         this.processMovement();
         if (this.player.isJumping()) {
-            this.velY += this.demoLevel.getGravity();
+            this.velY += lvlManager.DEMO.getGravity();
             this.player.getLocation().setY(this.player.getLocation().getY() + this.velY);
             if (this.player.getLocation().getY() >= (double)(this.yRectangle - this.idle.getHeight((ImageObserver)null))) {
                 this.player.getLocation().setY((double)(this.yRectangle - this.idle.getHeight((ImageObserver)null)));
@@ -71,17 +71,17 @@ public class Game extends GameEngine {
 
     public void init() {
         this.player = new Player();
-        this.demoLevel = new Level(0, new Location(0.0, 0.0), new Location(20.0, 20.0));
+        this.lvlManager = new LevelManager(this);
         this.setWindowSize(1500, 600);
-        this.bg = this.loadImage("resources/background.jpg");
+        this.bg = this.loadImage("resources/images/background.jpg");
         this.mRandom = new Random();
         this.loadRunFrames("run");
-        this.idle = this.loadImage("resources/idle.png");
-        this.key = this.loadImage("resources/key.png");
-        this.keyImage = this.loadImage("resources/keyy.gif");
-        this.floor = this.loadImage("resources/floor.png");
-        this.door = this.loadImage("resources/door.png");
-        this.dummy = this.loadImage("resources/dummy.png");
+        this.idle = this.loadImage("resources/images/idle.png");
+        this.key = this.loadImage("resources/images/key.png");
+        this.keyImage = this.loadImage("resources/images/keyy.gif");
+        this.floor = this.loadImage("resources/images/floor.png");
+        this.door = this.loadImage("resources/images/door.png");
+        this.dummy = this.loadImage("resources/images/dummy.png");
         int rectangleHeight = -50;
         int windowHeight = this.height();
         this.yRectangle = windowHeight - rectangleHeight;
@@ -111,7 +111,7 @@ public class Game extends GameEngine {
         this.runFrames = new Image[4];
 
         for(int i = 0; i < 4; ++i) {
-            this.runFrames[i] = this.loadImage("resources/" + prefix + i + ".png");
+            this.runFrames[i] = this.loadImage("resources/images/" + prefix + i + ".png");
         }
 
     }
