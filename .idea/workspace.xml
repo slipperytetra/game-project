@@ -4,13 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2eddd844-0aed-4ae2-a631-dc2a2047a78c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Level.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Location.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Player.java" afterDir="false" />
+    <list default="true" id="2eddd844-0aed-4ae2-a631-dc2a2047a78c" name="Changes" comment="Changes to structure. Made a player class and level class.&#10;&#10;Havent changed any of the physics, just made it so its easier to read.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,6 +83,15 @@
       <workItem from="1715033291896" duration="29000" />
       <workItem from="1715033324567" duration="4776000" />
     </task>
+    <task id="LOCAL-00001" summary="Changes to structure. Made a player class and level class.&#10;&#10;Havent changed any of the physics, just made it so its easier to read.">
+      <option name="closed" value="true" />
+      <created>1715052774330</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1715052774330</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -103,5 +107,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Changes to structure. Made a player class and level class.&#10;&#10;Havent changed any of the physics, just made it so its easier to read." />
+    <option name="LAST_COMMIT_MESSAGE" value="Changes to structure. Made a player class and level class.&#10;&#10;Havent changed any of the physics, just made it so its easier to read." />
   </component>
 </project>

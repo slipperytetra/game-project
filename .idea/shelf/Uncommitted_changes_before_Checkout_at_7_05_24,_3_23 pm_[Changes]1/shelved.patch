@@ -1,0 +1,177 @@
+Index: src/Player.java
+===================================================================
+diff --git a/src/Player.java b/src/Player.java
+new file mode 100644
+--- /dev/null	
++++ b/src/Player.java	
+@@ -0,0 +1,87 @@
++public class Player {
++
++    private Location playerLoc;
++
++    private boolean isMoving;
++    private boolean isFlipped;
++    private boolean isJumping;
++    private boolean isAttacking;
++    private boolean keyObtained;
++    private boolean doorTouched;
++    private boolean attackRegistered = false;
++
++    private final double JUMP_VELOCITY = -15;
++
++
++    public Player() {
++        this.playerLoc = new Location(0, 0);
++    }
++
++    public boolean isMoving() {
++        return isMoving;
++    }
++
++    public void setMoving(boolean isMoving) {
++        this.isMoving = isMoving;
++    }
++
++    public boolean isFlipping() {
++        return isFlipped;
++    }
++
++    public void setFlipping(boolean isFlipped) {
++        this.isFlipped = isFlipped;
++    }
++
++    public boolean isJumping() {
++        return isJumping;
++    }
++
++    public void setJumping(boolean isJumping) {
++        this.isJumping = isJumping;
++    }
++
++    public boolean isAttacking() {
++        return isAttacking;
++    }
++
++    public void setAttacking(boolean isAttacking) {
++        this.isAttacking = isAttacking;
++    }
++
++    public boolean hasObtainedKey() {
++        return keyObtained;
++    }
++
++    public void setKeyObtained(boolean keyObtained) {
++        this.keyObtained = keyObtained;
++    }
++
++    public boolean isTouchingDoor() {
++        return doorTouched;
++    }
++
++    public void setTouchingDoor(boolean doorTouched) {
++        this.doorTouched = doorTouched;
++    }
++
++    public boolean hasRegisteredAttack() {
++        return attackRegistered;
++    }
++
++    public void setAttackRegistered(boolean attackRegistered) {
++        this.attackRegistered = attackRegistered;
++    }
++
++    public void update() {
++
++    }
++
++    public Location getLocation() {
++        return playerLoc;
++    }
++
++    public double getJumpVelocity() {
++        return JUMP_VELOCITY;
++    }
++}
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_18\" default=\"true\" project-jdk-name=\"18\" project-jdk-type=\"JavaSDK\">\n    <output url=\"file://$PROJECT_DIR$/out\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	
++++ b/.idea/misc.xml	
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_18" default="true" project-jdk-name="18" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_20" default="true" project-jdk-name="18" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/out" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: src/Level.java
+===================================================================
+diff --git a/src/Level.java b/src/Level.java
+new file mode 100644
+--- /dev/null	
++++ b/src/Level.java	
+@@ -0,0 +1,25 @@
++public class Level {
++
++    private final double GRAVITY = 0.98;
++    int id;
++    Location spawnPoint;
++    Location keyLoc;
++
++    public Level(int id, Location spawnPoint, Location keyLoc) {
++        this.id = id;
++        this.spawnPoint = spawnPoint;
++        this.keyLoc = keyLoc;
++    }
++
++    public Location getSpawnPoint() {
++        return spawnPoint;
++    }
++
++    public Location getKeyLocation() {
++        return keyLoc;
++    }
++
++    public double getGravity() {
++        return GRAVITY;
++    }
++}
+Index: src/Location.java
+===================================================================
+diff --git a/src/Location.java b/src/Location.java
+new file mode 100644
+--- /dev/null	
++++ b/src/Location.java	
+@@ -0,0 +1,25 @@
++public class Location {
++
++    double locX, locY;
++
++    public Location(double locX, double locY) {
++        this.locX = locX;
++        this.locY = locY;
++    }
++
++    public double getX() {
++        return locX;
++    }
++
++    public double getY() {
++        return locY;
++    }
++
++    public void setX(double newX) {
++        this.locX = newX;
++    }
++
++    public void setY(double newY) {
++        this.locY = newY;
++    }
++}
