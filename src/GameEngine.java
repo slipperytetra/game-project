@@ -440,11 +440,14 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     }
 
     // This function draws text on the screen at (x,y)
-    public void drawText(double x, double y, String s) {
+    public void drawText(double x, double y, String s, int size) {
         // Draw text on the screen
-        mGraphics.setFont(new Font("Arial", Font.PLAIN, 40));
+        mGraphics.setFont(new Font("Arial", Font.PLAIN, size));
         mGraphics.drawString(s, (int)x, (int)y);
     }
+
+
+
 
     // This function draws bold text on the screen at (x,y)
     public void drawBoldText(double x, double y, String s) {
