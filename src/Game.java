@@ -204,6 +204,12 @@ public class Game extends GameEngine {
             animationTimer.stop();
             currentFrameIndex = 0;
         }
+        if (keysPressed.contains(KeyEvent.VK_E)) {
+            if (doorTouched) {
+                System.out.println("Entering door...");
+                LEVEL = 1;
+            }
+        }
 
         mFrame.repaint(); // Refresh the display
     }
