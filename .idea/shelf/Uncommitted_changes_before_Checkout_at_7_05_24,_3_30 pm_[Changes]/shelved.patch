@@ -1,0 +1,17 @@
+Index: src/Location.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>//\n// Source code recreated from a .class file by IntelliJ IDEA\n// (powered by FernFlower decompiler)\n//\n\npublic class Location {\n    double locX;\n    double locY;\n\n    public Location(double locX, double locY) {\n        this.locX = locX;\n        this.locY = locY;\n    }\n\n    public double getX() {\n        return this.locX;\n    }\n\n    public double getY() {\n        return this.locY;\n    }\n\n    public void setX(double newX) {\n        this.locX = newX;\n    }\n\n    public void setY(double newY) {\n        this.locY = newY;\n    }\n}\n
+===================================================================
+diff --git a/src/Location.java b/src/Location.java
+--- a/src/Location.java	
++++ b/src/Location.java	
+@@ -19,7 +19,7 @@
+     public double getY() {
+         return this.locY;
+     }
+-
++`
+     public void setX(double newX) {
+         this.locX = newX;
+     }

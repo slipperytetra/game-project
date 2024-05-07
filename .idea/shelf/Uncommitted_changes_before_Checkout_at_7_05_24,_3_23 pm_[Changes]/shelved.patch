@@ -1,0 +1,431 @@
+Index: src/Game.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import java.awt.*;\r\nimport java.awt.event.*;\r\nimport java.awt.geom.AffineTransform;\r\nimport java.awt.image.AffineTransformOp;\r\nimport java.awt.image.BufferedImage;\r\nimport java.util.HashSet;\r\nimport java.util.Random;\r\nimport java.util.Set;\r\nimport javax.swing.Timer;\r\n\r\npublic class Game extends GameEngine {\r\n\r\n    private int LEVEL = 0;\r\n    private int yRectangle;\r\n\r\n    private Image bg;\r\n    private Image key;\r\n    private Image floor;\r\n    private Image door;\r\n    private Image dummy;\r\n    private Image keyImage;\r\n\r\n    private Image[] runFrames;\r\n    private Image idle;\r\n    private int currentFrameIndex;\r\n    private int characterX;\r\n    private int characterY;\r\n    private boolean isMoving;\r\n    private boolean isFlipped;\r\n    private boolean isJumping;\r\n    private boolean isAttacking;\r\n    private boolean keyObtained;\r\n    private boolean doorTouched;\r\n    private boolean attackRegistered = false;\r\n\r\n    private Random mRandom;\r\n    private final double GRAVITY = 0.98;\r\n    private final double JUMP_VELOCITY = -15;\r\n    private double velY;\r\n    private Timer animationTimer;\r\n    private Timer startAnimationTimer;\r\n    private Set<Integer> keysPressed = new HashSet<>();\r\n\r\n    public static void main(String args[]) {\r\n        createGame(new Game());\r\n    }\r\n\r\n    public void update(double dt) {\r\n        processMovement();\r\n        if (isJumping) {\r\n            // Apply gravity when jumping\r\n            velY += GRAVITY;\r\n            characterY += velY;\r\n\r\n            // Check if character hits the ground\r\n            if (characterY >= yRectangle - idle.getHeight(null)) {\r\n                characterY = yRectangle - idle.getHeight(null); // Snap character to ground\r\n                isJumping = false; // End the jump\r\n                velY = 0; // Reset vertical velocity\r\n            }\r\n        } else {\r\n            // If not jumping, update character position normally\r\n            characterY += velY;\r\n\r\n            // Check collision with the ground\r\n            if (characterY > yRectangle - idle.getHeight(null)) {\r\n                characterY = yRectangle - idle.getHeight(null); // Snap character to ground\r\n                velY = 0; // Reset vertical velocity\r\n            }\r\n        }\r\n\r\n\r\n    }\r\n\r\n\r\n\r\n\r\n\r\n\r\n    public void init() {\r\n        setWindowSize(1500, 600);\r\n        bg = loadImage(\"resources/background.jpg\");\r\n        mRandom = new Random();\r\n        loadRunFrames(\"run\");\r\n        idle = loadImage(\"resources/idle.png\");\r\n        key = loadImage(\"resources/key.png\");\r\n        keyImage = loadImage(\"resources/keyy.gif\");\r\n        floor = loadImage(\"resources/floor.png\");\r\n        door = loadImage(\"resources/door.png\");\r\n        dummy = loadImage(\"resources/dummy.png\");\r\n        int rectangleHeight = -50;\r\n        int windowHeight = height();\r\n        yRectangle = windowHeight - rectangleHeight;\r\n        characterX = 0;\r\n        characterY = idle.getHeight(null) + 480; // Adjusted starting Y position\r\n        System.out.println(\"Starting X position: \" + characterX); // Log the starting X position\r\n        System.out.println(\"Starting Y position: \" + characterY); // Log the starting Y position\r\n        animationTimer = new Timer(200, new ActionListener() {\r\n            public void actionPerformed(ActionEvent e) {\r\n                currentFrameIndex = (currentFrameIndex + 1) % runFrames.length;\r\n                mFrame.repaint();\r\n            }\r\n        });\r\n        startAnimationTimer = new Timer(500, new ActionListener() {\r\n            public void actionPerformed(ActionEvent e) {\r\n                animationTimer.start();\r\n            }\r\n        });\r\n\r\n        // If LEVEL is 1, reset character's position to (0, idle.getHeight(null) + 480)\r\n        if (LEVEL == 1) {\r\n            characterX = 0;\r\n            characterY = idle.getHeight(null) + 480;\r\n\r\n        }\r\n    }\r\n\r\n\r\n\r\n\r\n    private void loadRunFrames(String prefix) {\r\n        runFrames = new Image[4];\r\n        for (int i = 0; i < 4; i++) {\r\n            runFrames[i] = loadImage(\"resources/\" + prefix + i + \".png\");\r\n        }\r\n    }\r\n\r\n    private void jumpAnimation() {\r\n        loadRunFrames(\"jump\");\r\n        animationTimer.start();\r\n        animationTimer.addActionListener(new ActionListener() {\r\n            @Override\r\n            public void actionPerformed(ActionEvent e) {\r\n                if (currentFrameIndex == runFrames.length - 1) {\r\n                    animationTimer.stop();\r\n                }\r\n            }\r\n        });\r\n    }\r\n\r\n    @Override\r\n    public void keyPressed(KeyEvent event) {\r\n        keysPressed.add(event.getKeyCode());\r\n        processMovement();\r\n    }\r\n\r\n    @Override\r\n    public void keyReleased(KeyEvent event) {\r\n        keysPressed.remove(event.getKeyCode());\r\n        processMovement();\r\n    }\r\n\r\n    private void processMovement() {\r\n        isMoving = false;\r\n        isAttacking = false;\r\n\r\n        // Movement right\r\n        if (keysPressed.contains(KeyEvent.VK_D)) {\r\n            if (!isJumping || isJumping && isMoving) {\r\n                characterX += 10; // Normal speed on ground\r\n            } else {\r\n                characterX += 8; // Reduced speed when starting to move in the air\r\n            }\r\n            isMoving = true;\r\n            isFlipped = false;\r\n            loadRunFrames(\"run\");\r\n        }\r\n\r\n        // Movement left\r\n        if (keysPressed.contains(KeyEvent.VK_A)) {\r\n            if (!isJumping || isJumping && isMoving) {\r\n                characterX -= 10; // Normal speed on ground\r\n            } else {\r\n                characterX -= 8; // Reduced speed when starting to move in the air\r\n            }\r\n            isMoving = true;\r\n            isFlipped = true;\r\n            loadRunFrames(\"run\");\r\n        }\r\n\r\n        // Handle jumping\r\n        if (keysPressed.contains(KeyEvent.VK_SPACE) && !isJumping) {\r\n            isJumping = true;\r\n            jumpAnimation();\r\n            velY = JUMP_VELOCITY;\r\n        }\r\n\r\n        // Handling attacking\r\n        if (keysPressed.contains(KeyEvent.VK_Q) && !attackRegistered) {\r\n            isAttacking = true;\r\n            attackRegistered = true;\r\n            animationTimer.stop();\r\n            currentFrameIndex = 0;\r\n            loadRunFrames(\"attack\");\r\n            animationTimer.start();\r\n        }\r\n\r\n        // Manage animations based on current actions\r\n        if (isMoving || isJumping || isAttacking) {\r\n            if (!animationTimer.isRunning()) {\r\n                animationTimer.start();\r\n            }\r\n        } else {\r\n            animationTimer.stop();\r\n            currentFrameIndex = 0;\r\n        }\r\n        if (keysPressed.contains(KeyEvent.VK_E)) {\r\n            if (doorTouched) {\r\n                System.out.println(\"Entering door...\");\r\n                LEVEL = 1;\r\n            }\r\n        }\r\n\r\n        mFrame.repaint(); // Refresh the display\r\n    }\r\n\r\n\r\n\r\n\r\n    private void welcome() {\r\n        drawText(100, 100, \"Welcome to our game!\");\r\n        drawText(100, 300, \"Press 'D' to move right and 'A' to move left.\");\r\n        drawText(100, 330, \"Hold 'Q' to attack with your sword.\");\r\n        drawText(100, 360, \"Press 'Space' to jump!\");\r\n        drawText(700, 400, \"Grab key to unlock door to proceed to next level!\");\r\n        drawText(1250, 450, \"Press 'E' on door to enter!\");\r\n    }\r\n    Image gifImage = Toolkit.getDefaultToolkit().createImage(\"resources/keyy.gif\");\r\n    Image gifImage2 = Toolkit.getDefaultToolkit().createImage(\"resources/keyy.gif\");\r\n    Image level1 = Toolkit.getDefaultToolkit().createImage(\"resources/level1.gif\");\r\n\r\n\r\n\r\n    @Override\r\n    public void paintComponent() {\r\n        drawImage(bg, 0, 0);\r\n        drawImage(door, 1400, 483, 100, 100);\r\n        drawImage(dummy, 500, 483, 100, 100);\r\n        int keyHitboxWidth = 50;\r\n        int keyHitboxHeight = 50;\r\n        int dHitboxW = 100;\r\n        int dHitboxH = 60;\r\n        Rectangle characterBox = new Rectangle(characterX - 40, characterY, idle.getWidth(null), idle.getHeight(null));\r\n        Rectangle keyBox = new Rectangle(900, 475, keyHitboxWidth, keyHitboxHeight);\r\n        Rectangle dummyBox = new Rectangle(500, 483, dHitboxH, dHitboxW);\r\n        if (characterBox.intersects(keyBox)) {\r\n            keyObtained = true;\r\n        }\r\n        if (keyObtained) {\r\n            keyImage = null;\r\n            drawText(1400, 50, \"Key: \");\r\n            drawImage(gifImage2, 1420, -10, 100, 100);\r\n        }\r\n        Rectangle doorBox = new Rectangle(1400, 483, 100, 100);\r\n        if (characterBox.intersects(doorBox) && keyObtained) {\r\n            doorTouched = true;\r\n        }\r\n        drawText(1400, 50, \"Key: \");\r\n        welcome();\r\n        int rectangleHeight = 50;\r\n        int windowHeight = height();\r\n        int yRectangle = windowHeight - rectangleHeight;\r\n        drawSolidRectangle(0, yRectangle, 1500, rectangleHeight);\r\n        if (isAttacking && runFrames != null && runFrames.length > 0) {\r\n            Rectangle characterAttackBox = new Rectangle(characterX, characterY, runFrames[currentFrameIndex].getWidth(null), runFrames[currentFrameIndex].getHeight(null));\r\n            if (characterAttackBox.intersects(dummyBox) && !attackRegistered) {\r\n                System.out.println(\"Hit\");\r\n                attackRegistered = true;\r\n            }\r\n            if (isFlipped) {\r\n                drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), characterX, characterY);\r\n            } else {\r\n                drawImage(runFrames[currentFrameIndex], characterX, characterY);\r\n            }\r\n        } else {\r\n            if (isMoving || isJumping) {\r\n                if (isFlipped) {\r\n                    drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), characterX, characterY);\r\n                } else {\r\n                    drawImage(runFrames[currentFrameIndex], characterX, characterY);\r\n                }\r\n            } else {\r\n                drawImage(idle, characterX, characterY);\r\n            }\r\n        }\r\n        if (keyImage != null) {\r\n            drawImage(gifImage, 900, 475, 100, 100);\r\n        }\r\n        if (LEVEL == 1) {\r\n            changeBackgroundColor(Color.BLACK);\r\n            clearBackground(1500, 800);\r\n\r\n            if (characterX == 0 && characterY == idle.getHeight(null) + 480) {\r\n                // Reset character's position only once when entering level 1\r\n                characterX = 0;\r\n                characterY = idle.getHeight(null) + 480;}\r\n            drawImage(bg, 0, 0);\r\n            drawImage(gifImage, 900, 250, 100, 100);\r\n\r\n\r\n            drawSolidRectangle(0, yRectangle, 1500, rectangleHeight);\r\n            drawSolidRectangle(100, 450, 100, 25);\r\n\r\n\r\n\r\n            if (isAttacking && runFrames != null && runFrames.length > 0) {\r\n                Rectangle characterAttackBox = new Rectangle(characterX, characterY, runFrames[currentFrameIndex].getWidth(null), runFrames[currentFrameIndex].getHeight(null));\r\n                if (characterAttackBox.intersects(dummyBox) && !attackRegistered) {\r\n                    System.out.println(\"Hit\");\r\n                    attackRegistered = true;\r\n                }\r\n                if (isFlipped) {\r\n                    drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), characterX, characterY);\r\n                } else {\r\n                    drawImage(runFrames[currentFrameIndex], characterX, characterY);\r\n                }\r\n            } else {\r\n                if (isMoving || isJumping) {\r\n                    if (isFlipped) {\r\n                        drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), characterX, characterY);\r\n                    } else {\r\n                        drawImage(runFrames[currentFrameIndex], characterX, characterY);\r\n                    }\r\n                } else {\r\n                    drawImage(idle, characterX, characterY);\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    private Image flipImageHorizontal(Image image) {\r\n        BufferedImage bufferedImage = (BufferedImage) image;\r\n        AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);\r\n        tx.translate(-bufferedImage.getWidth(null), 0);\r\n        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);\r\n        return op.filter(bufferedImage, null);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Game.java b/src/Game.java
+--- a/src/Game.java	
++++ b/src/Game.java	
+@@ -23,48 +23,40 @@
+     private Image[] runFrames;
+     private Image idle;
+     private int currentFrameIndex;
+-    private int characterX;
+-    private int characterY;
+-    private boolean isMoving;
+-    private boolean isFlipped;
+-    private boolean isJumping;
+-    private boolean isAttacking;
+-    private boolean keyObtained;
+-    private boolean doorTouched;
+-    private boolean attackRegistered = false;
+ 
+     private Random mRandom;
+-    private final double GRAVITY = 0.98;
+-    private final double JUMP_VELOCITY = -15;
+     private double velY;
+     private Timer animationTimer;
+     private Timer startAnimationTimer;
+     private Set<Integer> keysPressed = new HashSet<>();
+ 
++    Player player;
++    Level demoLevel;
++
+     public static void main(String args[]) {
+         createGame(new Game());
+     }
+ 
+     public void update(double dt) {
+         processMovement();
+-        if (isJumping) {
++        if (player.isJumping()) {
+             // Apply gravity when jumping
+-            velY += GRAVITY;
+-            characterY += velY;
++            velY += demoLevel.getGravity();
++            player.getLocation().setY(player.getLocation().getY() + velY);
+ 
+             // Check if character hits the ground
+-            if (characterY >= yRectangle - idle.getHeight(null)) {
+-                characterY = yRectangle - idle.getHeight(null); // Snap character to ground
+-                isJumping = false; // End the jump
++            if (player.getLocation().getY() >= yRectangle - idle.getHeight(null)) {
++                player.getLocation().setY(yRectangle - idle.getHeight(null)); // Snap character to ground
++                player.setJumping(false); // End the jump
+                 velY = 0; // Reset vertical velocity
+             }
+         } else {
+             // If not jumping, update character position normally
+-            characterY += velY;
++            player.getLocation().setY(player.getLocation().getY() + velY);
+ 
+             // Check collision with the ground
+-            if (characterY > yRectangle - idle.getHeight(null)) {
+-                characterY = yRectangle - idle.getHeight(null); // Snap character to ground
++            if (player.getLocation().getY() > yRectangle - idle.getHeight(null)) {
++                player.getLocation().setY(yRectangle - idle.getHeight(null)); // Snap character to ground
+                 velY = 0; // Reset vertical velocity
+             }
+         }
+@@ -78,6 +70,8 @@
+ 
+ 
+     public void init() {
++        player = new Player();
++        demoLevel = new Level(0, new Location(0, 0), new Location(20, 20));
+         setWindowSize(1500, 600);
+         bg = loadImage("resources/background.jpg");
+         mRandom = new Random();
+@@ -91,10 +85,10 @@
+         int rectangleHeight = -50;
+         int windowHeight = height();
+         yRectangle = windowHeight - rectangleHeight;
+-        characterX = 0;
+-        characterY = idle.getHeight(null) + 480; // Adjusted starting Y position
+-        System.out.println("Starting X position: " + characterX); // Log the starting X position
+-        System.out.println("Starting Y position: " + characterY); // Log the starting Y position
++        player.getLocation().setX(0);
++        player.getLocation().setY(idle.getHeight(null) + 480); // Adjusted starting Y position
++        System.out.println("Starting X position: " + player.getLocation().getX()); // Log the starting X position
++        System.out.println("Starting Y position: " + player.getLocation().getY()); // Log the starting Y position
+         animationTimer = new Timer(200, new ActionListener() {
+             public void actionPerformed(ActionEvent e) {
+                 currentFrameIndex = (currentFrameIndex + 1) % runFrames.length;
+@@ -109,8 +103,8 @@
+ 
+         // If LEVEL is 1, reset character's position to (0, idle.getHeight(null) + 480)
+         if (LEVEL == 1) {
+-            characterX = 0;
+-            characterY = idle.getHeight(null) + 480;
++            player.getLocation().setX(0);
++            player.getLocation().setY(idle.getHeight(null) + 480);
+ 
+         }
+     }
+@@ -151,44 +145,44 @@
+     }
+ 
+     private void processMovement() {
+-        isMoving = false;
+-        isAttacking = false;
++        player.setMoving(false);
++        player.setAttacking(false);
+ 
+         // Movement right
+         if (keysPressed.contains(KeyEvent.VK_D)) {
+-            if (!isJumping || isJumping && isMoving) {
+-                characterX += 10; // Normal speed on ground
++            if (!player.isJumping() || player.isJumping() && player.isMoving()) {
++                player.getLocation().setX(player.getLocation().getX() + 10); // Normal speed on ground
+             } else {
+-                characterX += 8; // Reduced speed when starting to move in the air
++                player.getLocation().setX(player.getLocation().getX() + 8); // Reduced speed when starting to move in the air
+             }
+-            isMoving = true;
+-            isFlipped = false;
++            player.setMoving(true);
++            player.setFlipping(false);
+             loadRunFrames("run");
+         }
+ 
+         // Movement left
+         if (keysPressed.contains(KeyEvent.VK_A)) {
+-            if (!isJumping || isJumping && isMoving) {
+-                characterX -= 10; // Normal speed on ground
++            if (!player.isJumping() || player.isJumping() && player.isMoving()) {
++                player.getLocation().setX(player.getLocation().getX() - 10);; // Normal speed on ground
+             } else {
+-                characterX -= 8; // Reduced speed when starting to move in the air
++                player.getLocation().setX(player.getLocation().getX() - 8);; // Reduced speed when starting to move in the air
+             }
+-            isMoving = true;
+-            isFlipped = true;
++            player.setMoving(true);
++            player.setFlipping(true);
+             loadRunFrames("run");
+         }
+ 
+         // Handle jumping
+-        if (keysPressed.contains(KeyEvent.VK_SPACE) && !isJumping) {
+-            isJumping = true;
++        if (keysPressed.contains(KeyEvent.VK_SPACE) && !player.isJumping()) {
++            player.setJumping(true);
+             jumpAnimation();
+-            velY = JUMP_VELOCITY;
++            velY = player.getJumpVelocity();
+         }
+ 
+         // Handling attacking
+-        if (keysPressed.contains(KeyEvent.VK_Q) && !attackRegistered) {
+-            isAttacking = true;
+-            attackRegistered = true;
++        if (keysPressed.contains(KeyEvent.VK_Q) && !player.hasRegisteredAttack()) {
++            player.setAttacking(true);
++            player.setAttackRegistered(true);
+             animationTimer.stop();
+             currentFrameIndex = 0;
+             loadRunFrames("attack");
+@@ -196,7 +190,7 @@
+         }
+ 
+         // Manage animations based on current actions
+-        if (isMoving || isJumping || isAttacking) {
++        if (player.isMoving() || player.isJumping() || player.isAttacking()) {
+             if (!animationTimer.isRunning()) {
+                 animationTimer.start();
+             }
+@@ -205,7 +199,7 @@
+             currentFrameIndex = 0;
+         }
+         if (keysPressed.contains(KeyEvent.VK_E)) {
+-            if (doorTouched) {
++            if (player.isTouchingDoor()) {
+                 System.out.println("Entering door...");
+                 LEVEL = 1;
+             }
+@@ -240,20 +234,20 @@
+         int keyHitboxHeight = 50;
+         int dHitboxW = 100;
+         int dHitboxH = 60;
+-        Rectangle characterBox = new Rectangle(characterX - 40, characterY, idle.getWidth(null), idle.getHeight(null));
++        Rectangle characterBox = new Rectangle((int) player.getLocation().getX() - 40, (int) player.getLocation().getY(), idle.getWidth(null), idle.getHeight(null));
+         Rectangle keyBox = new Rectangle(900, 475, keyHitboxWidth, keyHitboxHeight);
+         Rectangle dummyBox = new Rectangle(500, 483, dHitboxH, dHitboxW);
+         if (characterBox.intersects(keyBox)) {
+-            keyObtained = true;
++            player.setKeyObtained(true);
+         }
+-        if (keyObtained) {
++        if (player.hasObtainedKey()) {
+             keyImage = null;
+             drawText(1400, 50, "Key: ");
+             drawImage(gifImage2, 1420, -10, 100, 100);
+         }
+         Rectangle doorBox = new Rectangle(1400, 483, 100, 100);
+-        if (characterBox.intersects(doorBox) && keyObtained) {
+-            doorTouched = true;
++        if (characterBox.intersects(doorBox) && player.hasObtainedKey()) {
++            player.setTouchingDoor(true);
+         }
+         drawText(1400, 50, "Key: ");
+         welcome();
+@@ -261,26 +255,26 @@
+         int windowHeight = height();
+         int yRectangle = windowHeight - rectangleHeight;
+         drawSolidRectangle(0, yRectangle, 1500, rectangleHeight);
+-        if (isAttacking && runFrames != null && runFrames.length > 0) {
+-            Rectangle characterAttackBox = new Rectangle(characterX, characterY, runFrames[currentFrameIndex].getWidth(null), runFrames[currentFrameIndex].getHeight(null));
+-            if (characterAttackBox.intersects(dummyBox) && !attackRegistered) {
++        if (player.isAttacking() && runFrames != null && runFrames.length > 0) {
++            Rectangle characterAttackBox = new Rectangle((int) player.getLocation().getX(), (int) player.getLocation().getY(), runFrames[currentFrameIndex].getWidth(null), runFrames[currentFrameIndex].getHeight(null));
++            if (characterAttackBox.intersects(dummyBox) && !player.hasRegisteredAttack()) {
+                 System.out.println("Hit");
+-                attackRegistered = true;
++                player.setAttackRegistered(true);
+             }
+-            if (isFlipped) {
+-                drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), characterX, characterY);
++            if (player.isFlipping()) {
++                drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), player.getLocation().getX(), player.getLocation().getY());
+             } else {
+-                drawImage(runFrames[currentFrameIndex], characterX, characterY);
++                drawImage(runFrames[currentFrameIndex], player.getLocation().getX(), player.getLocation().getY());
+             }
+         } else {
+-            if (isMoving || isJumping) {
+-                if (isFlipped) {
+-                    drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), characterX, characterY);
++            if (player.isMoving() || player.isJumping()) {
++                if (player.isFlipping()) {
++                    drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), player.getLocation().getX(), player.getLocation().getY());
+                 } else {
+-                    drawImage(runFrames[currentFrameIndex], characterX, characterY);
++                    drawImage(runFrames[currentFrameIndex], player.getLocation().getX(), player.getLocation().getY());
+                 }
+             } else {
+-                drawImage(idle, characterX, characterY);
++                drawImage(idle, player.getLocation().getX(), player.getLocation().getY());
+             }
+         }
+         if (keyImage != null) {
+@@ -290,10 +284,11 @@
+             changeBackgroundColor(Color.BLACK);
+             clearBackground(1500, 800);
+ 
+-            if (characterX == 0 && characterY == idle.getHeight(null) + 480) {
++            if (player.getLocation().getX() == 0 && player.getLocation().getY() == idle.getHeight(null) + 480) {
+                 // Reset character's position only once when entering level 1
+-                characterX = 0;
+-                characterY = idle.getHeight(null) + 480;}
++                player.getLocation().setX(0);
++                player.getLocation().setY(idle.getHeight(null) + 480);
++            }
+             drawImage(bg, 0, 0);
+             drawImage(gifImage, 900, 250, 100, 100);
+ 
+@@ -303,26 +298,26 @@
+ 
+ 
+ 
+-            if (isAttacking && runFrames != null && runFrames.length > 0) {
+-                Rectangle characterAttackBox = new Rectangle(characterX, characterY, runFrames[currentFrameIndex].getWidth(null), runFrames[currentFrameIndex].getHeight(null));
+-                if (characterAttackBox.intersects(dummyBox) && !attackRegistered) {
++            if (player.isAttacking() && runFrames != null && runFrames.length > 0) {
++                Rectangle characterAttackBox = new Rectangle((int) player.getLocation().getX(), (int) player.getLocation().getY(), runFrames[currentFrameIndex].getWidth(null), runFrames[currentFrameIndex].getHeight(null));
++                if (characterAttackBox.intersects(dummyBox) && !player.hasRegisteredAttack()) {
+                     System.out.println("Hit");
+-                    attackRegistered = true;
++                    player.setAttackRegistered(true);
+                 }
+-                if (isFlipped) {
+-                    drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), characterX, characterY);
++                if (player.isFlipping()) {
++                    drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), player.getLocation().getX(), player.getLocation().getY());
+                 } else {
+-                    drawImage(runFrames[currentFrameIndex], characterX, characterY);
++                    drawImage(runFrames[currentFrameIndex], player.getLocation().getX(), player.getLocation().getY());
+                 }
+             } else {
+-                if (isMoving || isJumping) {
+-                    if (isFlipped) {
+-                        drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), characterX, characterY);
++                if (player.isMoving() || player.isJumping()) {
++                    if (player.isFlipping()) {
++                        drawImage(flipImageHorizontal(runFrames[currentFrameIndex]), player.getLocation().getX(), player.getLocation().getY());
+                     } else {
+-                        drawImage(runFrames[currentFrameIndex], characterX, characterY);
++                        drawImage(runFrames[currentFrameIndex], player.getLocation().getX(), player.getLocation().getY());
+                     }
+                 } else {
+-                    drawImage(idle, characterX, characterY);
++                    drawImage(idle, player.getLocation().getX(), player.getLocation().getY());
+                 }
+             }
+         }
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"2eddd844-0aed-4ae2-a631-dc2a2047a78c\" name=\"Changes\" comment=\"Minor changes character physics\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/Game.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/Game.java\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\n      <map>\n        <entry key=\"$PROJECT_DIR$\" value=\"main\" />\n      </map>\n    </option>\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitHubPullRequestSearchHistory\"><![CDATA[{\n  \"lastFilter\": {\n    \"state\": \"OPEN\",\n    \"assignee\": \"Napn117\"\n  }\n}]]></component>\n  <component name=\"GithubPullRequestsUISettings\">\n    <option name=\"selectedUrlAndAccountId\">\n      <UrlAndAccount>\n        <option name=\"accountId\" value=\"f357d519-4445-479d-b24a-7a652e72aceb\" />\n        <option name=\"url\" value=\"https://github.com/slipperytetra/assignment-2-159261.git\" />\n      </UrlAndAccount>\n    </option>\n  </component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;associatedIndex&quot;: 2\n}</component>\n  <component name=\"ProjectId\" id=\"2g5h16J8mXGW5jTwQz78pitWvi7\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\"><![CDATA[{\n  \"keyToString\": {\n    \"Application.Game.executor\": \"Run\",\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\n    \"git-widget-placeholder\": \"napn\",\n    \"kotlin-language-version-configured\": \"true\",\n    \"node.js.detected.package.eslint\": \"true\",\n    \"node.js.detected.package.tslint\": \"true\",\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\n    \"nodejs_package_manager_path\": \"npm\",\n    \"onboarding.tips.debug.path\": \"/Users/coreysmith/Library/Mobile Documents/com~apple~CloudDocs/Massey Uni/2024/159.261 Games Programming/Assignment 2/assignment-2/src/Main.java\",\n    \"project.structure.last.edited\": \"Project\",\n    \"project.structure.proportion\": \"0.15\",\n    \"project.structure.side.proportion\": \"0.0\",\n    \"settings.editor.selected.configurable\": \"org.jetbrains.plugins.github.ui.GithubSettingsConfigurable\",\n    \"vue.rearranger.settings.migration\": \"true\"\n  }\n}]]></component>\n  <component name=\"RunManager\">\n    <configuration name=\"Game\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\n      <option name=\"MAIN_CLASS_NAME\" value=\"Game\" />\n      <module name=\"assignment-2\" />\n      <method v=\"2\">\n        <option name=\"Make\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Application.Game\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SharedIndexes\">\n    <attachedChunks>\n      <set>\n        <option value=\"jdk-18.0.2-corretto-18.0.2-4caba194b151-5720f15e\" />\n        <option value=\"jdk-21.0.2-temurin-21.0.2-4caba194b151-7da56cdf\" />\n      </set>\n    </attachedChunks>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"2eddd844-0aed-4ae2-a631-dc2a2047a78c\" name=\"Changes\" comment=\"\" />\n      <created>1714993127687</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1714993127687</updated>\n      <workItem from=\"1715033291896\" duration=\"29000\" />\n      <workItem from=\"1715033324567\" duration=\"9448000\" />\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"Minor changes character physics\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1715039181605</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1715039181605</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"Minor changes character physics\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1715039497461</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1715039497461</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"3\" />\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <MESSAGE value=\"Minor changes character physics\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Minor changes character physics\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	
++++ b/.idea/workspace.xml	
+@@ -5,6 +5,10 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="2eddd844-0aed-4ae2-a631-dc2a2047a78c" name="Changes" comment="Minor changes character physics">
++      <change afterPath="$PROJECT_DIR$/src/Level.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/Location.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/Player.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
+     </list>
+@@ -13,6 +17,13 @@
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+     <option name="LAST_RESOLUTION" value="IGNORE" />
+   </component>
++  <component name="FileTemplateManagerImpl">
++    <option name="RECENT_TEMPLATES">
++      <list>
++        <option value="Class" />
++      </list>
++    </option>
++  </component>
+   <component name="Git.Settings">
+     <option name="RECENT_BRANCH_BY_REPOSITORY">
+       <map>
+@@ -21,12 +32,12 @@
+     </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
+-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+-  "lastFilter": {
+-    "state": "OPEN",
+-    "assignee": "Napn117"
++  <component name="GitHubPullRequestSearchHistory">{
++  &quot;lastFilter&quot;: {
++    &quot;state&quot;: &quot;OPEN&quot;,
++    &quot;assignee&quot;: &quot;Napn117&quot;
+   }
+-}]]></component>
++}</component>
+   <component name="GithubPullRequestsUISettings">
+     <option name="selectedUrlAndAccountId">
+       <UrlAndAccount>
+@@ -44,26 +55,26 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "Application.Game.executor": "Run",
+-    "RunOnceActivity.OpenProjectViewOnStart": "true",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "git-widget-placeholder": "napn",
+-    "kotlin-language-version-configured": "true",
+-    "node.js.detected.package.eslint": "true",
+-    "node.js.detected.package.tslint": "true",
+-    "node.js.selected.package.eslint": "(autodetect)",
+-    "node.js.selected.package.tslint": "(autodetect)",
+-    "nodejs_package_manager_path": "npm",
+-    "onboarding.tips.debug.path": "/Users/coreysmith/Library/Mobile Documents/com~apple~CloudDocs/Massey Uni/2024/159.261 Games Programming/Assignment 2/assignment-2/src/Main.java",
+-    "project.structure.last.edited": "Project",
+-    "project.structure.proportion": "0.15",
+-    "project.structure.side.proportion": "0.0",
+-    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+-    "vue.rearranger.settings.migration": "true"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;Application.Game.executor&quot;: &quot;Run&quot;,
++    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
++    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;onboarding.tips.debug.path&quot;: &quot;/Users/coreysmith/Library/Mobile Documents/com~apple~CloudDocs/Massey Uni/2024/159.261 Games Programming/Assignment 2/assignment-2/src/Main.java&quot;,
++    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
++    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
++    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+   }
+-}]]></component>
++}</component>
+   <component name="RunManager">
+     <configuration name="Game" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+       <option name="MAIN_CLASS_NAME" value="Game" />
+@@ -95,7 +106,7 @@
+       <option name="presentableId" value="Default" />
+       <updated>1714993127687</updated>
+       <workItem from="1715033291896" duration="29000" />
+-      <workItem from="1715033324567" duration="9448000" />
++      <workItem from="1715033324567" duration="6033000" />
+     </task>
+     <task id="LOCAL-00001" summary="Minor changes character physics">
+       <option name="closed" value="true" />
+@@ -105,15 +116,7 @@
+       <option name="project" value="LOCAL" />
+       <updated>1715039181605</updated>
+     </task>
+-    <task id="LOCAL-00002" summary="Minor changes character physics">
+-      <option name="closed" value="true" />
+-      <created>1715039497461</created>
+-      <option name="number" value="00002" />
+-      <option name="presentableId" value="LOCAL-00002" />
+-      <option name="project" value="LOCAL" />
+-      <updated>1715039497461</updated>
+-    </task>
+-    <option name="localTasksCounter" value="3" />
++    <option name="localTasksCounter" value="2" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
