@@ -200,12 +200,12 @@ public class Game extends GameEngine {
 
 
     private void welcome() {
-        this.drawText(100.0, 100.0, "Welcome to our game!");
-        this.drawText(100.0, 300.0, "Press 'D' to move right and 'A' to move left.");
-        this.drawText(100.0, 330.0, "Hold 'Q' to attack with your sword.");
-        this.drawText(100.0, 360.0, "Press 'Space' to jump!");
-        this.drawText(700.0, 400.0, "Grab key to unlock door to proceed to next level!");
-        this.drawText(1250.0, 450.0, "Press 'E' on door to enter!");
+        this.drawText(100.0, 100.0, "Welcome to our game!",50);
+        this.drawText(100.0, 300.0, "Press 'D' to move right and 'A' to move left.",20);
+        this.drawText(100.0, 330.0, "Hold 'Q' to attack with your sword.",20);
+        this.drawText(100.0, 360.0, "Press 'Space' to jump!",20);
+        this.drawText(700.0, 400.0, "Grab key to unlock door to proceed to next level!",20);
+        this.drawText(1250.0, 450.0, "Press 'E' on door to enter!",20);
     }
 
     public void paintComponent() {
@@ -225,7 +225,7 @@ public class Game extends GameEngine {
 
         if (this.player.hasObtainedKey()) {
             this.keyImage = null;
-            this.drawText(1400.0, 50.0, "Key: ");
+            this.drawText(1400.0, 50.0, "Key: ",20);
             this.drawImage(this.gifImage2, 1420.0, -10.0, 100.0, 100.0);
         }
 
@@ -234,7 +234,7 @@ public class Game extends GameEngine {
             this.player.setTouchingDoor(true);
         }
 
-        this.drawText(1400.0, 50.0, "Key: ");
+        this.drawText(1400.0, 50.0, "Key: ",20);
         this.welcome();
         int rectangleHeight = 50;
         int windowHeight = this.height();
