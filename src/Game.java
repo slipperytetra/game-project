@@ -3,7 +3,9 @@ import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import javax.swing.Timer;
 
 public class Game extends GameEngine {
@@ -37,12 +39,14 @@ public class Game extends GameEngine {
     private double velY;
     private Timer animationTimer;
     private Timer startAnimationTimer;
+    private Set<Integer> keysPressed = new HashSet<>();
 
     public static void main(String args[]) {
         createGame(new Game());
     }
 
     public void update(double dt) {
+        processMovement();
         if (isJumping) {
             // Apply gravity when jumping
             velY += GRAVITY;
@@ -136,70 +140,76 @@ public class Game extends GameEngine {
 
     @Override
     public void keyPressed(KeyEvent event) {
-        super.keyPressed(event);
-        if (event.getKeyCode() == KeyEvent.VK_D) {
-            isMoving = true;
-            isAttacking = false;
-            characterX += 10;
-            if (isJumping) {
-                characterX += 5;
-            }
-            mFrame.repaint();
-            isFlipped = false;
-            loadRunFrames("run");
-            if (!animationTimer.isRunning()) {
-                animationTimer.start();
-            }
-        } else if (event.getKeyCode() == KeyEvent.VK_A) {
-            isMoving = true;
-            isAttacking = false;
-            characterX -= 10;
-            mFrame.repaint();
-            isFlipped = true;
-            loadRunFrames("run");
-            if (!animationTimer.isRunning()) {
-                animationTimer.start();
-            }
-        } else if (event.getKeyCode() == KeyEvent.VK_SPACE) {
-            if (!isJumping) {
-                isJumping = true;
-                jumpAnimation();
-                velY = JUMP_VELOCITY;
-            }
-        } else if (event.getKeyCode() == KeyEvent.VK_Q && !attackRegistered) {
-            isAttacking = true;
-            animationTimer.stop();
-            currentFrameIndex = 0;
-            loadRunFrames("attack");
-            animationTimer.start();
-            attackRegistered = true;
-        }
-        if (event.getKeyCode() == KeyEvent.VK_E) {
-            if (doorTouched) {
-                System.out.println("Entering door...");
-                LEVEL = 1;
-            }
-        }
+        keysPressed.add(event.getKeyCode());
+        processMovement();
     }
 
     @Override
     public void keyReleased(KeyEvent event) {
-        super.keyReleased(event);
-        if (event.getKeyCode() == KeyEvent.VK_D || event.getKeyCode() == KeyEvent.VK_A) {
-            isMoving = false;
-            animationTimer.stop();
-            currentFrameIndex = 0;
-            startAnimationTimer.stop();
-            mFrame.repaint();
-        } else if (event.getKeyCode() == KeyEvent.VK_Q) {
-            System.out.println("Q key released");
-            isAttacking = false;
-            animationTimer.stop();
-            currentFrameIndex = 0;
-            mFrame.repaint();
-            attackRegistered = false;
-        }
+        keysPressed.remove(event.getKeyCode());
+        processMovement();
     }
+
+    private void processMovement() {
+        isMoving = false;
+        isAttacking = false;
+
+        // Movement right
+        if (keysPressed.contains(KeyEvent.VK_D)) {
+            if (!isJumping || isJumping && isMoving) {
+                characterX += 10; // Normal speed on ground
+            } else {
+                characterX += 8; // Reduced speed when starting to move in the air
+            }
+            isMoving = true;
+            isFlipped = false;
+            loadRunFrames("run");
+        }
+
+        // Movement left
+        if (keysPressed.contains(KeyEvent.VK_A)) {
+            if (!isJumping || isJumping && isMoving) {
+                characterX -= 10; // Normal speed on ground
+            } else {
+                characterX -= 8; // Reduced speed when starting to move in the air
+            }
+            isMoving = true;
+            isFlipped = true;
+            loadRunFrames("run");
+        }
+
+        // Handle jumping
+        if (keysPressed.contains(KeyEvent.VK_SPACE) && !isJumping) {
+            isJumping = true;
+            jumpAnimation();
+            velY = JUMP_VELOCITY;
+        }
+
+        // Handling attacking
+        if (keysPressed.contains(KeyEvent.VK_Q) && !attackRegistered) {
+            isAttacking = true;
+            attackRegistered = true;
+            animationTimer.stop();
+            currentFrameIndex = 0;
+            loadRunFrames("attack");
+            animationTimer.start();
+        }
+
+        // Manage animations based on current actions
+        if (isMoving || isJumping || isAttacking) {
+            if (!animationTimer.isRunning()) {
+                animationTimer.start();
+            }
+        } else {
+            animationTimer.stop();
+            currentFrameIndex = 0;
+        }
+
+        mFrame.repaint(); // Refresh the display
+    }
+
+
+
 
     private void welcome() {
         drawText(100, 100, "Welcome to our game!");
