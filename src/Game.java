@@ -28,6 +28,7 @@ public class Game extends GameEngine {
     private Image door;
     private Image dummy;
     private Image keyImage;
+    private Image ground;
     private Image[] runFrames;
     private Image idle;
     private int currentFrameIndex;
@@ -90,6 +91,7 @@ public class Game extends GameEngine {
         this.keyImage = this.loadImage("resources/images/keyy.gif");
         this.floor = this.loadImage("resources/images/floor.png");
         this.door = this.loadImage("resources/images/door.png");
+        this.ground = this.loadImage("resources/images/ground.png");
         this.dummy = this.loadImage("resources/images/dummy.png");
         int rectangleHeight = -50;
         int windowHeight = this.height();
@@ -210,17 +212,17 @@ public class Game extends GameEngine {
 
 
     private void welcome() {
-        this.drawText(100.0, 100.0, "Welcome to our game!",50);
-        this.drawText(100.0, 300.0, "Press 'D' to move right and 'A' to move left.",20);
-        this.drawText(100.0, 330.0, "Hold 'Q' to attack with your sword.",20);
-        this.drawText(100.0, 360.0, "Press 'Space' to jump!",20);
-        this.drawText(700.0, 400.0, "Grab key to unlock door to proceed to next level!",20);
-        this.drawText(1250.0, 450.0, "Press 'E' on door to enter!",20);
+        this.drawText(50.0, 100.0, "Welcome to our game!",50);
+        this.drawText(50.0, 300.0, "Press 'D' to move right and 'A' to move left.",20);
+        this.drawText(50.0, 330.0, "Hold 'Q' to attack with your sword.",20);
+        this.drawText(50.0, 360.0, "Press 'Space' to jump!",20);
+        this.drawText(50.0, 400.0, "Grab key to unlock door to proceed to next level!",20);
+        this.drawText(530.0, 670.0, "Press 'E' on door to enter!",20);
     }
 
     public void paintComponent() {
         this.drawImage(this.bg, 0.0, 0.0);
-        this.drawImage(this.door, lvlManager.DEMO.getDoorLocation().getX(), lvlManager.DEMO.getDoorLocation().getY(), 100.0, 100.0);
+        this.drawImage(this.door, lvlManager.DEMO.getDoorLocation().getX(), lvlManager.DEMO.getDoorLocation().getY(), 105.0, 115.0);
         //this.drawImage(this.dummy, 500.0, 483.0, 100.0, 100.0);
         int keyHitboxWidth = 50;
         int keyHitboxHeight = 50;
@@ -235,7 +237,7 @@ public class Game extends GameEngine {
 
         if (this.player.hasObtainedKey()) {
             this.keyImage = null;
-            this.drawText(1400.0, 50.0, "Key: ",20);
+            this.drawText(700.0, 50.0, "Key: ",20);
             this.drawImage(this.gifImage2, 550, -10.0, 100.0, 100.0);
         }
 
@@ -244,7 +246,7 @@ public class Game extends GameEngine {
             this.player.setTouchingDoor(true);
         }
 
-        this.drawText(500.0, 50.0, "Key: ",20);
+        this.drawText(700.0, 50.0, "Key: ",20);
         this.welcome();
         int rectangleHeight = 50;
         int windowHeight = this.height();
@@ -255,9 +257,10 @@ public class Game extends GameEngine {
         int blockSize = WIDTH / lvlManager.DEMO.getSize();
         for (Block b : lvlManager.DEMO.getBlocks()) {
             if (b instanceof BlockGround) {
-                this.changeColor(b.getColor());
-                this.drawSolidRectangle(b.getLocation().getX(), b.getLocation().getY(), blockSize, blockSize);
-                //System.out.println("Drawing block at: " + b.getLocation().toString());
+                String imagePath = b.getString();
+                Image blockImage = loadImage(imagePath);
+
+                this.drawImage(blockImage, (int) b.getLocation().getX(), (int) b.getLocation().getY(), blockSize, blockSize);
             }
         }
         if (this.player.isAttacking() && this.runFrames != null && this.runFrames.length > 0) {
@@ -281,7 +284,7 @@ public class Game extends GameEngine {
         }
 
         if (this.keyImage != null) {
-            this.drawImage(this.gifImage, lvlManager.DEMO.getKeyLocation().getX(), lvlManager.DEMO.getKeyLocation().getY(), 100.0, 100.0);
+            this.drawImage(this.gifImage, lvlManager.DEMO.getKeyLocation().getX(), lvlManager.DEMO.getKeyLocation().getY(), 80.0, 70.0);
         }
 
         if (this.LEVEL == 1) {
