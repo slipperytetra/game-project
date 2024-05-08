@@ -24,6 +24,7 @@ public class Level {
     Location playerLoc;
     Location keyLoc;
     Location doorLoc;
+    Location plantLoc;
 
     public Level(LevelManager manager, int id, String levelDoc) {
         this.manager = manager;
@@ -71,6 +72,9 @@ public class Level {
                 } else if (line.charAt(x) == 'X') {
                     blocks.add(new BlockGround(new Location(x * scale, relY * scale)));
                 }
+                else if (line.charAt(x) == 'E'){
+                    plantLoc = new Location(x * scale, relY * scale);
+                }
             }
 
             relY++;
@@ -88,6 +92,12 @@ public class Level {
             return;
         }
 
+        if (plantLoc == null){
+            System.out.println("Level error: no door location specified.");
+
+
+        }
+
         System.out.println(playerLoc.toString());
         System.out.println(keyLoc.toString());
         System.out.println(doorLoc.toString());
@@ -100,6 +110,7 @@ public class Level {
     public Location getSpawnPoint() {
         return playerLoc;
     }
+    public Location getPlantLoc() {return plantLoc;}
 
     public Location getKeyLocation() {
         return keyLoc;
