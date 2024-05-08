@@ -12,13 +12,19 @@ public class GameMenu {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(300, 200);
         frame.setLayout(new GridLayout(3, 1));
+        frame.setVisible(true);
+
 
         JButton startGameButton = new JButton("Start Game");
         startGameButton.addActionListener(e -> {
-            frame.setVisible(false);
-            frame.dispose();
+            // Get the reference to the frame containing the button
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(startGameButton);
+            if (parentFrame != null) {
+                parentFrame.dispose();
+            }
             new Game().startGame();
         });
+
 
         JButton infoButton = new JButton("Game Info");
         infoButton.addActionListener(e -> showInfo());
@@ -31,7 +37,6 @@ public class GameMenu {
         frame.add(quitButton);
 
         frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
 
     }
 
