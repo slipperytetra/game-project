@@ -82,6 +82,12 @@ public class Player {
         this.attackRegistered = attackRegistered;
     }
 
+    public void performAction(PlayerAction action) {
+        if (action == PlayerAction.JUMP) {
+
+        }
+    }
+
     public void update() {
     }
 
@@ -92,6 +98,7 @@ public class Player {
     public void setLocation(double x, double y) {
         this.getLocation().setX(x);
         this.getLocation().setY(y);
+        updateCollisionBox();
     }
 
     public void move(double x, double y) {
@@ -109,4 +116,9 @@ public class Player {
     public double getJumpVelocity() {
         return -15.0;
     }
+
+    public void updateCollisionBox() {
+        this.collisionBox.setLocation((int) getLocation().getX(), (int)getLocation().getY());
+    }
+
 }

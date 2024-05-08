@@ -29,6 +29,6 @@ level_data:
   [X............................X]
   [X............................X]
   [X............................X]
-  [XP...K......................DX]
+  [X....P......................DX]
+  [XGXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
   [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
-  [GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG]

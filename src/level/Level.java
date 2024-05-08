@@ -62,23 +62,22 @@ public class Level {
         size = Integer.parseInt(lines.get(2).substring("level_size: ".length()));
         this.grid = new BlockGrid(size, size);
 
-        int scale = Game.WIDTH / getSize();
         int relY = 0;
         for (int y = 4; y < lines.size(); y++) {
             String line = lines.get(y);
             line = line.substring(3);
             for (int x = 0; x < line.length(); x++) {
                 if (line.charAt(x) == 'P') {
-                    playerLoc = new Location(x * scale, relY * scale);
+                    playerLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
                 } else if (line.charAt(x) == 'K') {
-                    keyLoc = new Location(x * scale, relY * scale);
+                    keyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
                 } else if (line.charAt(x) == 'D') {
-                    doorLoc = new Location(x * scale, relY * scale);
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.DOOR, new Location(x, relY)));
+                    doorLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.DOOR, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'X') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.DIRT, new Location(x, relY)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.DIRT, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'G') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.GRASS, new Location(x, relY)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.GRASS, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 }
             }
 
@@ -97,9 +96,9 @@ public class Level {
             return;
         }
 
-        System.out.println(playerLoc.toString());
-        System.out.println(keyLoc.toString());
-        System.out.println(doorLoc.toString());
+        System.out.println("Player: " + playerLoc.toString());
+        System.out.println("Key: " + keyLoc.toString());
+        System.out.println("Door: " + doorLoc.toString());
     }
 
     public int getSize() {
