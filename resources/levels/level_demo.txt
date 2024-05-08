@@ -1,6 +1,7 @@
 name: Demo
 background: resources/images/background.jpg
-level_size: 30
+level_width: 30
+level_height: 30
 level_data:
   [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
   [X............................X]
@@ -29,6 +30,6 @@ level_data:
   [X............................X]
   [X............................X]
   [X............................X]
-  [X....P......................DX]
+  [X....P..........K...........DX]
   [XGXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
   [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]

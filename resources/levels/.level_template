@@ -1,6 +1,7 @@
 name:
 background:
-level_size:
+level_width:
+level_height:
 level_data:
   [...]
   [...]

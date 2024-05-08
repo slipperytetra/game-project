@@ -50,9 +50,6 @@ public class Game extends GameEngine {
                     if (b.getCollisionBox() == null) {
                         continue;
                     }
-                    if (b.getCollisionBox().intersects(player.getCollisionBox())) {
-                        System.out.println("Colliding with " + b.getType().toString());
-                    }
                 }
             }
         }
@@ -65,7 +62,7 @@ public class Game extends GameEngine {
         this.player = new Player();
         this.camera = new Camera(this, player);
         this.lvlManager = new LevelManager(this);
-        this.activeLevel = lvlManager.DEMO;
+        this.activeLevel = lvlManager.DEMO_2;
         this.player.setLocation(lvlManager.DEMO.getSpawnPoint().getX(), lvlManager.DEMO.getSpawnPoint().getY());
         System.out.println("Starting X position: " + this.player.getLocation().getX());
         System.out.println("Starting Y position: " + this.player.getLocation().getY());

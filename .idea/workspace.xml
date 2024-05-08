@@ -5,13 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2eddd844-0aed-4ae2-a631-dc2a2047a78c" name="Changes" comment="Minor changes character physics">
-      <change afterPath="$PROJECT_DIR$/src/main/PlayerAction.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/levels/level_demo_2.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/levels/.level_template" beforeDir="false" afterPath="$PROJECT_DIR$/resources/levels/.level_template" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/levels/level_demo.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/levels/level_demo.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/block/BlockGrid.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/block/BlockGrid.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/level/Level.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/level/Level.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Camera.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Camera.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/level/LevelManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/level/LevelManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Game.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/PlayerAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/PlayerAction.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +65,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "slippy",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/coreysmith/Library/Mobile Documents/com~apple~CloudDocs/Massey Uni/2024/159.261 Games Programming/test-project/src",
+    "last_opened_file_path": "/Users/coreysmith/Library/Mobile Documents/com~apple~CloudDocs/Massey Uni/2024/159.261 Games Programming/test-project/resources/levels",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -79,6 +81,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/resources/levels" />
       <recent name="$PROJECT_DIR$/src" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">

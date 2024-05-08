@@ -20,13 +20,14 @@ public class Level {
 
     int id;
     String name;
-    int size;
+    int sizeWidth;
+    int sizeHeight;
     ArrayList<String> lines;
     BlockGrid grid;
     //ArrayList<block.Block> blocks;
 
     private final String levelDoc;
-    private final double GRAVITY = 0.98;
+    private final double gravity = 1.0;
     Image backgroundImage;
     Location playerLoc;
     Location keyLoc;
@@ -49,9 +50,9 @@ public class Level {
                 lines.add(fileReader.nextLine());
             }
 
-            for (String s : lines) {
+            /*for (String s : lines) {
                 System.out.println(s);
-            }
+            }*/
         } catch (FileNotFoundException e) {
             System.out.println("Couldn't locate file!");
             return;
@@ -59,11 +60,14 @@ public class Level {
 
         name = lines.get(0).substring("name: ".length());
         backgroundImage = manager.getEngine().loadImage(lines.get(1).substring("background: ".length()));
-        size = Integer.parseInt(lines.get(2).substring("level_size: ".length()));
-        this.grid = new BlockGrid(size, size);
+        sizeWidth = Integer.parseInt(lines.get(2).substring("level_width: ".length()));
+        sizeHeight = Integer.parseInt(lines.get(3).substring("level_height: ".length()));
+        System.out.println(sizeWidth);
+        System.out.println(sizeHeight);
+        this.grid = new BlockGrid(sizeWidth, sizeHeight);
 
         int relY = 0;
-        for (int y = 4; y < lines.size(); y++) {
+        for (int y = 5; y < lines.size(); y++) {
             String line = lines.get(y);
             line = line.substring(3);
             for (int x = 0; x < line.length(); x++) {
@@ -101,8 +105,12 @@ public class Level {
         System.out.println("Door: " + doorLoc.toString());
     }
 
-    public int getSize() {
-        return size;
+    public int getWidth() {
+        return sizeWidth;
+    }
+
+    public int getHeight() {
+        return sizeHeight;
     }
 
     public Location getSpawnPoint() {
