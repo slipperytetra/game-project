@@ -71,17 +71,19 @@ public class Game extends GameEngine {
     @Override
     public void keyPressed(KeyEvent event) {
         if (event.getKeyChar() == ' ') {
-            player.setVelocityUp(30);
+            if (player.isOnGround()) {
+                player.setVelocityUp(20);
+            }
         }
 
         if (event.getKeyChar() == 'a') {
             player.setVelocityLeft(10);
-            //System.out.println("Left");
+            System.out.println("Left");
         }
 
         if (event.getKeyChar() == 'd') {
             player.setVelocityRight(10);
-            //System.out.println("Right");
+            System.out.println("Right");
         }
 
         if (event.getKeyChar() == 's') {

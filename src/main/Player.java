@@ -55,22 +55,32 @@ public class Player {
 
     public void update() {
         if (velLeft > 0) {
-            velLeft -= 0.5;
+            velLeft -= 1;
             if (velLeft < 0) {
                 velLeft = 0;
             }
         }
 
         if (velRight > 0) {
-            velRight -= 0.5;
+            velRight -= 1;
             if (velRight < 0) {
                 velRight = 0;
             }
         }
         if (velUp > 0) {
-            velUp -= 0.5;
+            velUp -= 1;
             if (velUp < 0) {
                 velUp = 0;
+            }
+        }
+
+        if (velUp <= 0) {
+            if (!isOnGround()) {
+                if (velDown < 10) {
+                    velDown += 5;
+                }
+            } else {
+                velDown = 0;
             }
         }
         /*if (velDown > 0) {
@@ -78,15 +88,15 @@ public class Player {
             if (velDown < 0) {
                 velDown = 0;
             }
-        }*/
+        }
 
         if (!isOnGround()) {
             if (velDown < 20) {
-                velDown += 1;
+                velDown += 5;
             }
         } else {
             velDown = 0;
-        }
+        }*/
 
         velX = -velLeft + velRight;
         velY = -velUp + velDown;
@@ -94,8 +104,8 @@ public class Player {
         moveY(velY);
         //System.out.println("velLeft: " + -velLeft);
         //System.out.println("velRight: " + velRight);
-        //System.out.println("velX: " + velX);
-        System.out.println("velY: " + velY);
+        System.out.println("velX: " + velX);
+        //System.out.println("velY: " + velY);
         //moveY(velY);
         /*for (int i = 0; i < 5; i++) {
             if (!isOnGround()) {
@@ -264,48 +274,6 @@ public class Player {
         updateCollisionBox();
     }
 
-    public void move(PlayerAction movement, int steps) {
-        int tileLeftY = (int)((getLocation().getY() + 16) / Game.BLOCK_SIZE);
-        if (movement == PlayerAction.MOVE_LEFT) {
-            for (int i = 0; i < steps; i++) {
-                int tileLeftX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
-                Block leftBlock = game.activeLevel.getBlockGrid().getBlockAt(tileLeftX - 1, tileLeftY);
-                if (collidesWith(leftBlock.getCollisionBox())) {
-                    break;
-                }
-
-                this.setLocation(getLocation().getX() - 1, getLocation().getY());
-            }
-        } else if (movement == PlayerAction.MOVE_RIGHT) {
-            for (int i = 0; i < steps; i++) {
-                int tileRightX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
-                Block rightBlock = game.activeLevel.getBlockGrid().getBlockAt(tileRightX + 1, tileLeftY);
-                if (collidesWith(rightBlock.getCollisionBox())) {
-                    break;
-                }
-
-                this.setLocation(getLocation().getX() + 1, getLocation().getY());
-            }
-        } else if (movement == PlayerAction.MOVE_UP) {
-            for (int i = 0; i < steps; i++) {
-                int tileAboveX = (int)((getLocation().getX() + (width / 2)) / Game.BLOCK_SIZE);
-                int tileAboveY = (int)((getLocation().getY() + height) / Game.BLOCK_SIZE);
-                Block aboveBlock = game.activeLevel.getBlockGrid().getBlockAt(tileAboveX, tileAboveY + 1);
-                if (collidesWith(aboveBlock.getCollisionBox())) {
-                    break;
-                }
-
-                this.setLocation(getLocation().getX(), getLocation().getY() - 1);
-            }
-        } else if (movement == PlayerAction.MOVE_DOWN) {
-            for (int i = 0; i < steps; i++) {
-                if (!isOnGround()) {
-                    this.setLocation(getLocation().getX(), getLocation().getY() + 1);
-                }
-            }
-        }
-    }
-
     public void moveX(double x) {
         int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
         int tileY = (int)((getLocation().getY() + 16) / Game.BLOCK_SIZE);
@@ -313,15 +281,17 @@ public class Player {
             for (int i = 0; i < Math.abs(x); i++) {
                 Block leftBlock = game.activeLevel.getBlockGrid().getBlockAt(tileX - 1, tileY);
                 if (collidesWith(leftBlock.getCollisionBox())) {
+                    velLeft = 0;
                     return;
                 }
 
                 this.setLocation(getLocation().getX() - 1, getLocation().getY());
             }
-        } else if (x > 0) { //right
+        } else if (x >= 0) { //right
             for (int i = 0; i < x; i++) {
                 Block rightBlock = game.activeLevel.getBlockGrid().getBlockAt(tileX + 1, tileY);
                 if (collidesWith(rightBlock.getCollisionBox())) {
+                    velRight = 0;
                     return;
                 }
 
