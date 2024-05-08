@@ -3,6 +3,9 @@
 // (powered by FernFlower decompiler)
 //
 
+import java.awt.*;
+import java.awt.image.ImageObserver;
+
 public class Player {
     private Location playerLoc = new Location(0.0, 0.0);
     private boolean isMoving;
@@ -75,6 +78,25 @@ public class Player {
 
     public void update() {
     }
+    public int playerHealth() {
+        // Return the player's current health
+        return health;
+    }
+
+
+    int health = 100;
+
+    public void playerHealth(int amount){
+        // Update player's health by the specified amount
+        health += amount;
+        // Ensure health doesn't exceed maximum value (e.g., 100)
+        if (health > 100) {
+            health = 100;
+        }
+    }
+
+
+
 
     public Location getLocation() {
         return this.playerLoc;

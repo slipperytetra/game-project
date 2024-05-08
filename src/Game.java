@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -23,6 +18,20 @@ public class Game extends GameEngine {
     private int LEVEL = 0;
     private int yRectangle;
     private Image bg;
+    private Image plantMonster;
+    private Image idleMonster;
+    private Image plantMonsterDef;
+    private static final int HEALTH_DECREMENT = 4;
+    // Define the cooldown duration in milliseconds
+    private static final int COOLDOWN_DURATION = 500; // 2 seconds
+
+
+    // Define the health timer and a boolean flag to track cooldown
+    private Timer healthTimer;
+    private boolean isCooldown = false;
+
+
+
     private Image key;
     private Image floor;
     private Image door;
@@ -37,8 +46,11 @@ public class Game extends GameEngine {
     private Timer animationTimer;
     private Timer startAnimationTimer;
     private Set<Integer> keysPressed = new HashSet();
+    private boolean isAttacking;
     Player player;
     Image gifImage = Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif");
+    Image plantAttack = Toolkit.getDefaultToolkit().createImage("resources/images/plantAttack.gif");
+
     Image gifImage2 = Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif");
     Image level1 = Toolkit.getDefaultToolkit().createImage("resources/images/level1.gif");
     LevelManager lvlManager;
@@ -58,15 +70,15 @@ public class Game extends GameEngine {
         if (this.player.isJumping()) {
             this.velY += lvlManager.DEMO.getGravity();
             this.player.moveY(velY);
-            if (this.player.getLocation().getY() >= (double)(this.yRectangle - this.idle.getHeight((ImageObserver)null))) {
-                this.player.getLocation().setY((double)(this.yRectangle - this.idle.getHeight((ImageObserver)null)));
+            if (this.player.getLocation().getY() >= (double) (this.yRectangle - this.idle.getHeight((ImageObserver) null))) {
+                this.player.getLocation().setY((double) (this.yRectangle - this.idle.getHeight((ImageObserver) null)));
                 this.player.setJumping(false);
                 this.velY = 0.0;
             }
         } else {
             this.player.moveY(this.velY);
-            if (this.player.getLocation().getY() > (double)(this.yRectangle - this.idle.getHeight((ImageObserver)null))) {
-                this.player.getLocation().setY((double)(this.yRectangle - this.idle.getHeight((ImageObserver)null)));
+            if (this.player.getLocation().getY() > (double) (this.yRectangle - this.idle.getHeight((ImageObserver) null))) {
+                this.player.getLocation().setY((double) (this.yRectangle - this.idle.getHeight((ImageObserver) null)));
                 this.velY = 0.0;
             }
         }
@@ -80,21 +92,35 @@ public class Game extends GameEngine {
         this.bg = this.loadImage("resources/images/background.jpg");
         this.mRandom = new Random();
         this.loadRunFrames("run");
+        this.idleMonster = this.loadImage("resources/images/plantAttack.gif");
         this.idle = this.loadImage("resources/images/idle.png");
         this.key = this.loadImage("resources/images/key.png");
         this.keyImage = this.loadImage("resources/images/keyy.gif");
         this.floor = this.loadImage("resources/images/floor.png");
         this.door = this.loadImage("resources/images/door.png");
         this.ground = this.loadImage("resources/images/ground.png");
+        this.plantMonster = this.loadImage("resources/images/plantMonster.png");
+        this.plantMonsterDef = this.loadImage("resources/images/plantMonster.png");
+        int keyHitboxWidth = 50;
+        int keyHitboxHeight = 50;
+
         this.dummy = this.loadImage("resources/images/dummy.png");
         int rectangleHeight = -50;
+        Rectangle plantBox = new Rectangle((int) lvlManager.DEMO.getPlantLoc().getX(), (int) lvlManager.DEMO.getPlantLoc().getY(), keyHitboxWidth, keyHitboxHeight);
         int windowHeight = this.height();
         this.yRectangle = windowHeight - rectangleHeight;
-        this.player.setLocation(lvlManager.DEMO.getSpawnPoint().getX(), lvlManager.DEMO.getSpawnPoint().getY());
-        //this.player.getLocation().setX(0.0);
-        //this.player.getLocation().setY((double)(this.idle.getHeight((ImageObserver)null) + 480));
+        this.player.getLocation().setX(10.0);
+        this.player.getLocation().setY(514.0);
+
+
+        //this.player.setLocation(lvlManager.DEMO.getSpawnPoint().getX(), lvlManager.DEMO.getSpawnPoint().getY());
+        System.out.println(lvlManager.DEMO.getSpawnPoint().getY());
+        int playerHeight = this.idle.getHeight((ImageObserver)null); // Get the height of the player's image
+       // this.player.getLocation().setY((double)(windowHeight - playerHeight)); // Set the player's Y position to the bottom of the window
         System.out.println("Starting X position: " + this.player.getLocation().getX());
         System.out.println("Starting Y position: " + this.player.getLocation().getY());
+        Rectangle characterBox = new Rectangle((int) this.player.getLocation().getX() - 10, (int) this.player.getLocation().getY(), this.idle.getWidth((ImageObserver) null), this.idle.getHeight((ImageObserver) null));
+
         this.animationTimer = new Timer(200, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Game.this.currentFrameIndex = (Game.this.currentFrameIndex + 1) % Game.this.runFrames.length;
@@ -108,15 +134,45 @@ public class Game extends GameEngine {
         });
         if (this.LEVEL == 1) {
             this.player.getLocation().setX(0.0);
-            this.player.getLocation().setY((double)(this.idle.getHeight((ImageObserver)null) + 480));
+            this.player.getLocation().setY((double) (this.idle.getHeight((ImageObserver) null) + 480));
         }
 
+        // Initialize the health timer
+        healthTimer = new Timer(COOLDOWN_DURATION, null);
+        healthTimer.setRepeats(false); // Set to false to execute only once
+
+        // ActionListener for health timer
+        healthTimer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Decrement player's health
+                player.playerHealth(-HEALTH_DECREMENT);
+                System.out.println("Player health: " + player.playerHealth());
+                // Set cooldown and stop the timer
+                isCooldown = true;
+                healthTimer.stop();
+                // Start the cooldown timer
+                new Timer(COOLDOWN_DURATION, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        // Reset the cooldown flag
+                        isCooldown = false;
+                        // Restart the health timer if the player is still in contact with the plant
+                        if (characterBox.intersects(plantBox)) {
+                            healthTimer.start();
+                        }
+                    }
+                }).start();
+                // Repaint the frame to update the health display
+                mFrame.repaint();
+            }
+        });
     }
 
     private void loadRunFrames(String prefix) {
         this.runFrames = new Image[4];
 
-        for(int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; ++i) {
             this.runFrames[i] = this.loadImage("resources/images/" + prefix + i + ".png");
         }
 
@@ -203,30 +259,60 @@ public class Game extends GameEngine {
     }
 
 
-
-
     private void welcome() {
-        this.drawText(50.0, 100.0, "Welcome to our game!",50);
-        this.drawText(50.0, 300.0, "Press 'D' to move right and 'A' to move left.",20);
-        this.drawText(50.0, 330.0, "Hold 'Q' to attack with your sword.",20);
-        this.drawText(50.0, 360.0, "Press 'Space' to jump!",20);
-        this.drawText(50.0, 400.0, "Grab key to unlock door to proceed to next level!",20);
-        this.drawText(530.0, 670.0, "Press 'E' on door to enter!",20);
+        this.drawText(50.0, 100.0, "Welcome to our game!", 50);
+        this.drawText(50.0, 300.0, "Press 'D' to move right and 'A' to move left.", 20);
+        this.drawText(50.0, 330.0, "Hold 'Q' to attack with your sword.", 20);
+        this.drawText(50.0, 360.0, "Press 'Space' to jump!", 20);
+        this.drawText(50.0, 400.0, "Grab key to unlock door to proceed to next level!", 20);
+        this.drawText(530.0, 670.0, "Press 'E' on door to enter!", 20);
     }
 
     public void paintComponent() {
         this.drawImage(this.bg, 0.0, 0.0);
         this.drawImage(this.door, lvlManager.DEMO.getDoorLocation().getX(), lvlManager.DEMO.getDoorLocation().getY(), 105.0, 115.0);
+
         //this.drawImage(this.dummy, 500.0, 483.0, 100.0, 100.0);
         int keyHitboxWidth = 50;
         int keyHitboxHeight = 50;
         int dHitboxW = 100;
         int dHitboxH = 60;
-        Rectangle characterBox = new Rectangle((int)this.player.getLocation().getX() - 40, (int)this.player.getLocation().getY(), this.idle.getWidth((ImageObserver)null), this.idle.getHeight((ImageObserver)null));
-        Rectangle keyBox = new Rectangle((int)lvlManager.DEMO.getKeyLocation().getX(), (int)lvlManager.DEMO.getKeyLocation().getY(), keyHitboxWidth, keyHitboxHeight);
+        Rectangle characterBox = new Rectangle((int) this.player.getLocation().getX() - 10, (int) this.player.getLocation().getY(), this.idle.getWidth((ImageObserver) null), this.idle.getHeight((ImageObserver) null));
+        Rectangle keyBox = new Rectangle((int) lvlManager.DEMO.getKeyLocation().getX(), (int) lvlManager.DEMO.getKeyLocation().getY(), keyHitboxWidth, keyHitboxHeight);
         Rectangle dummyBox = new Rectangle(500, 483, dHitboxH, dHitboxW);
+        Rectangle plantBox = new Rectangle((int) lvlManager.DEMO.getPlantLoc().getX(), (int) lvlManager.DEMO.getPlantLoc().getY(), keyHitboxWidth, keyHitboxHeight);
         if (characterBox.intersects(keyBox)) {
             this.player.setKeyObtained(true);
+        }
+
+        // Define a boolean flag to indicate if the plant monster is present
+        boolean isPlantMonsterPresent = true;
+
+        // Inside the plant attack section
+        if (characterBox.intersects(plantBox)) {
+            // Start the health timer if it's not already running and if not on cooldown
+            if (!healthTimer.isRunning() && !isCooldown) {
+                healthTimer.start();
+            }
+            // Draw the plantAttack image
+            this.drawImage(this.plantAttack, lvlManager.DEMO.getPlantLoc().getX(), lvlManager.DEMO.getPlantLoc().getY(), 80.0, 80.0);
+
+            // Set other necessary variables
+            isAttacking = true;
+        } else {
+            // Stop the health timer if it's running
+            if (healthTimer.isRunning()) {
+                healthTimer.stop();
+            }
+            // Draw the plantMonster image
+            if (isPlantMonsterPresent) {
+                this.drawImage(this.idleMonster, lvlManager.DEMO.getPlantLoc().getX(), lvlManager.DEMO.getPlantLoc().getY(), 80.0, 80.0);
+            } else {
+                // Draw some default image or handle the absence of plantMonster
+                // For example, draw a placeholder image or leave it blank
+                this.drawImage(this.plantMonsterDef, lvlManager.DEMO.getPlantLoc().getX(), lvlManager.DEMO.getPlantLoc().getY(), 40.0, 55.0);
+            }
+            isAttacking = false;
         }
 
         if (this.player.hasObtainedKey()) {
@@ -312,15 +398,24 @@ public class Game extends GameEngine {
             } else {
                 this.drawImage(this.runFrames[this.currentFrameIndex], this.player.getLocation().getX(), this.player.getLocation().getY());
             }
+
+            if (this.player.hasObtainedKey()) {
+                this.keyImage = null;
+            }
+
+            if (this.keyImage != null) {
+                this.drawImage(this.gifImage, 1100.0, 450.0, 50.0, 50.0);
+            }
         }
 
     }
 
-    private Image flipImageHorizontal(Image image) {
-        BufferedImage bufferedImage = (BufferedImage)image;
+    private Image flipImageHorizontal(Image img) {
+        BufferedImage bImg = (BufferedImage)img;
         AffineTransform tx = AffineTransform.getScaleInstance(-1.0, 1.0);
-        tx.translate((double)(-bufferedImage.getWidth((ImageObserver)null)), 0.0);
+        tx.translate(-bImg.getWidth(null), 0.0);
         AffineTransformOp op = new AffineTransformOp(tx, 1);
-        return op.filter(bufferedImage, (BufferedImage)null);
+        return op.filter(bImg, (BufferedImage)null);
     }
 }
+
