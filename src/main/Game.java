@@ -59,7 +59,7 @@ public class Game extends GameEngine {
 
     public void init() {
         this.setWindowSize(WIDTH, HEIGHT);
-        this.player = new Player();
+        this.player = new Player(this);
         this.camera = new Camera(this, player);
         this.lvlManager = new LevelManager(this);
         this.activeLevel = lvlManager.DEMO_2;
@@ -71,27 +71,21 @@ public class Game extends GameEngine {
     @Override
     public void keyPressed(KeyEvent event) {
         if (event.getKeyChar() == ' ') {
-            System.out.println("Jump");
+            player.setVelocityUp(30);
         }
 
         if (event.getKeyChar() == 'a') {
-            player.moveX(-8);
-            System.out.println("Left");
+            player.setVelocityLeft(10);
+            //System.out.println("Left");
         }
 
         if (event.getKeyChar() == 'd') {
-            player.moveX(8);
-            System.out.println("Right");
-        }
-
-        if (event.getKeyChar() == 'w') {
-            player.moveY(-8);
-            System.out.println("Up");
+            player.setVelocityRight(10);
+            //System.out.println("Right");
         }
 
         if (event.getKeyChar() == 's') {
-            player.moveY(8);
-            System.out.println("Down");
+            //System.out.println("Down");
         }
     }
 
