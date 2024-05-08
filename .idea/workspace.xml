@@ -5,18 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2eddd844-0aed-4ae2-a631-dc2a2047a78c" name="Changes" comment="Minor changes character physics">
-      <change afterPath="$PROJECT_DIR$/resources/ground.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/images/plant.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/images/plt.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/img.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/img_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/tile_jungle_ground_brown.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/tile_jungle_ground_brown1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/images/img_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/resources/images/ground.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Block.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Block.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/BlockGround.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/BlockGround.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/levels/level_demo.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/levels/level_demo.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -99,14 +89,6 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="jdk-18.0.2-corretto-18.0.2-4caba194b151-5720f15e" />
-        <option value="jdk-21.0.2-temurin-21.0.2-4caba194b151-7da56cdf" />
-      </set>
-    </attachedChunks>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -134,7 +116,15 @@
       <option name="project" value="LOCAL" />
       <updated>1715039497461</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Minor changes character physics">
+      <option name="closed" value="true" />
+      <created>1715138329455</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1715138329455</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
