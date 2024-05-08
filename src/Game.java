@@ -1,7 +1,4 @@
-import java.awt.Color;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -23,12 +20,20 @@ public class Game extends GameEngine {
     private Image plantMonsterDef;
     private static final int HEALTH_DECREMENT = 4;
     // Define the cooldown duration in milliseconds
-    private static final int COOLDOWN_DURATION = 500; // 2 seconds
+    private static final int COOLDOWN_DURATION = 500;
+    private int rectangleWidth = 100;
+    private int rectangleHeight = 15;
+    int health = 100;
+
+    // 2 seconds
 
 
     // Define the health timer and a boolean flag to track cooldown
     private Timer healthTimer;
+
     private boolean isCooldown = false;
+    private JProgressBar healthBar;
+
 
 
 
@@ -39,7 +44,9 @@ public class Game extends GameEngine {
     private Image keyImage;
     private Image ground;
     private Image[] runFrames;
+    private int maxHealth = 100;
     private Image idle;
+
     private int currentFrameIndex;
     private Random mRandom;
     private double velY;
@@ -60,6 +67,7 @@ public class Game extends GameEngine {
 
     public Game() {
         super();
+
         init();
     }
 
@@ -93,6 +101,14 @@ public class Game extends GameEngine {
 
     public void init() {
         this.setWindowSize(WIDTH, HEIGHT);
+        this.healthBar = new JProgressBar(0, maxHealth);
+        this.healthBar.setBounds(100, 25, 100, 10); // Adjust position and size as needed
+        this.healthBar.setForeground(Color.RED); // Set the color
+        this.healthBar.setValue(maxHealth); // Set initial health
+        this.healthBar.setStringPainted(true); // Show health value
+
+
+
         this.player = new Player();
         this.lvlManager = new LevelManager(this);
         this.bg = this.loadImage("resources/images/background.jpg");
@@ -154,6 +170,9 @@ public class Game extends GameEngine {
                 // Decrement player's health
                 player.playerHealth(-HEALTH_DECREMENT);
                 System.out.println("Player health: " + player.playerHealth());
+
+// Update the health bar value
+                healthBar.setValue(player.playerHealth());
                 // Set cooldown and stop the timer
                 isCooldown = true;
                 healthTimer.stop();
@@ -275,18 +294,26 @@ public class Game extends GameEngine {
     }
 
     public void paintComponent() {
+
+
         this.drawImage(this.bg, 0.0, 0.0);
         this.drawImage(this.door, lvlManager.DEMO.getDoorLocation().getX(), lvlManager.DEMO.getDoorLocation().getY(), 105.0, 115.0);
+        drawText(50,35,"Health:",15);
+        drawSolidRectangle(100,22,rectangleWidth,rectangleHeight,Color.RED);
+        drawText(140, 35, Integer.toString(health), 15);
+
+
 
         //this.drawImage(this.dummy, 500.0, 483.0, 100.0, 100.0);
         int keyHitboxWidth = 50;
         int keyHitboxHeight = 50;
+        int plantHeightBox = 30;
         int dHitboxW = 100;
         int dHitboxH = 60;
         Rectangle characterBox = new Rectangle((int) this.player.getLocation().getX() - 10, (int) this.player.getLocation().getY(), this.idle.getWidth((ImageObserver) null), this.idle.getHeight((ImageObserver) null));
         Rectangle keyBox = new Rectangle((int) lvlManager.DEMO.getKeyLocation().getX(), (int) lvlManager.DEMO.getKeyLocation().getY(), keyHitboxWidth, keyHitboxHeight);
         Rectangle dummyBox = new Rectangle(500, 483, dHitboxH, dHitboxW);
-        Rectangle plantBox = new Rectangle((int) lvlManager.DEMO.getPlantLoc().getX(), (int) lvlManager.DEMO.getPlantLoc().getY(), keyHitboxWidth, keyHitboxHeight);
+        Rectangle plantBox = new Rectangle((int) lvlManager.DEMO.getPlantLoc().getX(), (int) lvlManager.DEMO.getPlantLoc().getY(), keyHitboxWidth, plantHeightBox);
         if (characterBox.intersects(keyBox)) {
             this.player.setKeyObtained(true);
         }
@@ -299,6 +326,8 @@ public class Game extends GameEngine {
             // Start the health timer if it's not already running and if not on cooldown
             if (!healthTimer.isRunning() && !isCooldown) {
                 healthTimer.start();
+                rectangleWidth -= 4;
+                health -= 4;
             }
             // Draw the plantAttack image
             this.drawImage(this.plantAttack, lvlManager.DEMO.getPlantLoc().getX(), lvlManager.DEMO.getPlantLoc().getY(), 80.0, 80.0);
@@ -383,8 +412,8 @@ public class Game extends GameEngine {
 
             this.drawImage(this.bg, 0.0, 0.0);
             this.drawImage(this.gifImage, 900.0, 250.0, 100.0, 100.0);
-            this.drawSolidRectangle(0.0, (double)yRectangle, 1500.0, (double)rectangleHeight);
-            this.drawSolidRectangle(100.0, 450.0, 100.0, 25.0);
+            this.drawSolidRectangle(0.0, (double)yRectangle, 1500.0, (double)rectangleHeight,Color.BLACK);
+            this.drawSolidRectangle(100.0, 450.0, 100.0, 25.0,Color.BLACK);
             if (this.player.isAttacking() && this.runFrames != null && this.runFrames.length > 0) {
                 characterAttackBox = new Rectangle((int)this.player.getLocation().getX(), (int)this.player.getLocation().getY(), this.runFrames[this.currentFrameIndex].getWidth((ImageObserver)null), this.runFrames[this.currentFrameIndex].getHeight((ImageObserver)null));
                 if (characterAttackBox.intersects(dummyBox) && !this.player.hasRegisteredAttack()) {

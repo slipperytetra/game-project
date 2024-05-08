@@ -409,10 +409,26 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     }
 
     // This function fills in a rectangle at (x,y) with width and height (w,h)
-    void drawSolidRectangle(double x, double y, double w, double h) {
+    void drawSolidRectangle(double x, double y, double w, double h, Color color) {
+        // Get the current color
+        Color originalColor = mGraphics.getColor();
+
+        // Set the color for drawing the rectangle
+        mGraphics.setColor(color);
+
         // Fill a Rectangle
         mGraphics.fill(new Rectangle2D.Double(x, y, w, h));
+
+        // Reset the color to the original color
+        mGraphics.setColor(originalColor);
     }
+
+
+
+
+
+
+
 
     // This function draws a circle at (x,y) with radius
     void drawCircle(double x, double y, double radius) {
