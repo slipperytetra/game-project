@@ -6,7 +6,9 @@ public class BlockGround extends Block {
     }
 
     @Override
-    public Color getColor() {
-        return Color.yellow;
+    public String getString() {
+        return "resources/images/ground.png";
     }
+
+
 }
