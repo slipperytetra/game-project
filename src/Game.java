@@ -28,6 +28,7 @@ public class Game extends GameEngine {
     private Image door;
     private Image dummy;
     private Image keyImage;
+    private Image ground;
     private Image[] runFrames;
     private Image idle;
     private int currentFrameIndex;
@@ -84,6 +85,7 @@ public class Game extends GameEngine {
         this.keyImage = this.loadImage("resources/images/keyy.gif");
         this.floor = this.loadImage("resources/images/floor.png");
         this.door = this.loadImage("resources/images/door.png");
+        this.ground = this.loadImage("resources/images/ground.png");
         this.dummy = this.loadImage("resources/images/dummy.png");
         int rectangleHeight = -50;
         int windowHeight = this.height();
@@ -249,9 +251,10 @@ public class Game extends GameEngine {
         int blockSize = WIDTH / lvlManager.DEMO.getSize();
         for (Block b : lvlManager.DEMO.getBlocks()) {
             if (b instanceof BlockGround) {
-                this.changeColor(b.getColor());
-                this.drawSolidRectangle(b.getLocation().getX(), b.getLocation().getY(), blockSize, blockSize);
-                //System.out.println("Drawing block at: " + b.getLocation().toString());
+                String imagePath = b.getString();
+                Image blockImage = loadImage(imagePath);
+
+                this.drawImage(blockImage, (int) b.getLocation().getX(), (int) b.getLocation().getY(), blockSize, blockSize);
             }
         }
         if (this.player.isAttacking() && this.runFrames != null && this.runFrames.length > 0) {

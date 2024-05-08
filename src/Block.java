@@ -17,5 +17,5 @@ public abstract class Block {
         this.loc.setY(y);
     }
 
-    public abstract Color getColor();
+    public abstract String getString();
 }
