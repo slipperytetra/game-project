@@ -1,4 +1,4 @@
-//
+package main;//
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by FernFlower decompiler)
 //
@@ -29,6 +29,6 @@ public class Location {
     }
 
     public String toString() {
-        return "Location={x:" + getX() + ", y:" + getY() + "}";
+        return "main.Location={x:" + getX() + ", y:" + getY() + "}";
     }
 }

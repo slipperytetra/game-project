@@ -1,4 +1,4 @@
-P = player
+P = level
 K = key
 D = door
 X = ground block

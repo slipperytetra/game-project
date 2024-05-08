@@ -5,15 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2eddd844-0aed-4ae2-a631-dc2a2047a78c" name="Changes" comment="Minor changes character physics">
-      <change afterPath="$PROJECT_DIR$/resources/levels/.palette.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Block.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/BlockGround.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/levels/.level_template" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/block/Block.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/block/BlockGrid.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/block/BlockSolid.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/block/BlockTypes.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/block/BlockVoid.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/Camera.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/levels/.palette.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/levels/.palette" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/levels/level_demo.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/levels/level_demo.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Level.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Level.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Location.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Location.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Block.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/BlockGround.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Game.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/GameEngine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Level.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/level/Level.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/LevelManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/level/LevelManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Location.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Location.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Player.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,6 +74,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "slippy",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/coreysmith/Library/Mobile Documents/com~apple~CloudDocs/Massey Uni/2024/159.261 Games Programming/test-project/src",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -78,9 +88,18 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="block" />
+      <recent name="" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="Game" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Game" />
+      <option name="MAIN_CLASS_NAME" value="main.Game" />
       <module name="assignment-2" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -88,6 +107,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.Game" />
+        <item itemvalue="Application.Game" />
+        <item itemvalue="Application.Game" />
         <item itemvalue="Application.Game" />
         <item itemvalue="Application.Game" />
       </list>

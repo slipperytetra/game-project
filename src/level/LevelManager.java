@@ -1,3 +1,7 @@
+package level;
+
+import main.GameEngine;
+
 public class LevelManager {
 
     GameEngine engine;
@@ -10,7 +14,7 @@ public class LevelManager {
     }
 
     public void loadLevels() {
-        //Format: *NAME* = new Level(id, spawn_location, key_location)
+        //Format: *NAME* = new level.Level(id, spawn_location, key_location)
         DEMO = new Level(this, 0, "resources/levels/level_demo.txt");
     }
 

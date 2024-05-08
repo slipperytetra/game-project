@@ -1,3 +1,5 @@
+package main;
+
 import java.awt.*;
 import java.awt.geom.*;
 
@@ -15,7 +17,7 @@ import javax.sound.sampled.*;
 
 public abstract class GameEngine implements KeyListener, MouseListener, MouseMotionListener {
     //-------------------------------------------------------
-    // Game Engine Frame and Panel
+    // main.Game Engine Frame and Panel
     //-------------------------------------------------------
     JFrame mFrame;
     GamePanel mPanel;
@@ -135,14 +137,14 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     }
 
     //-------------------------------------------------------
-    // Main Game function
+    // Main main.Game function
     //-------------------------------------------------------
 
     public GameEngine() {
         this(500, 500);
     }
 
-    // GameEngine Constructor
+    // main.GameEngine Constructor
     public GameEngine(int width, int height) {
         // Create graphics transform stack
         mTransforms = new Stack<AffineTransform>();
@@ -161,12 +163,12 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
         });
     }
 
-    // Create Game Function
+    // Create main.Game Function
     public static void createGame(GameEngine game, int framerate) {
-        // Initialise Game
+        // Initialise main.Game
         game.init();
 
-        // Start the Game
+        // Start the main.Game
         game.gameLoop(framerate);
     }
 
@@ -175,7 +177,7 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
         createGame(game, 30);
     }
 
-    // Game Timer
+    // main.Game Timer
     protected class GameTimer extends Timer {
         private static final long serialVersionUID = 1L;
         private int framerate;
@@ -209,15 +211,15 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
             double passedTime = measureTime();
             double dt = passedTime / 1000.;
 
-            // Update the Game
+            // Update the main.Game
             update(dt);
 
-            // Tell the Game to draw
+            // Tell the main.Game to draw
             mPanel.repaint();
         }
     });
 
-    // The GameEngine main Panel
+    // The main.GameEngine main Panel
     protected class GamePanel extends JPanel {
         private static final long serialVersionUID = 1L;
 

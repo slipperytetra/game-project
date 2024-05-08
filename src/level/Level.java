@@ -1,7 +1,13 @@
-//
+package level;//
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by FernFlower decompiler)
 //
+
+import block.BlockGrid;
+import block.BlockSolid;
+import block.BlockTypes;
+import main.Game;
+import main.Location;
 
 import java.awt.*;
 import java.io.File;
@@ -16,7 +22,8 @@ public class Level {
     String name;
     int size;
     ArrayList<String> lines;
-    ArrayList<Block> blocks;
+    BlockGrid grid;
+    //ArrayList<block.Block> blocks;
 
     private final String levelDoc;
     private final double GRAVITY = 0.98;
@@ -30,7 +37,6 @@ public class Level {
         this.id = id;
         this.levelDoc = levelDoc;
         this.lines = new ArrayList<>();
-        this.blocks = new ArrayList<>();
         init();
     }
 
@@ -54,7 +60,7 @@ public class Level {
         name = lines.get(0).substring("name: ".length());
         backgroundImage = manager.getEngine().loadImage(lines.get(1).substring("background: ".length()));
         size = Integer.parseInt(lines.get(2).substring("level_size: ".length()));
-
+        this.grid = new BlockGrid(size, size);
 
         int scale = Game.WIDTH / getSize();
         int relY = 0;
@@ -68,23 +74,26 @@ public class Level {
                     keyLoc = new Location(x * scale, relY * scale);
                 } else if (line.charAt(x) == 'D') {
                     doorLoc = new Location(x * scale, relY * scale);
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.DOOR, new Location(x, relY)));
                 } else if (line.charAt(x) == 'X') {
-                    blocks.add(new BlockGround(new Location(x * scale, relY * scale)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.DIRT, new Location(x, relY)));
+                } else if (line.charAt(x) == 'G') {
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.GRASS, new Location(x, relY)));
                 }
             }
 
             relY++;
         }
         if (playerLoc == null) {
-            System.out.println("Level error: no player location specified.");
+            System.out.println("level.Level error: no player location specified.");
             return;
         }
         if (keyLoc == null) {
-            System.out.println("Level error: no key location specified.");
+            System.out.println("level.Level error: no key location specified.");
             return;
         }
         if (doorLoc == null) {
-            System.out.println("Level error: no door location specified.");
+            System.out.println("level.Level error: no door location specified.");
             return;
         }
 
@@ -113,7 +122,7 @@ public class Level {
         return 0.98;
     }
 
-    public ArrayList<Block> getBlocks() {
-        return blocks;
+    public BlockGrid getBlockGrid() {
+        return grid;
     }
 }

@@ -1,10 +1,12 @@
-//
+package main;//
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by FernFlower decompiler)
 //
 
+import java.awt.*;
+
 public class Player {
-    private Location playerLoc = new Location(0.0, 0.0);
+    private Location playerLoc;
     private boolean isMoving;
     private boolean isFlipped;
     private boolean isJumping;
@@ -13,8 +15,15 @@ public class Player {
     private boolean doorTouched;
     private boolean attackRegistered = false;
     private final double JUMP_VELOCITY = -15.0;
+    private Rectangle collisionBox;
 
     public Player() {
+        this.playerLoc = new Location(0.0, 0.0);
+        this.collisionBox = new Rectangle((int)playerLoc.getX(), (int)playerLoc.getY(), 1, 1);
+    }
+
+    public Rectangle getCollisionBox() {
+        return collisionBox;
     }
 
     public boolean isMoving() {
