@@ -12,7 +12,7 @@ import java.awt.image.ImageObserver;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-import javax.swing.Timer;
+import javax.swing.*;
 
 public class Game extends GameEngine {
     private int LEVEL = 0;
@@ -59,9 +59,15 @@ public class Game extends GameEngine {
     public static int HEIGHT = 800;
 
     public Game() {
+        super();
+        init();
     }
 
     public static void main(String[] args) {
+        SwingUtilities.invokeLater(GameMenu::new);
+    }
+
+    public void startGame(){
         createGame(new Game());
     }
 
