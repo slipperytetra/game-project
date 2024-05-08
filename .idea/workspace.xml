@@ -5,15 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2eddd844-0aed-4ae2-a631-dc2a2047a78c" name="Changes" comment="Minor changes character physics">
-      <change afterPath="$PROJECT_DIR$/resources/levels/level_demo_2.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/levels/.level_template" beforeDir="false" afterPath="$PROJECT_DIR$/resources/levels/.level_template" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/levels/level_demo.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/levels/level_demo.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/block/BlockGrid.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/block/BlockGrid.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/level/Level.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/level/Level.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/level/LevelManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/level/LevelManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/levels/level_demo_2.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/levels/level_demo_2.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Game.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/PlayerAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/PlayerAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Player.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -150,7 +145,15 @@
       <option name="project" value="LOCAL" />
       <updated>1715138030647</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Minor changes character physics">
+      <option name="closed" value="true" />
+      <created>1715151289209</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1715151289209</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -6,6 +6,9 @@ package main;//
 import java.awt.*;
 
 public class Player {
+    private int width = 32;
+    private int height = 64;
+
     private Location playerLoc;
     private boolean isMoving;
     private boolean isFlipped;
@@ -19,7 +22,11 @@ public class Player {
 
     public Player() {
         this.playerLoc = new Location(0.0, 0.0);
-        this.collisionBox = new Rectangle((int)playerLoc.getX(), (int)playerLoc.getY(), 1, 1);
+        this.collisionBox = new Rectangle((int)playerLoc.getX(), (int)playerLoc.getY(), width, height);
+    }
+
+    public void update() {
+
     }
 
     public Rectangle getCollisionBox() {
@@ -86,9 +93,6 @@ public class Player {
         if (action == PlayerAction.JUMP) {
 
         }
-    }
-
-    public void update() {
     }
 
     public Location getLocation() {

@@ -63,7 +63,7 @@ public class Game extends GameEngine {
         this.camera = new Camera(this, player);
         this.lvlManager = new LevelManager(this);
         this.activeLevel = lvlManager.DEMO_2;
-        this.player.setLocation(lvlManager.DEMO.getSpawnPoint().getX(), lvlManager.DEMO.getSpawnPoint().getY());
+        this.player.setLocation(activeLevel.getSpawnPoint().getX(), activeLevel.getSpawnPoint().getY());
         System.out.println("Starting X position: " + this.player.getLocation().getX());
         System.out.println("Starting Y position: " + this.player.getLocation().getY());
     }
@@ -75,22 +75,22 @@ public class Game extends GameEngine {
         }
 
         if (event.getKeyChar() == 'a') {
-            player.moveX(-2);
+            player.moveX(-8);
             System.out.println("Left");
         }
 
         if (event.getKeyChar() == 'd') {
-            player.moveX(2);
+            player.moveX(8);
             System.out.println("Right");
         }
 
         if (event.getKeyChar() == 'w') {
-            player.moveY(-2);
+            player.moveY(-8);
             System.out.println("Up");
         }
 
         if (event.getKeyChar() == 's') {
-            player.moveY(2);
+            player.moveY(8);
             System.out.println("Down");
         }
     }
