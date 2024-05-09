@@ -4,17 +4,17 @@ import java.awt.*;
 
 public enum BlockTypes {
 
-    VOID(0, 0, 0),
-    DIRT(134, 100, 71),
-    GRASS(96, 172, 53),
-    DOOR(102, 48, 16);
+    VOID(""),
+    DIRT("resources/images/blocks/ground.png"),
+    GRASS("resources/images/blocks/ground.png"),
+    DOOR("resources/images/blocks/ground.png");
 
-    private final Color color;
-    BlockTypes(int r, int g, int b) {
-        this.color = new Color(r, g, b);
+    private final String getFilePath;
+    BlockTypes(String getFilePath) {
+        this.getFilePath = getFilePath;
     }
 
-    public Color getColor() {
-        return color;
+    public String getFilePath() {
+        return getFilePath;
     }
 }

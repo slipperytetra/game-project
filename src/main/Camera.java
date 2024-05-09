@@ -1,6 +1,8 @@
 package main;
 
 import block.Block;
+import block.BlockTypes;
+import level.TextMessage;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -52,12 +54,20 @@ public class Camera {
         for (int x = 0; x < game.activeLevel.getBlockGrid().getWidth(); x++) {
             for (int y = 0; y < game.activeLevel.getBlockGrid().getHeight(); y++) {
                 Block b = game.activeLevel.getBlockGrid().getBlocks()[x][y];
+                if (b.getType() == BlockTypes.VOID) {
+                    continue;
+                }
                 if (b.getLocation().getX() > point1.getX() && b.getLocation().getX() < point2.getX()) {
                     if (b.getLocation().getY() > point1.getY() && b.getLocation().getY() < point2.getY()) {
                         double xDiff = b.getLocation().getX() + offsetX;
                         double yDiff = b.getLocation().getY() + offsetY;
-                        game.changeColor(b.getColor());
-                        game.drawSolidRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+                        Image texture = game.getBlockTexture(b.getType());
+                        if (texture == null) {
+                            System.out.println("Null image: " + b.getType().getFilePath());
+                        }
+                        game.drawImage(texture, xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+                        //.changeColor(b.getColor());
+                        //game.drawSolidRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
                     }
                 }
             }
@@ -81,6 +91,31 @@ public class Camera {
         game.drawSolidRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
         game.changeColor(Color.red);
         game.drawRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+
+        for (int i = 0; i < game.activeLevel.getTextMessages().size(); i++) {
+            //System.out.println("Attempting to draw text (" + i + ")");
+            TextMessage txtMsg = game.activeLevel.getTextMessages().get(i);
+            if (txtMsg == null) {
+                //System.out.println("-----it was null.");
+                continue;
+            }
+
+            xDiff = txtMsg.getLocation().getX();
+            yDiff = txtMsg.getLocation().getY();
+            if (!txtMsg.isStatic()) {
+                xDiff += offsetX;
+                yDiff += offsetY;
+            }
+
+            game.changeColor(txtMsg.getColor());
+            if (!txtMsg.isBold()) {
+                //System.out.println("Drawing text '" + txtMsg.getText() + "' at " + txtMsg.getLocation().toString() + ", in Color:" + txtMsg.getColor().toString());
+                game.drawText(xDiff, yDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());
+            } else {
+                //System.out.println("Drawing text '" + txtMsg.getText() + "' at " + txtMsg.getLocation().toString() + ", in Color:" + txtMsg.getColor().toString());
+                game.drawBoldText(xDiff, yDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());
+            }
+        }
         //game.drawImage(game.idle, this.loc.getX(), this.loc.getY());
     }
 

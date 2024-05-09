@@ -20,9 +20,4 @@ public class BlockVoid extends Block {
     public boolean isCollidable() {
         return false;
     }
-
-    @Override
-    public Color getColor() {
-        return Color.pink;
-    }
 }

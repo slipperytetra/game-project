@@ -17,7 +17,9 @@ public abstract class Block {
         collisionBox = new Rectangle((int)loc.getX(), (int)loc.getY(), size, size);
     }
 
-    public abstract Color getColor();
+    public String getFilePath() {
+        return type.getFilePath();
+    }
     public abstract boolean isCollidable();
 
     public Rectangle getCollisionBox() {

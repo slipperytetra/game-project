@@ -13,6 +13,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Level {
@@ -23,7 +24,9 @@ public class Level {
     int sizeWidth;
     int sizeHeight;
     ArrayList<String> lines;
+    HashMap<Integer, TextMessage> textMessages;
     BlockGrid grid;
+    private int textCounter;
     //ArrayList<block.Block> blocks;
 
     private final String levelDoc;
@@ -38,6 +41,7 @@ public class Level {
         this.id = id;
         this.levelDoc = levelDoc;
         this.lines = new ArrayList<>();
+        this.textMessages = new HashMap<>();
         init();
     }
 
@@ -49,10 +53,6 @@ public class Level {
             while (fileReader.hasNextLine()) {
                 lines.add(fileReader.nextLine());
             }
-
-            /*for (String s : lines) {
-                System.out.println(s);
-            }*/
         } catch (FileNotFoundException e) {
             System.out.println("Couldn't locate file!");
             return;
@@ -131,5 +131,18 @@ public class Level {
 
     public BlockGrid getBlockGrid() {
         return grid;
+    }
+
+    public void addTextMessage(TextMessage text) {
+        textMessages.put(textCounter, text);
+        textCounter++;
+    }
+
+    public HashMap<Integer, TextMessage> getTextMessages() {
+        return textMessages;
+    }
+
+    public void clearTextMessages() {
+        textMessages.clear();
     }
 }

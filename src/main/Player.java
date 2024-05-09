@@ -62,7 +62,7 @@ public class Player {
             velX += accelX * dt;
         }
         velY += accelY * dt;
-        System.out.println("dt: " + velX);
+        //System.out.println("dt: " + velX);
 
         /*if (isJumping) {
             if (jumpTimer > 20) {

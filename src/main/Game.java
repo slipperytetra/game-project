@@ -4,10 +4,13 @@ package main;//
 //
 
 import block.Block;
+import block.BlockTypes;
 import level.Level;
 import level.LevelManager;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 
 public class Game extends GameEngine {
     public static int BLOCK_SIZE = 32;
@@ -17,6 +20,7 @@ public class Game extends GameEngine {
     public long timeSinceLastFrame;
     public long lastTime;
     public long currentTime;
+    public HashMap<BlockTypes, Image> imageBank;
 
     Player player;
     LevelManager lvlManager;
@@ -28,6 +32,22 @@ public class Game extends GameEngine {
 
     public static void main(String[] args) {
         createGame(new Game());
+    }
+
+    public void init() {
+        this.imageBank = new HashMap<>();
+        loadBlockImages();
+
+        this.setWindowSize(WIDTH, HEIGHT);
+        this.player = new Player(this);
+        this.camera = new Camera(this, player);
+        this.lvlManager = new LevelManager(this);
+        this.activeLevel = lvlManager.DEMO;
+        this.player.setLocation(activeLevel.getSpawnPoint().getX(), activeLevel.getSpawnPoint().getY());
+
+
+        System.out.println("Starting X position: " + this.player.getLocation().getX());
+        System.out.println("Starting Y position: " + this.player.getLocation().getY());
     }
 
     public void update(double dt) {
@@ -48,17 +68,6 @@ public class Game extends GameEngine {
         }
 
         player.update(dt);
-    }
-
-    public void init() {
-        this.setWindowSize(WIDTH, HEIGHT);
-        this.player = new Player(this);
-        this.camera = new Camera(this, player);
-        this.lvlManager = new LevelManager(this);
-        this.activeLevel = lvlManager.DEMO_2;
-        this.player.setLocation(activeLevel.getSpawnPoint().getX(), activeLevel.getSpawnPoint().getY());
-        System.out.println("Starting X position: " + this.player.getLocation().getX());
-        System.out.println("Starting Y position: " + this.player.getLocation().getY());
     }
 
     public void paintComponent() {
@@ -94,5 +103,24 @@ public class Game extends GameEngine {
             player.accelX = 0;
             player.velX = 0;
         }
+    }
+
+    public void loadBlockImages() {
+        for (BlockTypes type : BlockTypes.values()) {
+            if (type == BlockTypes.VOID) {
+                continue;
+            }
+
+            System.out.println();
+            imageBank.put(type, loadImage(type.getFilePath()));
+        }
+    }
+
+    public Image getBlockTexture(BlockTypes type) {
+        if (type == BlockTypes.VOID) {
+            return null;
+        }
+
+        return imageBank.get(type);
     }
 }

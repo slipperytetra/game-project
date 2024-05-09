@@ -11,11 +11,6 @@ public class BlockSolid extends Block {
     }
 
     @Override
-    public Color getColor() {
-        return type.getColor();
-    }
-
-    @Override
     public boolean isCollidable() {
         return true;
     }
