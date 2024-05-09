@@ -27,7 +27,7 @@ public class Level {
     //ArrayList<block.Block> blocks;
 
     private final String levelDoc;
-    private final double gravity = 1.0;
+    public final double gravity = 9.8;
     Image backgroundImage;
     Location playerLoc;
     Location keyLoc;

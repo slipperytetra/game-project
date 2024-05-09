@@ -34,7 +34,7 @@ public class Game extends GameEngine {
         lastTime = currentTime;
         currentTime = System.currentTimeMillis();
         timeSinceLastFrame = currentTime - lastTime;
-
+        //System.out.println("dt: " + dt);
         this.camera.update();
         for (int x = 0; x < activeLevel.getBlockGrid().getWidth(); x++) {
             for (int y = 0; y < activeLevel.getBlockGrid().getHeight(); y++) {
@@ -47,7 +47,7 @@ public class Game extends GameEngine {
             }
         }
 
-        player.update(currentTime, lastTime, timeSinceLastFrame);
+        player.update(dt);
     }
 
     public void init() {
@@ -61,20 +61,26 @@ public class Game extends GameEngine {
         System.out.println("Starting Y position: " + this.player.getLocation().getY());
     }
 
+    public void paintComponent() {
+        this.clearBackground(width(), height());
+        camera.draw();
+        translate(150, 150);
+    }
+
     @Override
     public void keyPressed(KeyEvent event) {
         if (event.getKeyChar() == ' ') {
             if (player.isOnGround()) {
-                player.setJumping(true);
+                player.jump();
             }
         }
 
         if (event.getKeyChar() == 'a') {
-            player.movementX = -4;
+            player.accelX = -1000;
         }
 
         if (event.getKeyChar() == 'd') {
-            player.movementX = 4;
+            player.accelX = 1000;
         }
 
         if (event.getKeyChar() == 's') {
@@ -85,11 +91,8 @@ public class Game extends GameEngine {
     @Override
     public void keyReleased(KeyEvent event) {
         if (event.getKeyChar() == 'a' || event.getKeyChar() == 'd') {
-            player.movementX = 0;
+            player.accelX = 0;
+            player.velX = 0;
         }
-    }
-
-    public void paintComponent() {
-        camera.draw();
     }
 }

@@ -26,7 +26,12 @@ public class Player {
     private int moveCooldown;
     public int movementX, movementY;
     private int moveCounter = 0;
-    private double velLeft, velRight, velUp, velDown, velX, velY;
+    public double velLeft, velRight, velUp, velDown, velX, velY;
+
+
+    double maxSpeed = 350.0;
+    public double accelX, accelY;
+    double C = 0.5;
 
     int jumpTimer;
 
@@ -52,28 +57,30 @@ public class Player {
         level1 = Toolkit.getDefaultToolkit().createImage("resources/images/level1.gif");
     }
 
-    public void update(long current, long last, long diff) {
-        System.out.println("Last: " + last + ", Current: " + current + ", Diff: " + diff);
+    public void update(double dt) {
+        if (velX < maxSpeed) {
+            velX += accelX * dt;
+        }
+        velY += accelY * dt;
+        System.out.println("dt: " + velX);
 
-        updateMovementX();
-        updateMovementY();
-
-
-        if (isJumping) {
-            movementY = -3;
+        /*if (isJumping) {
             if (jumpTimer > 20) {
-                this.isJumping = false;
+                isJumping = false;
+                jumpTimer = 0;
+                accelY = 0;
+                velY = 0;
             }
             jumpTimer++;
-        }
+        }*/
 
-        if (!isJumping) {
-            if (isOnGround()) {
-                movementY = 0;
-            } else {
-                movementY = 2;
-            }
-        }
+        setLocation(getLocation().getX() + (velX * dt), getLocation().getY() + (velY * dt));
+    }
+
+    public void jump() {
+        this.setJumping(true);
+        this.jumpTimer = 0;
+        accelY = -1000;
     }
 
     public void updateMovementX() {
