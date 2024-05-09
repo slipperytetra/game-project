@@ -61,7 +61,7 @@ public class Camera {
                     if (b.getLocation().getY() > point1.getY() && b.getLocation().getY() < point2.getY()) {
                         double xDiff = b.getLocation().getX() + offsetX;
                         double yDiff = b.getLocation().getY() + offsetY;
-                        Image texture = game.getBlockTexture(b.getType());
+                        Image texture = game.getTexture(b.getType().toString());
                         if (texture == null) {
                             System.out.println("Null image: " + b.getType().getFilePath());
                         }
@@ -87,8 +87,9 @@ public class Camera {
         }
         double xDiff = player.getLocation().getX() + offsetX;
         double yDiff = player.getLocation().getY() + offsetY;
-        game.changeColor(Color.pink);
-        game.drawSolidRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+        //game.changeColor(Color.pink);
+        //game.drawSolidRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+        game.drawImage(game.getTexture("player"), xDiff, yDiff);
         game.changeColor(Color.red);
         game.drawRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
 

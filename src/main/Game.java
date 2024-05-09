@@ -20,7 +20,7 @@ public class Game extends GameEngine {
     public long timeSinceLastFrame;
     public long lastTime;
     public long currentTime;
-    public HashMap<BlockTypes, Image> imageBank;
+    public HashMap<String, Image> imageBank;
 
     Player player;
     LevelManager lvlManager;
@@ -37,6 +37,7 @@ public class Game extends GameEngine {
     public void init() {
         this.imageBank = new HashMap<>();
         loadBlockImages();
+        loadCharacterImages();
 
         this.setWindowSize(WIDTH, HEIGHT);
         this.player = new Player(this);
@@ -112,15 +113,15 @@ public class Game extends GameEngine {
             }
 
             System.out.println();
-            imageBank.put(type, loadImage(type.getFilePath()));
+            imageBank.put(type.toString(), loadImage(type.getFilePath()));
         }
     }
 
-    public Image getBlockTexture(BlockTypes type) {
-        if (type == BlockTypes.VOID) {
-            return null;
-        }
+    public void loadCharacterImages() {
+        imageBank.put("player", loadImage("resources/images/characters/idle.png"));
+    }
 
-        return imageBank.get(type);
+    public Image getTexture(String textureName) {
+        return imageBank.get(textureName);
     }
 }
