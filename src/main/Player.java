@@ -4,7 +4,6 @@ package main;//
 //
 
 import block.Block;
-import block.BlockVoid;
 
 import java.awt.*;
 
@@ -25,7 +24,7 @@ public class Player {
     int jumpSpeed = 15;
     private Rectangle collisionBox;
     private int moveCooldown;
-    private int moveSpeed = 8;
+    public int movementX, movementY;
     private int moveCounter = 0;
     private double velLeft, velRight, velUp, velDown, velX, velY;
 
@@ -53,76 +52,68 @@ public class Player {
         level1 = Toolkit.getDefaultToolkit().createImage("resources/images/level1.gif");
     }
 
-    public void update() {
-        if (velLeft > 0) {
-            velLeft -= 1;
-            if (velLeft < 0) {
-                velLeft = 0;
-            }
-        }
+    public void update(long current, long last, long diff) {
+        System.out.println("Last: " + last + ", Current: " + current + ", Diff: " + diff);
 
-        if (velRight > 0) {
-            velRight -= 1;
-            if (velRight < 0) {
-                velRight = 0;
-            }
-        }
-        if (velUp > 0) {
-            velUp -= 1;
-            if (velUp < 0) {
-                velUp = 0;
-            }
-        }
+        updateMovementX();
+        updateMovementY();
 
-        if (velUp <= 0) {
-            if (!isOnGround()) {
-                if (velDown < 10) {
-                    velDown += 5;
-                }
-            } else {
-                velDown = 0;
-            }
-        }
-        /*if (velDown > 0) {
-            velDown -= 0.75;
-            if (velDown < 0) {
-                velDown = 0;
-            }
-        }
-
-        if (!isOnGround()) {
-            if (velDown < 20) {
-                velDown += 5;
-            }
-        } else {
-            velDown = 0;
-        }*/
-
-        velX = -velLeft + velRight;
-        velY = -velUp + velDown;
-        moveX(velX);
-        moveY(velY);
-        //System.out.println("velLeft: " + -velLeft);
-        //System.out.println("velRight: " + velRight);
-        System.out.println("velX: " + velX);
-        //System.out.println("velY: " + velY);
-        //moveY(velY);
-        /*for (int i = 0; i < 5; i++) {
-            if (!isOnGround()) {
-                move(PlayerAction.MOVE_DOWN, 1);
-            }
-        }
 
         if (isJumping) {
-            move(PlayerAction.MOVE_UP, 16);
-            jumpTimer++;
-            if (jumpTimer > 10) {
-                isJumping = false;
+            movementY = -3;
+            if (jumpTimer > 20) {
+                this.isJumping = false;
             }
-        }*/
+            jumpTimer++;
+        }
 
-        //System.out.println(getLocation().toString());
-        //System.out.println(getTileLocation().toString());
+        if (!isJumping) {
+            if (isOnGround()) {
+                movementY = 0;
+            } else {
+                movementY = 2;
+            }
+        }
+    }
+
+    public void updateMovementX() {
+        if (movementX != 0) {
+            double moveX = movementX;
+            if (!isOnGround()) {
+                moveX = movementX * 1.5;
+            }
+            double locX = getLocation().getX();
+            double locY = getLocation().getY();
+
+            double moveAmount = (double) game.timeSinceLastFrame / moveX;
+            locX += moveAmount;
+            setLocation(locX, locY);
+        }
+    }
+
+    public void updateMovementY() {
+        if (movementY != 0) {
+            double locX = getLocation().getX();
+            double locY = getLocation().getY();
+
+            double moveAmount = (double) game.timeSinceLastFrame / movementY;
+            locY += moveAmount;
+            setLocation(locX, locY);
+        }
+    }
+
+    public void newMove(int direction, int steps) {
+        if (direction == 0) { //left
+            velX = velX - steps;
+        } else if (direction == 1) { //right
+            velX = velX + steps;
+        } else if (direction == 2) { //up
+            velY = velY - steps;
+        } else if (direction == 3) { //down
+            velY = velY + steps;
+        }
+
+        setLocation(getLocation().getX() + velX, getLocation().getY() + velY);
     }
 
     public void setVelocityLeft(double vel) {
@@ -200,6 +191,7 @@ public class Player {
 
     public void setJumping(boolean isJumping) {
         this.isJumping = isJumping;
+        this.jumpTimer = 0;
     }
 
     public boolean isAttacking() {

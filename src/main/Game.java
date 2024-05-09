@@ -4,30 +4,19 @@ package main;//
 //
 
 import block.Block;
-import block.BlockTypes;
 import level.Level;
 import level.LevelManager;
 
-import java.awt.Color;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
-import javax.swing.Timer;
 
 public class Game extends GameEngine {
     public static int BLOCK_SIZE = 32;
     public static int WIDTH = 600;
     public static int HEIGHT = 600;
+    public static int FRAME_RATE = 60;
+    public long timeSinceLastFrame;
+    public long lastTime;
+    public long currentTime;
 
     Player player;
     LevelManager lvlManager;
@@ -42,6 +31,10 @@ public class Game extends GameEngine {
     }
 
     public void update(double dt) {
+        lastTime = currentTime;
+        currentTime = System.currentTimeMillis();
+        timeSinceLastFrame = currentTime - lastTime;
+
         this.camera.update();
         for (int x = 0; x < activeLevel.getBlockGrid().getWidth(); x++) {
             for (int y = 0; y < activeLevel.getBlockGrid().getHeight(); y++) {
@@ -54,7 +47,7 @@ public class Game extends GameEngine {
             }
         }
 
-        player.update();
+        player.update(currentTime, lastTime, timeSinceLastFrame);
     }
 
     public void init() {
@@ -72,22 +65,27 @@ public class Game extends GameEngine {
     public void keyPressed(KeyEvent event) {
         if (event.getKeyChar() == ' ') {
             if (player.isOnGround()) {
-                player.setVelocityUp(20);
+                player.setJumping(true);
             }
         }
 
         if (event.getKeyChar() == 'a') {
-            player.setVelocityLeft(10);
-            System.out.println("Left");
+            player.movementX = -4;
         }
 
         if (event.getKeyChar() == 'd') {
-            player.setVelocityRight(10);
-            System.out.println("Right");
+            player.movementX = 4;
         }
 
         if (event.getKeyChar() == 's') {
             //System.out.println("Down");
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent event) {
+        if (event.getKeyChar() == 'a' || event.getKeyChar() == 'd') {
+            player.movementX = 0;
         }
     }
 
