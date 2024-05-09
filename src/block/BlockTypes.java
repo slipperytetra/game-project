@@ -5,9 +5,9 @@ import java.awt.*;
 public enum BlockTypes {
 
     VOID(""),
-    DIRT("resources/images/blocks/ground.png"),
-    GRASS("resources/images/blocks/ground.png"),
-    DOOR("resources/images/blocks/ground.png");
+    DIRT("resources/images/ground.png"),
+    GRASS("resources/images/ground.png"),
+    DOOR("resources/images/ground.png");
 
     private final String getFilePath;
     BlockTypes(String getFilePath) {
