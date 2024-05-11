@@ -33,6 +33,8 @@ public class Player {
     double speed = 256; // pixels per second
     public int directionX, directionY;
 
+    public double testLeftX, testLeftY, testRightX, testRightY;
+
 
     double maxSpeed = 350.0;
     public double accelX, accelY;
@@ -73,6 +75,7 @@ public class Player {
         moveY(directionY * (speed * dt));
 
         if (!isOnGround()) {
+            System.out.println("Not on ground");
             directionY = 1;
         }
         //setLocation(pMoveX, getLocation().getY());
@@ -199,13 +202,21 @@ public class Player {
 
     public boolean isOnGround() {
         int tileLeftX = (int)(getLocation().getX() / Game.BLOCK_SIZE);
-        int tileLeftY = (int)((getLocation().getY()) / Game.BLOCK_SIZE);
+        int tileLeftY = (int)((getLocation().getY() + getHeight()) / Game.BLOCK_SIZE);
 
-        int tileRightX = (int)((getLocation().getX() + 24) / Game.BLOCK_SIZE);
-        int tileRightY = (int)((getLocation().getY()) / Game.BLOCK_SIZE);
+        int tileRightX = (int)((getLocation().getX() + getWidth()) / Game.BLOCK_SIZE);
+        int tileRightY = (int)((getLocation().getY() + getHeight()) / Game.BLOCK_SIZE);
+
+        this.testLeftX = tileLeftX;
+        this.testLeftY = tileLeftY;
+        this.testRightX = tileRightX;
+        this.testRightY = tileRightY;
 
         Block leftBlockBelowPlayer = game.activeLevel.getBlockGrid().getBlockAt(tileLeftX, tileLeftY + 1);
         Block rightBlockBelowPlayer = game.activeLevel.getBlockGrid().getBlockAt(tileRightX, tileRightY + 1);
+
+        System.out.println("Left block: " + leftBlockBelowPlayer.getType().toString() + " (" + tileLeftX + ", " + tileLeftY + ")");
+        System.out.println("Right block: " + rightBlockBelowPlayer.getType().toString() + " (" + tileRightX + ", " + tileRightY + ")");
 
         if (leftBlockBelowPlayer.getCollisionBox() != null) {
             if (collidesWith(leftBlockBelowPlayer.getCollisionBox()) && leftBlockBelowPlayer.isCollidable()) {
