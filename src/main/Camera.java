@@ -94,8 +94,8 @@ public class Camera {
             game.drawImage(game.getTexture("player_flipped"), zoom *xDiff, zoom *yDiff, zoom *player.getWidth(), zoom *player.getHeight());
         }
         game.changeColor(Color.magenta);
-        game.drawRectangle(player.testLeftX, player.testLeftY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-        game.drawRectangle(player.testRightX, player.testRightY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+        game.drawRectangle(player.testLeftX + offsetX, player.testLeftY + offsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+        game.drawRectangle(player.testRightX + offsetX, player.testRightY + offsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
 
         game.changeColor(Color.red);
         game.drawRectangle(zoom *xDiff, zoom *yDiff, zoom *player.getWidth(), zoom *player.getHeight());
