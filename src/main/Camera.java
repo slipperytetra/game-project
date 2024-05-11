@@ -13,6 +13,7 @@ public class Camera {
     public Player player;
     public int[][] pixels;
     public double zoom = 1.0;
+    public boolean showHitboxes;
 
     public Camera(Game game, Player p) {
         this.game = game;
@@ -65,12 +66,15 @@ public class Camera {
                             System.out.println("Null image: " + b.getType().getFilePath());
                         }
                         game.drawImage(texture, zoom *xDiff, zoom *yDiff, zoom *Game.BLOCK_SIZE, zoom *Game.BLOCK_SIZE);
-                        //.changeColor(b.getColor());
-                        //game.drawSolidRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+                        if (showHitboxes) {
+                            game.changeColor(Color.GREEN);
+                            game.drawRectangle(zoom * xDiff, zoom *yDiff, zoom *Game.BLOCK_SIZE, zoom *Game.BLOCK_SIZE);
+                        }
                     }
                 }
             }
         }
+        /*
         for (int x = 0; x < game.activeLevel.getBlockGrid().getWidth(); x++) {
             for (int y = 0; y < game.activeLevel.getBlockGrid().getHeight(); y++) {
                 Block b = game.activeLevel.getBlockGrid().getBlocks()[x][y];
@@ -83,7 +87,7 @@ public class Camera {
                     }
                 }
             }
-        }
+        }*/
         double xDiff = player.getLocation().getX() + offsetX;
         double yDiff = player.getLocation().getY() + offsetY;
         //game.changeColor(Color.pink);
@@ -93,12 +97,15 @@ public class Camera {
         } else {
             game.drawImage(game.getTexture("player_flipped"), zoom *xDiff, zoom *yDiff, zoom *player.getWidth(), zoom *player.getHeight());
         }
-        game.changeColor(Color.magenta);
-        game.drawRectangle(player.testLeftX + offsetX, player.testLeftY + offsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-        game.drawRectangle(player.testRightX + offsetX, player.testRightY + offsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
 
-        game.changeColor(Color.red);
-        game.drawRectangle(zoom *xDiff, zoom *yDiff, zoom *player.getWidth(), zoom *player.getHeight());
+        if (showHitboxes) {
+            game.changeColor(Color.magenta);
+            game.drawRectangle(player.testLeftX + offsetX, player.testLeftY + offsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+            game.drawRectangle(player.testRightX + offsetX, player.testRightY + offsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+
+            game.changeColor(Color.red);
+            game.drawRectangle(zoom * xDiff, zoom * yDiff, zoom * player.hitboxWidth, zoom * player.hitboxHeight);
+        }
 
         for (int i = 0; i < game.activeLevel.getTextMessages().size(); i++) {
             //System.out.println("Attempting to draw text (" + i + ")");

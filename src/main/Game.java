@@ -79,8 +79,10 @@ public class Game extends GameEngine {
 
     public void paintComponent() {
         this.clearBackground(width(), height());
+        if (imageBank.containsKey("background")) {
+            this.drawImage(imageBank.get("background"), 0, 0, this.width(), this.height());
+        }
         camera.draw();
-        translate(150, 150);
     }
 
     @Override
@@ -91,6 +93,17 @@ public class Game extends GameEngine {
     @Override
     public void keyReleased(KeyEvent event) {
         this.keysPressed.remove(event.getKeyCode());
+        if (event.getKeyCode() == 72) {
+            camera.showHitboxes = !camera.showHitboxes;
+        }
+
+        if (event.getKeyCode() == 65 || event.getKeyCode() == 68) {
+            player.directionX = 0;
+        }
+
+        if (event.getKeyCode() == 83 || event.getKeyCode() == 87) {
+            player.directionY = 0;
+        }
     }
 
     public void playerMovement() {
@@ -100,7 +113,10 @@ public class Game extends GameEngine {
             }
         }
         if (this.keysPressed.contains(87)) {//W
-            player.directionY = -1;
+            Block b = player.getBlockAtLocation();
+            if (b.getType() == BlockTypes.LADDER) {
+                player.directionY = -1;
+            }
         }
         if (this.keysPressed.contains(65)) {//A
             player.directionX = -1;
@@ -113,14 +129,6 @@ public class Game extends GameEngine {
         if (this.keysPressed.contains(68)) {//D
             player.directionX = 1;
             player.setFlipped(true);
-        }
-
-        if (!this.keysPressed.contains(65) && !this.keysPressed.contains(68)) {
-            player.directionX = 0;
-        }
-
-        if (!this.keysPressed.contains(83) && !this.keysPressed.contains(87)) {
-            player.directionY = 0;
         }
     }
 

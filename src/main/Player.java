@@ -4,14 +4,17 @@ package main;//
 //
 
 import block.Block;
+import block.BlockClimbable;
 import block.BlockTypes;
 
 import java.awt.*;
 
 public class Player {
     Game game;
-    private int width = 19;
-    private int height = 29;
+    private int imgWidth = 19;
+    private int imgHeight = 29;
+    public int hitboxWidth = 16;
+    public int hitboxHeight = 29;
     private int scale = 2;
 
     private Location playerLoc;
@@ -31,12 +34,13 @@ public class Player {
     public double velLeft, velRight, velUp, velDown, velX, velY;
 
     double speed = 256; // pixels per second
-    public int directionX, directionY;
+    double fallSpeed = 512; // pixels per second
+    public double directionX, directionY;
 
     public double testLeftX, testLeftY, testRightX, testRightY;
 
 
-    double maxSpeed = 350.0;
+    double fallAccel;
     public double accelX, accelY;
     double C = 0.5;
 
@@ -53,9 +57,11 @@ public class Player {
     public Player(Game game) {
         this.game = game;
         this.playerLoc = new Location(64.0, 64.0);
-        this.width *= scale;
-        this.height *= scale;
-        this.collisionBox = new Rectangle((int)playerLoc.getX(), (int)playerLoc.getY(), width, height);
+        this.imgWidth *= scale;
+        this.imgHeight *= scale;
+        this.hitboxWidth *= scale;
+        this.hitboxHeight *= scale;
+        this.collisionBox = new Rectangle((int)playerLoc.getX(), (int)playerLoc.getY(), imgWidth, imgHeight);
 
         init();
     }
@@ -69,16 +75,21 @@ public class Player {
     }
 
     public void update(double dt) {
-        //pMoveX = getLocation().getX() + (directionX * (speed * dt));
-        //System.out.println("MoveX: " + pMoveX);
         moveX(directionX * (speed * dt));
         moveY(directionY * (speed * dt));
 
-        if (!isOnGround()) {
-            System.out.println("Not on ground");
-            directionY = 1;
+        if (isFalling()) {
+            if (fallAccel > 0) {
+                fallAccel *= 1.1;
+                directionY = 1 * fallAccel;
+            }
+        } else {
+            fallAccel = 1;
         }
-        //setLocation(pMoveX, getLocation().getY());
+    }
+
+    public boolean isFalling() {
+        return !isOnGround() && !canClimb();
     }
 
     public Block getBlockAtLocation() {
@@ -122,20 +133,19 @@ public class Player {
                     break;
                 }
 
-
-                Block b = getBlockAtLocation();
-                if (b.getType() == BlockTypes.LADDER) {
-                    this.setLocation(getLocation().getX(), getLocation().getY() - 1);
-                }
+                this.setLocation(getLocation().getX(), getLocation().getY() - 1);
             }
-        } else if (y >= 0) { //down
+        } else if (y > 0) { //down
             for (int i = 0; i < y; i++) {
-                Block b = getBlockAtLocation();
-                if (!b.isCollidable()) {
+                if (isFalling()) {
                     this.setLocation(getLocation().getX(), getLocation().getY() + 1);
                 }
             }
         }
+    }
+
+    public boolean canClimb() {
+        return getBlockAtLocation() instanceof BlockClimbable;
     }
 
     public void jump() {
@@ -202,21 +212,21 @@ public class Player {
 
     public boolean isOnGround() {
         int tileLeftX = (int)(getLocation().getX() / Game.BLOCK_SIZE);
-        int tileLeftY = (int)((getLocation().getY() + getHeight()) / Game.BLOCK_SIZE);
+        int tileLeftY = (int)((getLocation().getY() + hitboxHeight - 3) / Game.BLOCK_SIZE);
 
-        int tileRightX = (int)((getLocation().getX() + getWidth()) / Game.BLOCK_SIZE);
-        int tileRightY = (int)((getLocation().getY() + getHeight()) / Game.BLOCK_SIZE);
-
-        this.testLeftX = tileLeftX;
-        this.testLeftY = tileLeftY;
-        this.testRightX = tileRightX;
-        this.testRightY = tileRightY;
+        int tileRightX = (int)((getLocation().getX() + hitboxWidth) / Game.BLOCK_SIZE);
+        int tileRightY = (int)((getLocation().getY() + hitboxHeight - 3) / Game.BLOCK_SIZE);
 
         Block leftBlockBelowPlayer = game.activeLevel.getBlockGrid().getBlockAt(tileLeftX, tileLeftY + 1);
         Block rightBlockBelowPlayer = game.activeLevel.getBlockGrid().getBlockAt(tileRightX, tileRightY + 1);
 
-        System.out.println("Left block: " + leftBlockBelowPlayer.getType().toString() + " (" + tileLeftX + ", " + tileLeftY + ")");
-        System.out.println("Right block: " + rightBlockBelowPlayer.getType().toString() + " (" + tileRightX + ", " + tileRightY + ")");
+        this.testLeftX = leftBlockBelowPlayer.getLocation().getX();
+        this.testLeftY = leftBlockBelowPlayer.getLocation().getY();
+        this.testRightX = rightBlockBelowPlayer.getLocation().getX();
+        this.testRightY = rightBlockBelowPlayer.getLocation().getY();
+
+        //System.out.println("Left block: " + leftBlockBelowPlayer.getType().toString() + " (" + tileLeftX + ", " + tileLeftY + ")");
+        //System.out.println("Right block: " + rightBlockBelowPlayer.getType().toString() + " (" + tileRightX + ", " + tileRightY + ")");
 
         if (leftBlockBelowPlayer.getCollisionBox() != null) {
             if (collidesWith(leftBlockBelowPlayer.getCollisionBox()) && leftBlockBelowPlayer.isCollidable()) {
@@ -238,11 +248,11 @@ public class Player {
     }
 
     public int getWidth() {
-        return width;
+        return imgWidth;
     }
 
     public int getHeight() {
-        return height;
+        return imgHeight;
     }
 
     public boolean isMoving() {

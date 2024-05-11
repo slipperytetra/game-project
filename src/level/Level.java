@@ -3,10 +3,7 @@ package level;//
 // (powered by FernFlower decompiler)
 //
 
-import block.BlockGrid;
-import block.BlockInteractable;
-import block.BlockSolid;
-import block.BlockTypes;
+import block.*;
 import main.Game;
 import main.Location;
 
@@ -66,6 +63,7 @@ public class Level {
         System.out.println(sizeWidth);
         System.out.println(sizeHeight);
         this.grid = new BlockGrid(sizeWidth, sizeHeight);
+        this.manager.getEngine().imageBank.put("background", backgroundImage);
 
         int relY = 0;
         for (int y = 5; y < lines.size(); y++) {
@@ -74,7 +72,7 @@ public class Level {
             for (int x = 0; x < line.length(); x++) {
                 if (line.charAt(x) == 'P') {
                     double heightDiff = (relY * Game.BLOCK_SIZE) - (manager.getEngine().player.getHeight() - Game.BLOCK_SIZE);
-                    playerLoc = new Location(x * Game.BLOCK_SIZE, heightDiff);
+                    playerLoc = new Location(x * Game.BLOCK_SIZE, heightDiff + 1);
                 } else if (line.charAt(x) == 'K') {
                     keyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
                 } else if (line.charAt(x) == 'D') {
@@ -85,7 +83,7 @@ public class Level {
                 } else if (line.charAt(x) == 'G') {
                     grid.setBlock(x, relY, new BlockSolid(BlockTypes.GRASS, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'L') {
-                    grid.setBlock(x, relY, new BlockInteractable(BlockTypes.LADDER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockClimbable(BlockTypes.LADDER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 }
             }
 
@@ -107,6 +105,10 @@ public class Level {
         System.out.println("Player: " + playerLoc.toString());
         System.out.println("Key: " + keyLoc.toString());
         System.out.println("Door: " + doorLoc.toString());
+    }
+
+    public Image getBackgroundImage() {
+        return backgroundImage;
     }
 
     public int getWidth() {
