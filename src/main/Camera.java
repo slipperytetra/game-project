@@ -12,7 +12,7 @@ public class Camera {
     public Game game;
     public Player player;
     public int[][] pixels;
-    public int zoom = 1;
+    public double zoom = 1.0;
 
     public Camera(Game game, Player p) {
         this.game = game;
@@ -64,7 +64,7 @@ public class Camera {
                         if (texture == null) {
                             System.out.println("Null image: " + b.getType().getFilePath());
                         }
-                        game.drawImage(texture, xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+                        game.drawImage(texture, zoom *xDiff, zoom *yDiff, zoom *Game.BLOCK_SIZE, zoom *Game.BLOCK_SIZE);
                         //.changeColor(b.getColor());
                         //game.drawSolidRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
                     }
@@ -79,7 +79,7 @@ public class Camera {
                         double xDiff = b.getLocation().getX() + offsetX;
                         double yDiff = b.getLocation().getY() + offsetY;
                         game.changeColor(Color.GREEN);
-                        game.drawRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+                        game.drawRectangle(zoom * xDiff, zoom *yDiff, zoom *Game.BLOCK_SIZE, zoom *Game.BLOCK_SIZE);
                     }
                 }
             }
@@ -89,12 +89,12 @@ public class Camera {
         //game.changeColor(Color.pink);
         //game.drawSolidRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
         if (player.isFlipped()) {
-            game.drawImage(game.getTexture("player"), xDiff, yDiff, player.getWidth(), player.getHeight());
+            game.drawImage(game.getTexture("player"), zoom *xDiff, zoom *yDiff, zoom *player.getWidth(), zoom *player.getHeight());
         } else {
-            game.drawImage(game.getTexture("player_flipped"), xDiff, yDiff, player.getWidth(), player.getHeight());
+            game.drawImage(game.getTexture("player_flipped"), zoom *xDiff, zoom *yDiff, zoom *player.getWidth(), zoom *player.getHeight());
         }
         game.changeColor(Color.red);
-        game.drawRectangle(xDiff, yDiff, player.getWidth(), player.getHeight());
+        game.drawRectangle(zoom *xDiff, zoom *yDiff, zoom *player.getWidth(), zoom *player.getHeight());
 
         for (int i = 0; i < game.activeLevel.getTextMessages().size(); i++) {
             //System.out.println("Attempting to draw text (" + i + ")");
@@ -114,10 +114,10 @@ public class Camera {
             game.changeColor(txtMsg.getColor());
             if (!txtMsg.isBold()) {
                 //System.out.println("Drawing text '" + txtMsg.getText() + "' at " + txtMsg.getLocation().toString() + ", in Color:" + txtMsg.getColor().toString());
-                game.drawText(xDiff, yDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());
+                game.drawText(zoom *xDiff, zoom *yDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());
             } else {
                 //System.out.println("Drawing text '" + txtMsg.getText() + "' at " + txtMsg.getLocation().toString() + ", in Color:" + txtMsg.getColor().toString());
-                game.drawBoldText(xDiff, yDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());
+                game.drawBoldText(zoom *xDiff, zoom *yDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());
             }
         }
         //game.drawImage(game.idle, this.loc.getX(), this.loc.getY());

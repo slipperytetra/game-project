@@ -4,6 +4,7 @@ package main;//
 //
 
 import block.Block;
+import block.BlockTypes;
 
 import java.awt.*;
 
@@ -69,6 +70,11 @@ public class Player {
         //pMoveX = getLocation().getX() + (directionX * (speed * dt));
         //System.out.println("MoveX: " + pMoveX);
         moveX(directionX * (speed * dt));
+        moveY(directionY * (speed * dt));
+
+        if (!isOnGround()) {
+            directionY = 1;
+        }
         //setLocation(pMoveX, getLocation().getY());
     }
 
@@ -85,7 +91,7 @@ public class Player {
         if (x < 0) { //left
             for (int i = 0; i < Math.abs(x); i++) {
                 Block leftBlock = game.activeLevel.getBlockGrid().getBlockAt(tileX - 1, tileY);
-                if (collidesWith(leftBlock.getCollisionBox())) {
+                if (collidesWith(leftBlock.getCollisionBox()) && leftBlock.isCollidable()) {
                     return;
                 }
 
@@ -94,7 +100,7 @@ public class Player {
         } else if (x >= 0) { //right
             for (int i = 0; i < x; i++) {
                 Block rightBlock = game.activeLevel.getBlockGrid().getBlockAt(tileX + 1, tileY);
-                if (collidesWith(rightBlock.getCollisionBox())) {
+                if (collidesWith(rightBlock.getCollisionBox()) && rightBlock.isCollidable()) {
                     return;
                 }
 
@@ -109,19 +115,22 @@ public class Player {
         if (y < 0) { //up
             for (int i = 0; i < Math.abs(y); i++) {
                 Block blockAbove = game.activeLevel.getBlockGrid().getBlockAt(tileX, tileY - 1);
-                if (collidesWith(blockAbove.getCollisionBox())) {
+                if (collidesWith(blockAbove.getCollisionBox()) && blockAbove.isCollidable()) {
                     break;
                 }
 
-                this.setLocation(getLocation().getX(), getLocation().getY() - 1);
+
+                Block b = getBlockAtLocation();
+                if (b.getType() == BlockTypes.LADDER) {
+                    this.setLocation(getLocation().getX(), getLocation().getY() - 1);
+                }
             }
         } else if (y >= 0) { //down
             for (int i = 0; i < y; i++) {
-                if (isOnGround()) {
-                    break;
+                Block b = getBlockAtLocation();
+                if (!b.isCollidable()) {
+                    this.setLocation(getLocation().getX(), getLocation().getY() + 1);
                 }
-
-                this.setLocation(getLocation().getX(), getLocation().getY() + 1);
             }
         }
     }
@@ -197,16 +206,17 @@ public class Player {
 
         Block leftBlockBelowPlayer = game.activeLevel.getBlockGrid().getBlockAt(tileLeftX, tileLeftY + 1);
         Block rightBlockBelowPlayer = game.activeLevel.getBlockGrid().getBlockAt(tileRightX, tileRightY + 1);
-        if (leftBlockBelowPlayer == null || rightBlockBelowPlayer == null) {
-            return false;
+
+        if (leftBlockBelowPlayer.getCollisionBox() != null) {
+            if (collidesWith(leftBlockBelowPlayer.getCollisionBox()) && leftBlockBelowPlayer.isCollidable()) {
+                return true;
+            }
         }
 
-        if (leftBlockBelowPlayer.getCollisionBox() != null && collidesWith(leftBlockBelowPlayer.getCollisionBox())) {
-            return true;
-        }
-
-        if (rightBlockBelowPlayer.getCollisionBox() != null && collidesWith(rightBlockBelowPlayer.getCollisionBox())) {
-            return true;
+        if (rightBlockBelowPlayer.getCollisionBox() != null) {
+            if (collidesWith(rightBlockBelowPlayer.getCollisionBox()) && rightBlockBelowPlayer.isCollidable()) {
+                return true;
+            }
         }
 
         return false;

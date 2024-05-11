@@ -100,23 +100,27 @@ public class Game extends GameEngine {
             }
         }
         if (this.keysPressed.contains(87)) {//W
-            Block b = player.getBlockAtLocation();
-            System.out.println(b.getType().toString());
+            player.directionY = -1;
         }
         if (this.keysPressed.contains(65)) {//A
             player.directionX = -1;
             player.setFlipped(false);
         }
         if (this.keysPressed.contains(83)) {//S
-
+            Block b = player.getBlockAtLocation();
+            player.directionY = 1;
         }
         if (this.keysPressed.contains(68)) {//D
             player.directionX = 1;
             player.setFlipped(true);
         }
 
-        if (!this.keysPressed.contains(65) && !this.keysPressed.contains(68)) {//D
+        if (!this.keysPressed.contains(65) && !this.keysPressed.contains(68)) {
             player.directionX = 0;
+        }
+
+        if (!this.keysPressed.contains(83) && !this.keysPressed.contains(87)) {
+            player.directionY = 0;
         }
     }
 

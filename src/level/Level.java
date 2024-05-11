@@ -4,6 +4,7 @@ package level;//
 //
 
 import block.BlockGrid;
+import block.BlockInteractable;
 import block.BlockSolid;
 import block.BlockTypes;
 import main.Game;
@@ -83,6 +84,8 @@ public class Level {
                     grid.setBlock(x, relY, new BlockSolid(BlockTypes.DIRT, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'G') {
                     grid.setBlock(x, relY, new BlockSolid(BlockTypes.GRASS, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                } else if (line.charAt(x) == 'L') {
+                    grid.setBlock(x, relY, new BlockInteractable(BlockTypes.LADDER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 }
             }
 
