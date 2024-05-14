@@ -1,18 +1,16 @@
-package main;//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+package main;
 
 import block.Block;
 import block.BlockClimbable;
-import block.BlockTypes;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 public class Player {
     Game game;
-    private int imgWidth = 19;
-    private int imgHeight = 29;
     public int hitboxWidth = 16;
     public int hitboxHeight = 29;
     private int scale = 2;
@@ -25,26 +23,21 @@ public class Player {
     private boolean keyObtained;
     private boolean doorTouched;
     private boolean attackRegistered = false;
-    private final double JUMP_VELOCITY = -15.0;
-    int jumpSpeed = 15;
     private Rectangle collisionBox;
-    private int moveCooldown;
-    public int movementX, movementY;
-    private int moveCounter = 0;
-    public double velLeft, velRight, velUp, velDown, velX, velY;
+
+    private Timer animationTimer;
+    private Timer startAnimationTimer;
+    private int currentFrameIndex;
 
     double speed = 256; // pixels per second
-    double fallSpeed = 512; // pixels per second
+    double fallSpeedMultiplier = 1.1; // pixels per second
     public double directionX, directionY;
+    private double moveX, moveY;
 
     public double testLeftX, testLeftY, testRightX, testRightY;
 
 
     double fallAccel;
-    public double accelX, accelY;
-    double C = 0.5;
-
-    double jumpTimer;
 
     Image gifImage;
     Image plantAttack;
@@ -52,16 +45,12 @@ public class Player {
     Image gifImage2;
     Image level1;
 
-    public double pMoveX, pMoveY;
-
     public Player(Game game) {
         this.game = game;
         this.playerLoc = new Location(64.0, 64.0);
-        this.imgWidth *= scale;
-        this.imgHeight *= scale;
         this.hitboxWidth *= scale;
         this.hitboxHeight *= scale;
-        this.collisionBox = new Rectangle((int)playerLoc.getX(), (int)playerLoc.getY(), imgWidth, imgHeight);
+        this.collisionBox = new Rectangle((int)playerLoc.getX(), (int)playerLoc.getY(), hitboxWidth, hitboxHeight);
 
         init();
     }
@@ -72,24 +61,82 @@ public class Player {
 
         gifImage2 = Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif");
         level1 = Toolkit.getDefaultToolkit().createImage("resources/images/level1.gif");
+
+        this.animationTimer = new Timer(100, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                currentFrameIndex = (currentFrameIndex + 1) % 4;
+                System.out.println("Run " + currentFrameIndex);
+            }
+        });
+        this.startAnimationTimer = new Timer(500, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                animationTimer.start();
+            }
+        });
     }
 
     public void update(double dt) {
-        moveX(directionX * (speed * dt));
-        moveY(directionY * (speed * dt));
+        moveX = directionX * (speed * dt);
+        moveY = directionY * (speed * dt);
+
+        moveX(moveX);
+        moveY(moveY);
 
         if (isFalling()) {
             if (fallAccel > 0) {
-                fallAccel *= 1.1;
+                fallAccel *= fallSpeedMultiplier;
                 directionY = 1 * fallAccel;
             }
         } else {
             fallAccel = 1;
+            directionY = 0;
+        }
+
+        animateCharacter();
+
+        if (isMovingHorizontally()) {
+            if (!this.animationTimer.isRunning()) {
+                this.animationTimer.start();
+            }
+        } else {
+            this.animationTimer.stop();
         }
     }
 
     public boolean isFalling() {
         return !isOnGround() && !canClimb();
+    }
+
+    public boolean isMoving() {
+        return isMovingHorizontally() || isMovingVertically();
+    }
+
+    public boolean isMovingHorizontally() {
+        return moveX != 0;
+    }
+
+    public boolean isMovingVertically() {
+        return moveY != 0;
+    }
+
+    private void animateCharacter() {
+
+    }
+
+    public int getScale() {
+        return scale;
+    }
+
+    private void jumpAnimation() {
+        this.animationTimer.start();
+        this.animationTimer.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (currentFrameIndex == 4) {
+                    animationTimer.stop();
+                }
+
+            }
+        });
     }
 
     public Block getBlockAtLocation() {
@@ -144,72 +191,25 @@ public class Player {
         }
     }
 
+    public BufferedImage getIdleFrame() {
+        if (!isFlipped()) {
+            return game.flipImageHorizontal(game.getTexture("player"));
+        }
+
+        return game.getTexture("player");
+    }
+
+    public BufferedImage getRunFrame() {
+        if (!isFlipped()) {
+            return game.flipImageHorizontal(game.getTexture("player_run_" + currentFrameIndex));
+        }
+
+        return game.getTexture("player_run_" + currentFrameIndex);
+    }
+
     public boolean canClimb() {
         return getBlockAtLocation() instanceof BlockClimbable;
     }
-
-    public void jump() {
-        this.setJumping(true);
-        this.jumpTimer = 0;
-        accelY = -1000;
-    }
-
-    public void updateMovementX() {
-        if (movementX != 0) {
-            double moveX = movementX;
-            if (!isOnGround()) {
-                moveX = movementX * 1.5;
-            }
-            double locX = getLocation().getX();
-            double locY = getLocation().getY();
-
-            double moveAmount = (double) game.timeSinceLastFrame / moveX;
-            locX += moveAmount;
-            setLocation(locX, locY);
-        }
-    }
-
-    public void updateMovementY() {
-        if (movementY != 0) {
-            double locX = getLocation().getX();
-            double locY = getLocation().getY();
-
-            double moveAmount = (double) game.timeSinceLastFrame / movementY;
-            locY += moveAmount;
-            setLocation(locX, locY);
-        }
-    }
-
-    public void newMove(int direction, int steps) {
-        if (direction == 0) { //left
-            velX = velX - steps;
-        } else if (direction == 1) { //right
-            velX = velX + steps;
-        } else if (direction == 2) { //up
-            velY = velY - steps;
-        } else if (direction == 3) { //down
-            velY = velY + steps;
-        }
-
-        setLocation(getLocation().getX() + velX, getLocation().getY() + velY);
-    }
-
-    public void setVelocityLeft(double vel) {
-        this.velLeft = vel;
-    }
-
-    public void setVelocityRight(double vel) {
-        this.velRight = vel;
-    }
-
-    public void setVelocityUp(double vel) {
-        this.velUp = vel;
-    }
-
-    public void setVelocityDown(double vel) {
-        this.velDown = vel;
-    }
-
     public boolean isOnGround() {
         int tileLeftX = (int)(getLocation().getX() / Game.BLOCK_SIZE);
         int tileLeftY = (int)((getLocation().getY() + hitboxHeight - 3) / Game.BLOCK_SIZE);
@@ -248,19 +248,11 @@ public class Player {
     }
 
     public int getWidth() {
-        return imgWidth;
+        return getIdleFrame().getWidth() * scale;
     }
 
     public int getHeight() {
-        return imgHeight;
-    }
-
-    public boolean isMoving() {
-        return this.isMoving;
-    }
-
-    public void setMoving(boolean isMoving) {
-        this.isMoving = isMoving;
+        return getIdleFrame().getHeight() * scale;
     }
 
     public boolean isFlipped() {
@@ -269,15 +261,6 @@ public class Player {
 
     public void setFlipped(boolean isFlipped) {
         this.isFlipped = isFlipped;
-    }
-
-    public boolean isJumping() {
-        return this.isJumping;
-    }
-
-    public void setJumping(boolean isJumping) {
-        this.isJumping = isJumping;
-        this.jumpTimer = 0;
     }
 
     public boolean isAttacking() {
@@ -352,23 +335,7 @@ public class Player {
         updateCollisionBox();
     }
 
-    /*
-    public void moveY(double y) {
-        int tileLeftY = (int)((getLocation().getY()) / Game.BLOCK_SIZE);
-
-        if (y > 0) {
-            int tileLeftX = (int)((getLocation().getX() / Game.BLOCK_SIZE) - 1);
-            Block leftBlock = game.activeLevel.getBlockGrid().getBlockAt(tileLeftX, tileLeftY);
-        }
-        this.setLocation(getLocation().getX(), getLocation().getY() + y);
-    }*/
-
-    public double getJumpVelocity() {
-        return -15.0;
-    }
-
     public void updateCollisionBox() {
         this.collisionBox.setLocation((int) getLocation().getX(), (int)getLocation().getY());
     }
-
 }

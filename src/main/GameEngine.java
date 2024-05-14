@@ -392,7 +392,7 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     }
 
     // This function draws a rectangle at (x,y) with width and height (w,h)
-    void drawRectangle(double x, double y, double w, double h) {
+    public void drawRectangle(double x, double y, double w, double h) {
         // Draw a Rectangle
         mGraphics.draw(new Rectangle2D.Double(x, y, w, h));
     }

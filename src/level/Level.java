@@ -8,6 +8,7 @@ import main.Game;
 import main.Location;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class Level {
         System.out.println(sizeWidth);
         System.out.println(sizeHeight);
         this.grid = new BlockGrid(sizeWidth, sizeHeight);
-        this.manager.getEngine().imageBank.put("background", backgroundImage);
+        this.manager.getEngine().imageBank.put("background", (BufferedImage) backgroundImage);
 
         int relY = 0;
         for (int y = 5; y < lines.size(); y++) {

@@ -25,7 +25,7 @@ public class Game extends GameEngine {
     public long timeSinceLastFrame;
     public long lastTime;
     public long currentTime;
-    public HashMap<String, Image> imageBank;
+    public HashMap<String, BufferedImage> imageBank;
     private Set<Integer> keysPressed = new HashSet();
 
     public Player player;
@@ -63,7 +63,7 @@ public class Game extends GameEngine {
         timeSinceLastFrame = currentTime - lastTime;
         //System.out.println("dt: " + dt);
         this.camera.update();
-        for (int x = 0; x < activeLevel.getBlockGrid().getWidth(); x++) {
+        /*for (int x = 0; x < activeLevel.getBlockGrid().getWidth(); x++) {
             for (int y = 0; y < activeLevel.getBlockGrid().getHeight(); y++) {
                 Block b = activeLevel.getBlockGrid().getBlocks()[x][y];
                 if (b.isCollidable()) {
@@ -72,7 +72,7 @@ public class Game extends GameEngine {
                     }
                 }
             }
-        }
+        }*/
         playerMovement();
         player.update(dt);
     }
@@ -83,6 +83,10 @@ public class Game extends GameEngine {
             this.drawImage(imageBank.get("background"), 0, 0, this.width(), this.height());
         }
         camera.draw();
+    }
+
+    public void jump() {
+
     }
 
     @Override
@@ -109,7 +113,7 @@ public class Game extends GameEngine {
     public void playerMovement() {
         if (this.keysPressed.contains(32)) {//SPACE
             if (player.isOnGround()) {
-                player.jump();
+                //player.jump();
             }
         }
         if (this.keysPressed.contains(87)) {//W
@@ -139,25 +143,31 @@ public class Game extends GameEngine {
             }
 
             System.out.println();
-            imageBank.put(type.toString(), loadImage(type.getFilePath()));
+            imageBank.put(type.toString(), (BufferedImage) loadImage(type.getFilePath()));
         }
     }
 
     public void loadCharacterImages() {
         Image playerImg = loadImage("resources/images/characters/idle.png");
-        imageBank.put("player", playerImg);
-        imageBank.put("player_flipped", this.flipImageHorizontal(playerImg));
+        imageBank.put("player", (BufferedImage) playerImg);
+        imageBank.put("player_run_0", (BufferedImage) loadImage("resources/images/characters/run0.png"));
+        imageBank.put("player_run_1", (BufferedImage) loadImage("resources/images/characters/run1.png"));
+        imageBank.put("player_run_2", (BufferedImage) loadImage("resources/images/characters/run2.png"));
+        imageBank.put("player_run_3", (BufferedImage) loadImage("resources/images/characters/run3.png"));
+        imageBank.put("player_jump_0", (BufferedImage) loadImage("resources/images/characters/jump0.png"));
+        imageBank.put("player_jump_1", (BufferedImage) loadImage("resources/images/characters/jump1.png"));
+        imageBank.put("player_jump_2", (BufferedImage) loadImage("resources/images/characters/jump2.png"));
+        imageBank.put("player_jump_3", (BufferedImage) loadImage("resources/images/characters/jump3.png"));
     }
 
-    public Image getTexture(String textureName) {
+    public BufferedImage getTexture(String textureName) {
         return imageBank.get(textureName);
     }
 
-    private Image flipImageHorizontal(Image img) {
-        BufferedImage bImg = (BufferedImage)img;
+    public BufferedImage flipImageHorizontal(BufferedImage img) {
         AffineTransform tx = AffineTransform.getScaleInstance(-1.0, 1.0);
-        tx.translate(-bImg.getWidth(null), 0.0);
+        tx.translate(-img.getWidth(null), 0.0);
         AffineTransformOp op = new AffineTransformOp(tx, 1);
-        return op.filter(bImg, (BufferedImage)null);
+        return op.filter(img, null);
     }
 }

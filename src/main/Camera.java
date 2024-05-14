@@ -57,20 +57,21 @@ public class Camera {
                 if (b.getType() == BlockTypes.VOID) {
                     continue;
                 }
-                if (b.getLocation().getX() > point1.getX() && b.getLocation().getX() < point2.getX()) {
-                    if (b.getLocation().getY() > point1.getY() && b.getLocation().getY() < point2.getY()) {
-                        double xDiff = b.getLocation().getX() + offsetX;
-                        double yDiff = b.getLocation().getY() + offsetY;
-                        Image texture = game.getTexture(b.getType().toString());
-                        if (texture == null) {
-                            System.out.println("Null image: " + b.getType().getFilePath());
-                        }
-                        game.drawImage(texture, zoom *xDiff, zoom *yDiff, zoom *Game.BLOCK_SIZE, zoom *Game.BLOCK_SIZE);
-                        if (showHitboxes) {
-                            game.changeColor(Color.GREEN);
-                            game.drawRectangle(zoom * xDiff, zoom *yDiff, zoom *Game.BLOCK_SIZE, zoom *Game.BLOCK_SIZE);
-                        }
+
+                if (b.isBetween(point1, point2)) {
+                    double xDiff = b.getLocation().getX() + offsetX;
+                    double yDiff = b.getLocation().getY() + offsetY;
+
+                    b.drawBlock(this, xDiff, yDiff);
+                    /*Image texture = game.getTexture(b.getType().toString());
+                    if (texture == null) {
+                        System.out.println("Null image: " + b.getType().getFilePath());
                     }
+                    game.drawImage(texture, zoom *xDiff, zoom *yDiff, zoom *Game.BLOCK_SIZE, zoom *Game.BLOCK_SIZE);
+                    if (showHitboxes) {
+                        game.changeColor(Color.GREEN);
+                        game.drawRectangle(zoom * xDiff, zoom *yDiff, zoom *Game.BLOCK_SIZE, zoom *Game.BLOCK_SIZE);
+                    }*/
                 }
             }
         }
@@ -92,10 +93,10 @@ public class Camera {
         double yDiff = player.getLocation().getY() + offsetY;
         //game.changeColor(Color.pink);
         //game.drawSolidRectangle(xDiff, yDiff, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-        if (player.isFlipped()) {
-            game.drawImage(game.getTexture("player"), zoom *xDiff, zoom *yDiff, zoom *player.getWidth(), zoom *player.getHeight());
+        if (player.isMovingHorizontally()) {
+            game.drawImage(player.getRunFrame(), zoom * xDiff, zoom * yDiff, zoom * player.getRunFrame().getWidth() * player.getScale(), zoom * player.getRunFrame().getHeight() * player.getScale());
         } else {
-            game.drawImage(game.getTexture("player_flipped"), zoom *xDiff, zoom *yDiff, zoom *player.getWidth(), zoom *player.getHeight());
+            game.drawImage(player.getIdleFrame(), zoom * xDiff, zoom * yDiff, zoom * player.getIdleFrame().getWidth() * player.getScale(), zoom * player.getIdleFrame().getHeight() * player.getScale());
         }
 
         if (showHitboxes) {
