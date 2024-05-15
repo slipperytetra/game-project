@@ -4,6 +4,8 @@ package level;//
 //
 
 import block.*;
+import main.Enemy;
+import main.EnemyType;
 import main.Game;
 import main.Location;
 
@@ -30,16 +32,20 @@ public class Level {
 
     private final String levelDoc;
     public final double gravity = 9.8;
+    public double scale = 2;
     Image backgroundImage;
     Location playerLoc;
     Location keyLoc;
     Location doorLoc;
+
+    ArrayList<Enemy> enemies;
 
     public Level(LevelManager manager, int id, String levelDoc) {
         this.manager = manager;
         this.id = id;
         this.levelDoc = levelDoc;
         this.lines = new ArrayList<>();
+        this.enemies = new ArrayList<>();
         this.textMessages = new HashMap<>();
         init();
     }
@@ -85,6 +91,12 @@ public class Level {
                     grid.setBlock(x, relY, new BlockSolid(BlockTypes.GRASS, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'L') {
                     grid.setBlock(x, relY, new BlockClimbable(BlockTypes.LADDER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                } else if (line.charAt(x) == 'E') {
+                    Enemy enemy = new Enemy(this, EnemyType.PLANT_MONSTER, 5, 100, 5);
+
+                    double heightDiff = (relY * Game.BLOCK_SIZE) - (enemy.getHeight());
+                    enemy.setLocation(x * Game.BLOCK_SIZE, heightDiff);
+                    addEnemy(enemy);
                 }
             }
 
@@ -106,6 +118,18 @@ public class Level {
         System.out.println("Player: " + playerLoc.toString());
         System.out.println("Key: " + keyLoc.toString());
         System.out.println("Door: " + doorLoc.toString());
+    }
+
+    public ArrayList<Enemy> getEnemies() {
+        return enemies;
+    }
+
+    public void addEnemy(Enemy enemy) {
+        enemies.add(enemy);
+    }
+
+    public LevelManager getManager() {
+        return manager;
     }
 
     public Image getBackgroundImage() {

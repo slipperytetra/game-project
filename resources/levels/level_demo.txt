@@ -30,6 +30,6 @@ level_data:
   [X.........L..................X]
   [X.........L..................X]
   [X.........L..................X]
-  [X....P....L.....K...........DX]
+  [X....P....L.....K.......E...DX]
   [XGXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
   [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]

@@ -94,6 +94,10 @@ public class Player {
     }
 
     public void setHealth(int newHealth) {
+        if (newHealth < 0) {
+            newHealth = 0;
+        }
+
         this.health = newHealth;
         this.healthBar.setValue(getHealth());
     }

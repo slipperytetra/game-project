@@ -42,6 +42,7 @@ public class Camera {
     public void draw() {
         renderBlocks();
         renderPlayer();
+        renderEnemies();
         renderTextMessages();
         renderUI();
     }
@@ -54,7 +55,7 @@ public class Camera {
                     continue;
                 }
 
-                if (b.isBetween(point1, point2)) {
+                if (b.getLocation().isBlockBetween(point1, point2)) {
                     double blockOffsetX = b.getLocation().getX() + centerOffsetX;
                     double blockOffsetY = b.getLocation().getY() + centerOffsetY;
 
@@ -82,6 +83,22 @@ public class Camera {
             game.changeColor(Color.red);
             game.drawRectangle(zoom * playerOffsetX, zoom * playerOffsetY, zoom * player.hitboxWidth, zoom * player.hitboxHeight);
             game.drawRectangle(point1.getX() + centerOffsetX, point1.getY() + centerOffsetY, point2.getX() + centerOffsetX, point2.getY() + centerOffsetY);
+        }
+    }
+
+    public void renderEnemies() {
+        for (Enemy enemy : game.activeLevel.getEnemies()) {
+            if (enemy.getLocation().isBetween(point1, point2)) {
+                double enemyOffsetX = enemy.getLocation().getX() + centerOffsetX;
+                double enemyOffsetY = enemy.getLocation().getY() + centerOffsetY;
+
+                game.drawImage(enemy.getIdleFrame(), enemyOffsetX, enemyOffsetY, zoom * enemy.getIdleFrame().getWidth() * enemy.getScale(), zoom * enemy.getIdleFrame().getWidth() * enemy.getScale());
+
+                if (showHitboxes) {
+                    game.changeColor(Color.cyan);
+                    game.drawRectangle(zoom * enemyOffsetX, zoom * enemyOffsetY, zoom * enemy.getCollisionBox().getWidth(), zoom * enemy.getCollisionBox().getHeight());
+                }
+            }
         }
     }
 
@@ -116,7 +133,7 @@ public class Camera {
 
         game.drawText(50,35,"Health:",15);
         game.changeColor(Color.RED);
-        game.drawSolidRectangle(localXDiff,localYDiff, player.getHealth(), 50.0);
+        game.drawSolidRectangle(localXDiff,localYDiff, player.getHealth(), 15);
         //game.drawText(zoom * localXDiff, zoom * localYDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());
     }
 

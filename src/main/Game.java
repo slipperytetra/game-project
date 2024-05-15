@@ -5,6 +5,7 @@ import block.BlockTypes;
 import level.Level;
 import level.LevelManager;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
@@ -28,11 +29,12 @@ public class Game extends GameEngine {
     Level activeLevel;
     Camera camera;
 
-    public Game() {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(GameMenu::new);
     }
 
-    public static void main(String[] args) {
-        createGame(new Game());
+    public void startGame(){
+        createGame(this);
     }
 
     public void init() {
@@ -138,6 +140,8 @@ public class Game extends GameEngine {
         imageBank.put("player_jump_1", (BufferedImage) loadImage("resources/images/characters/jump1.png"));
         imageBank.put("player_jump_2", (BufferedImage) loadImage("resources/images/characters/jump2.png"));
         imageBank.put("player_jump_3", (BufferedImage) loadImage("resources/images/characters/jump3.png"));
+
+        imageBank.put(EnemyType.PLANT_MONSTER.toString().toLowerCase(), (BufferedImage) loadImage(EnemyType.PLANT_MONSTER.getFilePath()));
     }
 
     public BufferedImage getTexture(String textureName) {
