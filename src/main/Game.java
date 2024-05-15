@@ -61,6 +61,10 @@ public class Game extends GameEngine {
         this.camera.update();
         playerMovement();
         player.update(dt);
+
+        for (Enemy enemy : activeLevel.getEnemies()) {
+
+        }
     }
 
     public void paintComponent() {
@@ -141,7 +145,10 @@ public class Game extends GameEngine {
         imageBank.put("player_jump_2", (BufferedImage) loadImage("resources/images/characters/jump2.png"));
         imageBank.put("player_jump_3", (BufferedImage) loadImage("resources/images/characters/jump3.png"));
 
-        imageBank.put(EnemyType.PLANT_MONSTER.toString().toLowerCase(), (BufferedImage) loadImage(EnemyType.PLANT_MONSTER.getFilePath()));
+        BufferedImage test = (BufferedImage) loadImage(EnemyType.PLANT_MONSTER.getFilePath());
+        //System.out.println("Width: " + test.getWidth());
+        //System.out.println("Height: " + test.getHeight());
+        imageBank.put(EnemyType.PLANT_MONSTER.toString().toLowerCase(), test);
     }
 
     public BufferedImage getTexture(String textureName) {

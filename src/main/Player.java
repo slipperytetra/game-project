@@ -19,7 +19,10 @@ public class Player {
     private int maxHealth = 100;
     private JProgressBar healthBar;
 
+    public CollisionBox cBox;
+
     private Location playerLoc;
+    private Location collisionEndPoint;
     private boolean isMoving;
     private boolean isFlipped;
     private boolean isJumping;
@@ -27,7 +30,7 @@ public class Player {
     private boolean keyObtained;
     private boolean doorTouched;
     private boolean attackRegistered = false;
-    private Rectangle collisionBox;
+    //private Rectangle collisionBox;
 
     private Timer animationTimer;
     private int currentFrameIndex;
@@ -53,7 +56,9 @@ public class Player {
         this.playerLoc = new Location(64.0, 64.0);
         this.hitboxWidth *= scale;
         this.hitboxHeight *= scale;
-        this.collisionBox = new Rectangle((int)playerLoc.getX(), (int)playerLoc.getY(), hitboxWidth, hitboxHeight);
+        cBox = new CollisionBox(playerLoc.getX(), playerLoc.getY(), hitboxWidth, hitboxHeight);
+        //this.collisionBox = new Rectangle((int)playerLoc.getX(), (int)playerLoc.getY(), hitboxWidth, hitboxHeight);
+        //this.collisionEndPoint = new Location(getCollisionBox().getX() + getCollisionBox().getWidth() * getScale(), getCollisionBox().getY() + getCollisionBox().getHeight() * getScale());
 
         init();
     }
@@ -175,7 +180,7 @@ public class Player {
         if (x < 0) { //left
             for (int i = 0; i < Math.abs(x); i++) {
                 Block leftBlock = game.activeLevel.getBlockGrid().getBlockAt(tileX - 1, tileY);
-                if (collidesWith(leftBlock.getCollisionBox()) && leftBlock.isCollidable()) {
+                if (getCollisionBox().collidesWith(leftBlock.getCollisionBox()) && leftBlock.isCollidable()) {
                     return;
                 }
 
@@ -184,7 +189,7 @@ public class Player {
         } else if (x >= 0) { //right
             for (int i = 0; i < x; i++) {
                 Block rightBlock = game.activeLevel.getBlockGrid().getBlockAt(tileX + 1, tileY);
-                if (collidesWith(rightBlock.getCollisionBox()) && rightBlock.isCollidable()) {
+                if (getCollisionBox().collidesWith(rightBlock.getCollisionBox()) && rightBlock.isCollidable()) {
                     return;
                 }
 
@@ -199,7 +204,7 @@ public class Player {
         if (y < 0) { //up
             for (int i = 0; i < Math.abs(y); i++) {
                 Block blockAbove = game.activeLevel.getBlockGrid().getBlockAt(tileX, tileY - 1);
-                if (collidesWith(blockAbove.getCollisionBox()) && blockAbove.isCollidable()) {
+                if (getCollisionBox().collidesWith(blockAbove.getCollisionBox()) && blockAbove.isCollidable()) {
                     break;
                 }
 
@@ -249,13 +254,13 @@ public class Player {
         this.testRightY = rightBlockBelowPlayer.getLocation().getY();
 
         if (leftBlockBelowPlayer.getCollisionBox() != null) {
-            if (collidesWith(leftBlockBelowPlayer.getCollisionBox()) && leftBlockBelowPlayer.isCollidable()) {
+            if (getCollisionBox().collidesWith(leftBlockBelowPlayer.getCollisionBox()) && leftBlockBelowPlayer.isCollidable()) {
                 return true;
             }
         }
 
         if (rightBlockBelowPlayer.getCollisionBox() != null) {
-            if (collidesWith(rightBlockBelowPlayer.getCollisionBox()) && rightBlockBelowPlayer.isCollidable()) {
+            if (getCollisionBox().collidesWith(rightBlockBelowPlayer.getCollisionBox()) && rightBlockBelowPlayer.isCollidable()) {
                 return true;
             }
         }
@@ -263,8 +268,8 @@ public class Player {
         return false;
     }
 
-    public Rectangle getCollisionBox() {
-        return collisionBox;
+    public CollisionBox getCollisionBox() {
+        return cBox;
     }
 
     public int getWidth() {
@@ -321,14 +326,14 @@ public class Player {
         }
     }
 
-    public boolean collidesWith(Rectangle box) {
+   /*public boolean collidesWith(Rectangle box) {
         if (box == null) {
             return false;
         }
 
         double playerP1x = getCollisionBox().getLocation().getX();
         double playerP1y = getCollisionBox().getLocation().getY();
-        double playerP2x = getCollisionBox().getMaxX();
+        double playerP2x = getCollisionBox().etMaxX()g;
         double playerP2y = getCollisionBox().getMaxY();
 
         double boxP1x = box.getLocation().getX();
@@ -343,7 +348,7 @@ public class Player {
         }
 
         return false;
-    }
+    }*/
 
     public Location getLocation() {
         return this.playerLoc;
@@ -356,6 +361,6 @@ public class Player {
     }
 
     public void updateCollisionBox() {
-        this.collisionBox.setLocation((int) getLocation().getX(), (int)getLocation().getY());
+        getCollisionBox().setLocation(getLocation().getX(), getLocation().getY());
     }
 }

@@ -92,10 +92,11 @@ public class Level {
                 } else if (line.charAt(x) == 'L') {
                     grid.setBlock(x, relY, new BlockClimbable(BlockTypes.LADDER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'E') {
-                    Enemy enemy = new Enemy(this, EnemyType.PLANT_MONSTER, 5, 100, 5);
+                    Location enemyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
+                    Enemy enemy = new Enemy(this, EnemyType.PLANT_MONSTER, enemyLoc, 5, 100, 5);
 
-                    double heightDiff = (relY * Game.BLOCK_SIZE) - (enemy.getHeight());
-                    enemy.setLocation(x * Game.BLOCK_SIZE, heightDiff);
+                    double heightDiff = enemy.getLocation().getY() - (enemy.getHeight() - Game.BLOCK_SIZE);
+                    enemy.setLocation(enemy.getLocation().getX(), heightDiff);
                     addEnemy(enemy);
                 }
             }

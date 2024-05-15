@@ -1,6 +1,7 @@
 package block;
 
 import main.Camera;
+import main.CollisionBox;
 import main.Game;
 import main.Location;
 
@@ -10,22 +11,22 @@ public abstract class Block {
 
     BlockTypes type;
     Location loc;
-    Rectangle collisionBox;
-    final int size = 32; //32x32 pixels
+    //Rectangle collisionBox;
+    CollisionBox collisionBox;
 
     public Block(BlockTypes type, Location loc) {
         this.type = type;
         this.loc = loc;
-        setCollisionBox(new Rectangle((int)loc.getX(), (int)loc.getY(), size, size));
+        setCollisionBox(new CollisionBox((int)loc.getX(), (int)loc.getY(), Game.BLOCK_SIZE, Game.BLOCK_SIZE));
     }
 
     public abstract boolean isCollidable();
 
-    public Rectangle getCollisionBox() {
+    public CollisionBox getCollisionBox() {
         return collisionBox;
     }
 
-    public void setCollisionBox(Rectangle newBox) {
+    public void setCollisionBox(CollisionBox newBox) {
         this.collisionBox = newBox;
     }
 
@@ -42,16 +43,20 @@ public abstract class Block {
         this.loc.setY(y);
     }
 
-    public void drawBlock(Camera cam, double xOffset, double yOffset) {
+    public void drawBlock(Camera cam, double xOffset, double yOffset, double centerOffsetX, double centerOffsetY) {
         Image texture = cam.game.getTexture(getType().toString());
         if (texture == null) {
             System.out.println("Null image: " + getType().getFilePath());
         }
 
-        cam.game.drawImage(texture, cam.zoom *xOffset, cam.zoom *yOffset, cam.zoom *Game.BLOCK_SIZE, cam.zoom *Game.BLOCK_SIZE);
+        cam.game.drawImage(texture, cam.zoom * xOffset, cam.zoom *yOffset, cam.zoom *Game.BLOCK_SIZE, cam.zoom *Game.BLOCK_SIZE);
         if (cam.showHitboxes) {
             cam.game.changeColor(Color.GREEN);
-            cam.game.drawRectangle(cam.zoom * xOffset, cam.zoom *yOffset, cam.zoom *Game.BLOCK_SIZE, cam.zoom *Game.BLOCK_SIZE);
+
+            double hitboxOffsetX = getCollisionBox().getLocation().getX() + centerOffsetX;
+            double hitboxOffsetY = getCollisionBox().getLocation().getY() + centerOffsetY;
+            cam.game.drawRectangle(cam.zoom * hitboxOffsetX, cam.zoom * hitboxOffsetY, cam.zoom * getCollisionBox().getWidth(), cam.zoom * getCollisionBox().getHeight());
+            //cam.game.drawRectangle(cam.zoom * xOffset, cam.zoom *yOffset, cam.zoom *Game.BLOCK_SIZE, cam.zoom *Game.BLOCK_SIZE);
         }
     }
 }

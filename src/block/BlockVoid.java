@@ -1,5 +1,6 @@
 package block;
 
+import main.CollisionBox;
 import main.Location;
 
 import java.awt.*;
@@ -12,7 +13,7 @@ public class BlockVoid extends Block {
     }
 
     @Override
-    public Rectangle getCollisionBox() {
+    public CollisionBox getCollisionBox() {
         return null;
     }
 
