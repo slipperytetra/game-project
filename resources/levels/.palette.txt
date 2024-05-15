@@ -1,4 +1,0 @@
-P = player
-K = key
-D = door
-X = ground block
