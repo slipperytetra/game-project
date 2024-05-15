@@ -24,7 +24,6 @@ public class Game extends GameEngine {
     public HashMap<String, BufferedImage> imageBank;
     private Set<Integer> keysPressed = new HashSet();
 
-    public Player player;
     LevelManager lvlManager;
     Level activeLevel;
     Camera camera;
@@ -43,27 +42,25 @@ public class Game extends GameEngine {
         loadCharacterImages();
 
         this.setWindowSize(1280, 720);
-        this.player = new Player(this);
-        this.camera = new Camera(this, player);
         this.lvlManager = new LevelManager(this);
         this.activeLevel = lvlManager.DEMO;
-        this.player.setLocation(activeLevel.getSpawnPoint().getX(), activeLevel.getSpawnPoint().getY());
+        this.camera = new Camera(this, activeLevel.getPlayer());
 
 
-        System.out.println("Starting X position: " + this.player.getLocation().getX());
-        System.out.println("Starting Y position: " + this.player.getLocation().getY());
+        System.out.println("Starting X position: " + this.activeLevel.getPlayer().getLocation().getX());
+        System.out.println("Starting Y position: " + this.activeLevel.getPlayer().getLocation().getY());
     }
 
     public void update(double dt) {
         lastTime = currentTime;
         currentTime = System.currentTimeMillis();
         timeSinceLastFrame = currentTime - lastTime;
-        this.camera.update();
-        playerMovement();
-        player.update(dt);
+        camera.update();
 
+        activeLevel.getPlayer().playerMovement(keysPressed);
+        activeLevel.getPlayer().update(dt);
         for (Enemy enemy : activeLevel.getEnemies()) {
-
+            enemy.update(dt);
         }
     }
 
@@ -88,37 +85,11 @@ public class Game extends GameEngine {
         }
 
         if (event.getKeyCode() == 65 || event.getKeyCode() == 68) {
-            player.directionX = 0;
+            activeLevel.getPlayer().setDirectionX(0);
         }
 
         if (event.getKeyCode() == 83 || event.getKeyCode() == 87) {
-            player.directionY = 0;
-        }
-    }
-
-    public void playerMovement() {
-        if (this.keysPressed.contains(32)) {//SPACE
-            if (player.isOnGround()) {
-                //player.jump();
-            }
-        }
-        if (this.keysPressed.contains(87)) {//W
-            Block b = player.getBlockAtLocation();
-            if (b.getType() == BlockTypes.LADDER) {
-                player.directionY = -1;
-            }
-        }
-        if (this.keysPressed.contains(65)) {//A
-            player.directionX = -1;
-            player.setFlipped(false);
-        }
-        if (this.keysPressed.contains(83)) {//S
-            Block b = player.getBlockAtLocation();
-            player.directionY = 1;
-        }
-        if (this.keysPressed.contains(68)) {//D
-            player.directionX = 1;
-            player.setFlipped(true);
+            activeLevel.getPlayer().setDirectionY(0);
         }
     }
 
@@ -145,10 +116,10 @@ public class Game extends GameEngine {
         imageBank.put("player_jump_2", (BufferedImage) loadImage("resources/images/characters/jump2.png"));
         imageBank.put("player_jump_3", (BufferedImage) loadImage("resources/images/characters/jump3.png"));
 
-        BufferedImage test = (BufferedImage) loadImage(EnemyType.PLANT_MONSTER.getFilePath());
+        BufferedImage test = (BufferedImage) loadImage(EntityType.PLANT_MONSTER.getFilePath());
         //System.out.println("Width: " + test.getWidth());
         //System.out.println("Height: " + test.getHeight());
-        imageBank.put(EnemyType.PLANT_MONSTER.toString().toLowerCase(), test);
+        imageBank.put(EntityType.PLANT_MONSTER.toString().toLowerCase(), test);
     }
 
     public BufferedImage getTexture(String textureName) {

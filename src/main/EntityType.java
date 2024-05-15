@@ -1,12 +1,13 @@
 package main;
 
-public enum EnemyType {
+public enum EntityType {
 
+    PLAYER("resources/images/characters/player.png"),
     PLANT_MONSTER("resources/images/characters/plant_monster.png");
 
     private final String filePath;
 
-    EnemyType(String filePath) {
+    EntityType(String filePath) {
         this.filePath = filePath;
     }
 

@@ -41,7 +41,7 @@ public class Camera {
 
     public void draw() {
         renderBlocks();
-        renderPlayer();
+        getPlayer().render(this);
         renderEnemies();
         renderTextMessages();
         renderUI();
@@ -65,41 +65,10 @@ public class Camera {
         }
     }
 
-    private void renderPlayer() {
-        double playerOffsetX = player.getLocation().getX() + centerOffsetX;
-        double playerOffsetY = player.getLocation().getY() + centerOffsetY;
-
-        if (player.isMovingHorizontally()) {
-            game.drawImage(player.getRunFrame(), zoom * playerOffsetX, zoom * playerOffsetY, zoom * player.getRunFrame().getWidth() * player.getScale(), zoom * player.getRunFrame().getHeight() * player.getScale());
-        } else {
-            game.drawImage(player.getIdleFrame(), zoom * playerOffsetX, zoom * playerOffsetY, zoom * player.getIdleFrame().getWidth() * player.getScale(), zoom * player.getIdleFrame().getHeight() * player.getScale());
-        }
-
-        if (showHitboxes) {
-            game.changeColor(Color.magenta);
-
-            double hitBoxOffsetX = player.getCollisionBox().getLocation().getX() + centerOffsetX;
-            double hitBoxOffsetY = player.getCollisionBox().getLocation().getY() + centerOffsetY;
-            game.drawRectangle(player.testLeftX + centerOffsetX, player.testLeftY + centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-            game.drawRectangle(player.testRightX + centerOffsetX, player.testRightY + centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-            //game.drawRectangle(player.testLeftX + centerOffsetX, player.testLeftY + centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-            //game.drawRectangle(player.testRightX + centerOffsetX, player.testRightY + centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-
-            game.changeColor(Color.yellow);
-            game.drawRectangle(zoom * hitBoxOffsetX, zoom * hitBoxOffsetY, zoom * player.getCollisionBox().getWidth(), zoom * player.getCollisionBox().getHeight());
-            //game.drawRectangle(point1.getX() + centerOffsetX, point1.getY() + centerOffsetY, point2.getX() + centerOffsetX, point2.getY() + centerOffsetY);
-            //game.drawRectangle(zoom * playerOffsetX, zoom * playerOffsetY, zoom * player.hitboxWidth, zoom * player.hitboxHeight);
-            //game.drawRectangle(point1.getX() + centerOffsetX, point1.getY() + centerOffsetY, point2.getX() + centerOffsetX, point2.getY() + centerOffsetY);
-        }
-    }
-
     public void renderEnemies() {
         for (Enemy enemy : game.activeLevel.getEnemies()) {
             if (enemy.getLocation().isBetween(point1, point2)) {
                 enemy.render(this);
-                if (enemy.canAttack(getPlayer())) {
-                    //System.out.println("Attack!");
-                }
             }
         }
     }

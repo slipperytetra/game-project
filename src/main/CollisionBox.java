@@ -32,6 +32,11 @@ public class CollisionBox {
         return height;
     }
 
+    public void setSize(double width, double height) {
+        this.width = width;
+        this.height = height;
+    }
+
     public boolean collidesWith(CollisionBox box) {
         if (box == null) {
             return false;

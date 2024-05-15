@@ -4,10 +4,7 @@ package level;//
 //
 
 import block.*;
-import main.Enemy;
-import main.EnemyType;
-import main.Game;
-import main.Location;
+import main.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -19,6 +16,7 @@ import java.util.Scanner;
 
 public class Level {
     LevelManager manager;
+    private Player player;
 
     int id;
     String name;
@@ -34,7 +32,7 @@ public class Level {
     public final double gravity = 9.8;
     public double scale = 2;
     Image backgroundImage;
-    Location playerLoc;
+    Location spawnPoint;
     Location keyLoc;
     Location doorLoc;
 
@@ -78,8 +76,11 @@ public class Level {
             line = line.substring(3);
             for (int x = 0; x < line.length(); x++) {
                 if (line.charAt(x) == 'P') {
-                    double heightDiff = (relY * Game.BLOCK_SIZE) - (manager.getEngine().player.getHeight() - Game.BLOCK_SIZE);
-                    playerLoc = new Location(x * Game.BLOCK_SIZE, heightDiff + 1);
+                    spawnPoint = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
+                    player = new Player(this, spawnPoint);
+
+                    double heightDiff = player.getLocation().getY() - (player.getHeight() - Game.BLOCK_SIZE);
+                    player.setLocation(player.getLocation().getX(), heightDiff);
                 } else if (line.charAt(x) == 'K') {
                     keyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
                 } else if (line.charAt(x) == 'D') {
@@ -93,7 +94,7 @@ public class Level {
                     grid.setBlock(x, relY, new BlockClimbable(BlockTypes.LADDER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'E') {
                     Location enemyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
-                    Enemy enemy = new Enemy(this, EnemyType.PLANT_MONSTER, enemyLoc, 5, 100, 5);
+                    EnemyPlant enemy = new EnemyPlant(this, enemyLoc);
 
                     double heightDiff = enemy.getLocation().getY() - (enemy.getHeight() - Game.BLOCK_SIZE);
                     enemy.setLocation(enemy.getLocation().getX(), heightDiff);
@@ -103,7 +104,7 @@ public class Level {
 
             relY++;
         }
-        if (playerLoc == null) {
+        if (player == null) {
             System.out.println("level.Level error: no player location specified.");
             return;
         }
@@ -116,9 +117,17 @@ public class Level {
             return;
         }
 
-        System.out.println("Player: " + playerLoc.toString());
+        System.out.println("Player: " + player.getLocation().toString());
         System.out.println("Key: " + keyLoc.toString());
         System.out.println("Door: " + doorLoc.toString());
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public Location getSpawnPoint() {
+        return spawnPoint;
     }
 
     public ArrayList<Enemy> getEnemies() {
@@ -143,10 +152,6 @@ public class Level {
 
     public int getHeight() {
         return sizeHeight;
-    }
-
-    public Location getSpawnPoint() {
-        return playerLoc;
     }
 
     public Location getKeyLocation() {
