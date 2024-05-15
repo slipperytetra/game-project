@@ -43,19 +43,16 @@ public abstract class Block {
         this.loc.setY(y);
     }
 
-    public void drawBlock(Camera cam, double xOffset, double yOffset, double centerOffsetX, double centerOffsetY) {
+    public void drawBlock(Camera cam, double xOffset, double yOffset) {
         Image texture = cam.game.getTexture(getType().toString());
         if (texture == null) {
             System.out.println("Null image: " + getType().getFilePath());
         }
 
-        cam.game.drawImage(texture, cam.zoom * xOffset, cam.zoom *yOffset, cam.zoom *Game.BLOCK_SIZE, cam.zoom *Game.BLOCK_SIZE);
+        cam.game.drawImage(texture, xOffset, yOffset, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
         if (cam.showHitboxes) {
             cam.game.changeColor(Color.GREEN);
-
-            double hitboxOffsetX = getCollisionBox().getLocation().getX() + centerOffsetX;
-            double hitboxOffsetY = getCollisionBox().getLocation().getY() + centerOffsetY;
-            cam.game.drawRectangle(cam.zoom * hitboxOffsetX, cam.zoom * hitboxOffsetY, cam.zoom * getCollisionBox().getWidth(), cam.zoom * getCollisionBox().getHeight());
+            cam.game.drawRectangle(xOffset, yOffset, getCollisionBox().getWidth(), getCollisionBox().getHeight());
             //cam.game.drawRectangle(cam.zoom * xOffset, cam.zoom *yOffset, cam.zoom *Game.BLOCK_SIZE, cam.zoom *Game.BLOCK_SIZE);
         }
     }

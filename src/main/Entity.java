@@ -16,6 +16,7 @@ public abstract class Entity {
     private int health;
     private int maxHealth;
     private double scale;
+    private boolean isActive;
 
     private double directionX, directionY;
     public double moveX, moveY;
@@ -36,6 +37,7 @@ public abstract class Entity {
         this.level = level;
         loc.setY(loc.getY() - getHeight());
         this.loc = loc;
+        this.isActive = true;
         this.scale = 2;
         this.maxHealth = 5;
         this.health = 5;
@@ -60,6 +62,14 @@ public abstract class Entity {
         if (canMove()) {
             processMovement(dt);
         }
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
     public boolean canMove() {
@@ -296,5 +306,9 @@ public abstract class Entity {
     public void updateCollisionBox() {
         getCollisionBox().setLocation(getLocation().getX(), getLocation().getY());
         getCollisionBox().setSize(getIdleFrame().getWidth() * getScale(), getIdleFrame().getHeight() * getScale());
+    }
+
+    public void destroy() {
+        setActive(false);
     }
 }

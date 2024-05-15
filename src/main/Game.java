@@ -1,12 +1,10 @@
 package main;
 
-import block.Block;
 import block.BlockTypes;
 import level.Level;
 import level.LevelManager;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -25,7 +23,7 @@ public class Game extends GameEngine {
     private Set<Integer> keysPressed = new HashSet();
 
     LevelManager lvlManager;
-    Level activeLevel;
+    private Level activeLevel;
     Camera camera;
 
     public static void main(String[] args) {
@@ -43,12 +41,20 @@ public class Game extends GameEngine {
 
         this.setWindowSize(1280, 720);
         this.lvlManager = new LevelManager(this);
-        this.activeLevel = lvlManager.DEMO;
-        this.camera = new Camera(this, activeLevel.getPlayer());
-
+        setActiveLevel(lvlManager.DEMO);
 
         System.out.println("Starting X position: " + this.activeLevel.getPlayer().getLocation().getX());
         System.out.println("Starting Y position: " + this.activeLevel.getPlayer().getLocation().getY());
+    }
+
+    public Level getActiveLevel() {
+        return activeLevel;
+    }
+
+    public void setActiveLevel(Level level) {
+        this.activeLevel = level;
+        level.load();
+        this.camera = new Camera(this, level.getPlayer());
     }
 
     public void update(double dt) {
@@ -59,8 +65,10 @@ public class Game extends GameEngine {
 
         activeLevel.getPlayer().playerMovement(keysPressed);
         activeLevel.getPlayer().update(dt);
-        for (Enemy enemy : activeLevel.getEnemies()) {
-            enemy.update(dt);
+        for (Entity entity : activeLevel.getEntities()) {
+            if (entity.isActive()) {
+                entity.update(dt);
+            }
         }
     }
 
@@ -82,6 +90,7 @@ public class Game extends GameEngine {
         this.keysPressed.remove(event.getKeyCode());
         if (event.getKeyCode() == 72) {
             camera.showHitboxes = !camera.showHitboxes;
+            //setActiveLevel(lvlManager.DEMO_2);
         }
 
         if (event.getKeyCode() == 65 || event.getKeyCode() == 68) {
@@ -105,8 +114,6 @@ public class Game extends GameEngine {
     }
 
     public void loadCharacterImages() {
-        Image playerImg = loadImage("resources/images/characters/idle.png");
-        imageBank.put("player", (BufferedImage) playerImg);
         imageBank.put("player_run_0", (BufferedImage) loadImage("resources/images/characters/run0.png"));
         imageBank.put("player_run_1", (BufferedImage) loadImage("resources/images/characters/run1.png"));
         imageBank.put("player_run_2", (BufferedImage) loadImage("resources/images/characters/run2.png"));
@@ -116,10 +123,9 @@ public class Game extends GameEngine {
         imageBank.put("player_jump_2", (BufferedImage) loadImage("resources/images/characters/jump2.png"));
         imageBank.put("player_jump_3", (BufferedImage) loadImage("resources/images/characters/jump3.png"));
 
-        BufferedImage test = (BufferedImage) loadImage(EntityType.PLANT_MONSTER.getFilePath());
-        //System.out.println("Width: " + test.getWidth());
-        //System.out.println("Height: " + test.getHeight());
-        imageBank.put(EntityType.PLANT_MONSTER.toString().toLowerCase(), test);
+        for (EntityType type : EntityType.values()) {
+            imageBank.put(type.toString().toLowerCase(), (BufferedImage) loadImage(type.getFilePath()));
+        }
     }
 
     public BufferedImage getTexture(String textureName) {

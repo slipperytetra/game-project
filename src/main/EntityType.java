@@ -2,7 +2,9 @@ package main;
 
 public enum EntityType {
 
-    PLAYER("resources/images/characters/player.png"),
+    PLAYER("resources/images/characters/idle.png"),
+    DOOR("resources/images/blocks/door.png"),
+    KEY("resources/images/blocks/key.png"),
     PLANT_MONSTER("resources/images/characters/plant_monster.png");
 
     private final String filePath;

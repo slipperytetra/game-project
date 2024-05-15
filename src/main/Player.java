@@ -20,6 +20,7 @@ public class Player extends Entity {
     private boolean doorTouched;
     private boolean attackRegistered = false;
     private boolean isJumping;
+    private boolean hasKey;
     //private Rectangle collisionBox;
 
     private Timer runAnimationTimer;
@@ -78,6 +79,14 @@ public class Player extends Entity {
         animateCharacter();
     }
 
+    public boolean hasKey() {
+        return hasKey;
+    }
+
+    public void setHasKey(boolean hasKey) {
+        this.hasKey = hasKey;
+    }
+
     @Override
     public void processMovement(double dt) {
         moveX = getDirectionX() * (speed * dt);
@@ -119,11 +128,11 @@ public class Player extends Entity {
         double playerOffsetY = getLocation().getY() + cam.centerOffsetY;
         Game game = getLevel().getManager().getEngine();
         if (isMovingVertically()) {
-            game.drawImage(getFallFrame(), cam.zoom * playerOffsetX, cam.zoom * playerOffsetY, cam.zoom * getFallFrame().getWidth() * getScale(), cam.zoom * getFallFrame().getHeight() * getScale());
+            game.drawImage(getFallFrame(), playerOffsetX, playerOffsetY, getFallFrame().getWidth() * getScale(), getFallFrame().getHeight() * getScale());
         } else if (isMovingHorizontally()) {
-            game.drawImage(getRunFrame(), cam.zoom * playerOffsetX, cam.zoom * playerOffsetY, cam.zoom * getRunFrame().getWidth() * getScale(), cam.zoom * getRunFrame().getHeight() * getScale());
+            game.drawImage(getRunFrame(), playerOffsetX, playerOffsetY, getRunFrame().getWidth() * getScale(), getRunFrame().getHeight() * getScale());
         } else {
-            game.drawImage(getIdleFrame(), cam.zoom * playerOffsetX, cam.zoom * playerOffsetY, cam.zoom * getIdleFrame().getWidth() * getScale(), cam.zoom * getIdleFrame().getHeight() * getScale());
+            game.drawImage(getIdleFrame(), playerOffsetX, playerOffsetY, getIdleFrame().getWidth() * getScale(), getIdleFrame().getHeight() * getScale());
         }
 
         if (cam.showHitboxes) {
@@ -133,14 +142,9 @@ public class Player extends Entity {
             double hitBoxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
             game.drawRectangle(getLeftBlockBelowEntity().getLocation().getX() + cam.centerOffsetX, getLeftBlockBelowEntity().getLocation().getY() + cam.centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
             game.drawRectangle(getRightBlockBelowEntity().getLocation().getX() + cam.centerOffsetX, getRightBlockBelowEntity().getLocation().getY() + cam.centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-            //game.drawRectangle(player.testLeftX + centerOffsetX, player.testLeftY + centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-            //game.drawRectangle(player.testRightX + centerOffsetX, player.testRightY + centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
 
             game.changeColor(getHitboxColor());
-            game.drawRectangle(cam.zoom * hitBoxOffsetX, cam.zoom * hitBoxOffsetY, cam.zoom * getWidth(), cam.zoom * getHeight());
-            //game.drawRectangle(point1.getX() + centerOffsetX, point1.getY() + centerOffsetY, point2.getX() + centerOffsetX, point2.getY() + centerOffsetY);
-            //game.drawRectangle(zoom * playerOffsetX, zoom * playerOffsetY, zoom * player.hitboxWidth, zoom * player.hitboxHeight);
-            //game.drawRectangle(point1.getX() + centerOffsetX, point1.getY() + centerOffsetY, point2.getX() + centerOffsetX, point2.getY() + centerOffsetY);
+            game.drawRectangle(hitBoxOffsetX, hitBoxOffsetY, getWidth(), getHeight());
         }
     }
 

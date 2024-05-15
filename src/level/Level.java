@@ -17,6 +17,9 @@ import java.util.Scanner;
 public class Level {
     LevelManager manager;
     private Player player;
+    private Door door;
+    private Key key;
+    private String nextLevel;
 
     int id;
     String name;
@@ -36,14 +39,14 @@ public class Level {
     Location keyLoc;
     Location doorLoc;
 
-    ArrayList<Enemy> enemies;
+    ArrayList<Entity> entities;
 
     public Level(LevelManager manager, int id, String levelDoc) {
         this.manager = manager;
         this.id = id;
         this.levelDoc = levelDoc;
         this.lines = new ArrayList<>();
-        this.enemies = new ArrayList<>();
+        this.entities = new ArrayList<>();
         this.textMessages = new HashMap<>();
         init();
     }
@@ -63,15 +66,18 @@ public class Level {
 
         name = lines.get(0).substring("name: ".length());
         backgroundImage = manager.getEngine().loadImage(lines.get(1).substring("background: ".length()));
-        sizeWidth = Integer.parseInt(lines.get(2).substring("level_width: ".length()));
-        sizeHeight = Integer.parseInt(lines.get(3).substring("level_height: ".length()));
+        nextLevel = lines.get(2).substring("next_level: ".length());
+        sizeWidth = Integer.parseInt(lines.get(3).substring("level_width: ".length()));
+        sizeHeight = Integer.parseInt(lines.get(4).substring("level_height: ".length()));
         System.out.println(sizeWidth);
         System.out.println(sizeHeight);
         this.grid = new BlockGrid(sizeWidth, sizeHeight);
         this.manager.getEngine().imageBank.put("background", (BufferedImage) backgroundImage);
+    }
 
+    public void load() {
         int relY = 0;
-        for (int y = 5; y < lines.size(); y++) {
+        for (int y = 6; y < lines.size(); y++) {
             String line = lines.get(y);
             line = line.substring(3);
             for (int x = 0; x < line.length(); x++) {
@@ -83,9 +89,18 @@ public class Level {
                     player.setLocation(player.getLocation().getX(), heightDiff);
                 } else if (line.charAt(x) == 'K') {
                     keyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
+                    key = new Key(this, keyLoc);
+
+                    double heightDiff = key.getLocation().getY() - (key.getHeight() - Game.BLOCK_SIZE);
+                    key.setLocation(key.getLocation().getX(), heightDiff);
+                    addEntity(key);
                 } else if (line.charAt(x) == 'D') {
                     doorLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.DOOR, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    door = new Door(this, doorLoc);
+
+                    double heightDiff = door.getLocation().getY() - (door.getHeight() - Game.BLOCK_SIZE);
+                    door.setLocation(door.getLocation().getX(), heightDiff);
+                    addEntity(door);
                 } else if (line.charAt(x) == 'X') {
                     grid.setBlock(x, relY, new BlockSolid(BlockTypes.DIRT, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'G') {
@@ -98,7 +113,7 @@ public class Level {
 
                     double heightDiff = enemy.getLocation().getY() - (enemy.getHeight() - Game.BLOCK_SIZE);
                     enemy.setLocation(enemy.getLocation().getX(), heightDiff);
-                    addEnemy(enemy);
+                    addEntity(enemy);
                 }
             }
 
@@ -126,16 +141,24 @@ public class Level {
         return player;
     }
 
+    public Door getDoor() {
+        return door;
+    }
+
+    public String getNextLevel() {
+        return nextLevel;
+    }
+
     public Location getSpawnPoint() {
         return spawnPoint;
     }
 
-    public ArrayList<Enemy> getEnemies() {
-        return enemies;
+    public ArrayList<Entity> getEntities() {
+        return entities;
     }
 
-    public void addEnemy(Enemy enemy) {
-        enemies.add(enemy);
+    public void addEntity(Entity entity) {
+        entities.add(entity);
     }
 
     public LevelManager getManager() {
