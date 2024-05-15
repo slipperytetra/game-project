@@ -27,6 +27,8 @@ public class Player extends Entity {
 
     public Timer jumpAnimationTimer;
     private int jumpFrameIndex;
+    private double timeJumping;
+    private double maxJumpTime = 0.35; //seconds
 
     Image gifImage;
     Image plantAttack;
@@ -85,7 +87,14 @@ public class Player extends Entity {
         moveY(moveY);
 
         if (isJumping()) {
-            setDirectionY(-1);
+            setDirectionY(-1.5);
+            timeJumping += 1 * dt;
+
+            if (timeJumping > maxJumpTime) {
+                this.setJumping(false);
+                this.setDirectionY(0);
+                this.timeJumping = 0;
+            }
         } else if (isFalling()) {
             if (fallAccel > 0) {
                 fallAccel *= fallSpeedMultiplier;
@@ -139,6 +148,7 @@ public class Player extends Entity {
         this.isJumping = true;
         this.jumpFrameIndex = 0;
         this.jumpAnimationTimer.start();
+        this.timeJumping = 0;
     }
 
     @Override
@@ -162,19 +172,27 @@ public class Player extends Entity {
             }
         }
         if (keysPressed.contains(65)) {//A
-            setDirectionX(-1);
+            setDirectionX(-calculateHorizontalMovement());
         }
         if (keysPressed.contains(83)) {//S
             Block b = getBlockAtLocation();
             setDirectionY(1);
         }
         if (keysPressed.contains(68)) {//D
-            setDirectionX(1);
+            setDirectionX(calculateHorizontalMovement());
         }
     }
 
     public JProgressBar getHealthBar() {
         return healthBar;
+    }
+
+    public double calculateHorizontalMovement() {
+        if (isMovingVertically()) {
+            return 0.75;
+        }
+
+        return 1;
     }
 
     private void animateCharacter() {
