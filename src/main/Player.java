@@ -15,6 +15,10 @@ public class Player {
     public int hitboxHeight = 29;
     private int scale = 2;
 
+    private int health;
+    private int maxHealth = 100;
+    private JProgressBar healthBar;
+
     private Location playerLoc;
     private boolean isMoving;
     private boolean isFlipped;
@@ -26,10 +30,9 @@ public class Player {
     private Rectangle collisionBox;
 
     private Timer animationTimer;
-    private Timer startAnimationTimer;
     private int currentFrameIndex;
 
-    double speed = 256; // pixels per second
+    double speed = 384; // pixels per second
     double fallSpeedMultiplier = 1.1; // pixels per second
     public double directionX, directionY;
     private double moveX, moveY;
@@ -62,45 +65,37 @@ public class Player {
         gifImage2 = Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif");
         level1 = Toolkit.getDefaultToolkit().createImage("resources/images/level1.gif");
 
+        this.healthBar = new JProgressBar(0, maxHealth);
+        this.healthBar.setBounds(100, 25, 100, 10); // Adjust position and size as needed
+        this.healthBar.setForeground(Color.RED); // Set the color
+        this.healthBar.setValue(maxHealth); // Set initial health
+        this.healthBar.setStringPainted(true); // Show health value
+        setHealth(maxHealth);
+
         this.animationTimer = new Timer(100, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 currentFrameIndex = (currentFrameIndex + 1) % 4;
-                System.out.println("Run " + currentFrameIndex);
-            }
-        });
-        this.startAnimationTimer = new Timer(500, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                animationTimer.start();
+                //System.out.println("Run " + currentFrameIndex);
             }
         });
     }
 
     public void update(double dt) {
-        moveX = directionX * (speed * dt);
-        moveY = directionY * (speed * dt);
-
-        moveX(moveX);
-        moveY(moveY);
-
-        if (isFalling()) {
-            if (fallAccel > 0) {
-                fallAccel *= fallSpeedMultiplier;
-                directionY = 1 * fallAccel;
-            }
-        } else {
-            fallAccel = 1;
-            directionY = 0;
-        }
-
+        processMovement(dt);
         animateCharacter();
+    }
 
-        if (isMovingHorizontally()) {
-            if (!this.animationTimer.isRunning()) {
-                this.animationTimer.start();
-            }
-        } else {
-            this.animationTimer.stop();
-        }
+    public JProgressBar getHealthBar() {
+        return healthBar;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int newHealth) {
+        this.health = newHealth;
+        this.healthBar.setValue(getHealth());
     }
 
     public boolean isFalling() {
@@ -119,8 +114,32 @@ public class Player {
         return moveY != 0;
     }
 
-    private void animateCharacter() {
+    private void processMovement(double dt) {
+        moveX = directionX * (speed * dt);
+        moveY = directionY * (speed * dt);
 
+        moveX(moveX);
+        moveY(moveY);
+
+        if (isFalling()) {
+            if (fallAccel > 0) {
+                fallAccel *= fallSpeedMultiplier;
+                directionY = 1 * fallAccel;
+            }
+        } else {
+            fallAccel = 1;
+            directionY = 0;
+        }
+    }
+
+    private void animateCharacter() {
+        if (isMovingHorizontally()) {
+            if (!this.animationTimer.isRunning()) {
+                this.animationTimer.start();
+            }
+        } else {
+            this.animationTimer.stop();
+        }
     }
 
     public int getScale() {
@@ -224,9 +243,6 @@ public class Player {
         this.testLeftY = leftBlockBelowPlayer.getLocation().getY();
         this.testRightX = rightBlockBelowPlayer.getLocation().getX();
         this.testRightY = rightBlockBelowPlayer.getLocation().getY();
-
-        //System.out.println("Left block: " + leftBlockBelowPlayer.getType().toString() + " (" + tileLeftX + ", " + tileLeftY + ")");
-        //System.out.println("Right block: " + rightBlockBelowPlayer.getType().toString() + " (" + tileRightX + ", " + tileRightY + ")");
 
         if (leftBlockBelowPlayer.getCollisionBox() != null) {
             if (collidesWith(leftBlockBelowPlayer.getCollisionBox()) && leftBlockBelowPlayer.isCollidable()) {

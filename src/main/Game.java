@@ -1,7 +1,4 @@
-package main;//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+package main;
 
 import block.Block;
 import block.BlockTypes;
@@ -19,9 +16,7 @@ import java.util.Set;
 
 public class Game extends GameEngine {
     public static int BLOCK_SIZE = 32;
-    public static int WIDTH = 600;
-    public static int HEIGHT = 600;
-    public static int FRAME_RATE = 60;
+
     public long timeSinceLastFrame;
     public long lastTime;
     public long currentTime;
@@ -45,7 +40,7 @@ public class Game extends GameEngine {
         loadBlockImages();
         loadCharacterImages();
 
-        this.setWindowSize(WIDTH, HEIGHT);
+        this.setWindowSize(1280, 720);
         this.player = new Player(this);
         this.camera = new Camera(this, player);
         this.lvlManager = new LevelManager(this);
@@ -61,18 +56,7 @@ public class Game extends GameEngine {
         lastTime = currentTime;
         currentTime = System.currentTimeMillis();
         timeSinceLastFrame = currentTime - lastTime;
-        //System.out.println("dt: " + dt);
         this.camera.update();
-        /*for (int x = 0; x < activeLevel.getBlockGrid().getWidth(); x++) {
-            for (int y = 0; y < activeLevel.getBlockGrid().getHeight(); y++) {
-                Block b = activeLevel.getBlockGrid().getBlocks()[x][y];
-                if (b.isCollidable()) {
-                    if (b.getCollisionBox() == null) {
-                        continue;
-                    }
-                }
-            }
-        }*/
         playerMovement();
         player.update(dt);
     }
@@ -83,10 +67,6 @@ public class Game extends GameEngine {
             this.drawImage(imageBank.get("background"), 0, 0, this.width(), this.height());
         }
         camera.draw();
-    }
-
-    public void jump() {
-
     }
 
     @Override

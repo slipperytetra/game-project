@@ -16,12 +16,9 @@ public abstract class Block {
     public Block(BlockTypes type, Location loc) {
         this.type = type;
         this.loc = loc;
-        collisionBox = new Rectangle((int)loc.getX(), (int)loc.getY(), size, size);
+        setCollisionBox(new Rectangle((int)loc.getX(), (int)loc.getY(), size, size));
     }
 
-    public String getFilePath() {
-        return type.getFilePath();
-    }
     public abstract boolean isCollidable();
 
     public Rectangle getCollisionBox() {
@@ -29,11 +26,7 @@ public abstract class Block {
     }
 
     public void setCollisionBox(Rectangle newBox) {
-        this.collisionBox.setRect(newBox);
-    }
-
-    public void setCollisionBox(int width, int height) {
-        collisionBox.setRect(loc.getX(), loc.getY(), width, height);
+        this.collisionBox = newBox;
     }
 
     public BlockTypes getType() {
@@ -50,8 +43,13 @@ public abstract class Block {
     }
 
     public boolean isBetween(Location point1, Location point2) {
-        return (getLocation().getX() > point1.getX() && getLocation().getX() < point2.getX())
-                && (getLocation().getY() > point1.getY() && getLocation().getY() < point2.getY());
+        double loc1X = point1.getX() - Game.BLOCK_SIZE;
+        double loc1y = point1.getY() - Game.BLOCK_SIZE;
+
+        double loc2X = point2.getX() + Game.BLOCK_SIZE;
+        double loc2y = point2.getY() + Game.BLOCK_SIZE;
+        return (getLocation().getX() > loc1X && getLocation().getX() < loc2X)
+                && (getLocation().getY() > loc1y && getLocation().getY() < loc2y);
     }
 
     public void drawBlock(Camera cam, double xOffset, double yOffset) {

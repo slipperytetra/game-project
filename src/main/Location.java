@@ -1,8 +1,4 @@
-package main;//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
+package main;
 public class Location {
     double locX;
     double locY;
