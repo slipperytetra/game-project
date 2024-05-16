@@ -34,7 +34,7 @@ public class Level {
     private final String levelDoc;
     public final double gravity = 9.8;
     public double scale = 2;
-    Image backgroundImage;
+    String backgroundImgFilePath;
     Location spawnPoint;
     Location keyLoc;
     Location doorLoc;
@@ -65,14 +65,13 @@ public class Level {
         }
 
         name = lines.get(0).substring("name: ".length());
-        backgroundImage = manager.getEngine().loadImage(lines.get(1).substring("background: ".length()));
+        backgroundImgFilePath = lines.get(1).substring("background: ".length());
         nextLevel = lines.get(2).substring("next_level: ".length());
         sizeWidth = Integer.parseInt(lines.get(3).substring("level_width: ".length()));
         sizeHeight = Integer.parseInt(lines.get(4).substring("level_height: ".length()));
         System.out.println(sizeWidth);
         System.out.println(sizeHeight);
         this.grid = new BlockGrid(sizeWidth, sizeHeight);
-        this.manager.getEngine().imageBank.put("background", (BufferedImage) backgroundImage);
     }
 
     public void load() {
@@ -129,6 +128,9 @@ public class Level {
 
             relY++;
         }
+        if (!backgroundImgFilePath.isEmpty()) {
+            getManager().getEngine().imageBank.put("background", Toolkit.getDefaultToolkit().createImage(backgroundImgFilePath));
+        }
         if (player == null) {
             System.out.println("level.Level error: no player location specified.");
             return;
@@ -178,10 +180,6 @@ public class Level {
 
     public LevelManager getManager() {
         return manager;
-    }
-
-    public Image getBackgroundImage() {
-        return backgroundImage;
     }
 
     public int getWidth() {

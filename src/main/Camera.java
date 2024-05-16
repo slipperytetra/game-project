@@ -61,11 +61,19 @@ public class Camera {
 
 
     public void draw() {
+        renderBackground();
         renderBlocks();
         getPlayer().render(this);
         renderEntities();
         renderTextMessages();
         renderUI();
+    }
+
+    public void renderBackground() {
+        if (game.imageBank.get("background") != null) {
+            //System.out.println("Draw bg");
+            game.drawImage(game.imageBank.get("background"), 0, 0, game.width(), game.height());
+        }
     }
 
     /*

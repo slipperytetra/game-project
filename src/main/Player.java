@@ -46,6 +46,7 @@ public class Player extends Entity {
         setHealth(getMaxHealth());
         setDirectionY(1);
 
+        setCollisionBox(new CollisionBox((int)loc.getX(), (int)loc.getY(), getWidth() - 4, getHeight()));
         init();
     }
 
@@ -113,7 +114,10 @@ public class Player extends Entity {
                 this.setDirectionY(0);
                 this.timeJumping = 0;
             }
-        } else if (isFalling()) {
+            return;
+        }
+
+        if (isFalling() && !canClimb()) {
             if (fallAccel > 0) {
                 fallAccel *= fallSpeedMultiplier;
                 setDirectionY(1 * fallAccel);
@@ -122,6 +126,27 @@ public class Player extends Entity {
             fallAccel = 1;
             setDirectionY(0);
         }
+
+        /*if (isJumping()) {
+            setDirectionY(-1.5);
+            timeJumping += 1 * dt;
+
+            if (timeJumping > maxJumpTime) {
+                this.setJumping(false);
+                this.setDirectionY(0);
+                this.timeJumping = 0;
+            }
+        } else if (!canClimb()) {
+            if (isFalling()) {
+                if (fallAccel > 0) {
+                    fallAccel *= fallSpeedMultiplier;
+                    setDirectionY(1 * fallAccel);
+                }
+            } else {
+                fallAccel = 1;
+                setDirectionY(0);
+            }
+        }*/
     }
 
     public boolean isJumping() {
@@ -155,7 +180,7 @@ public class Player extends Entity {
             game.drawRectangle(getRightBlockBelowEntity().getLocation().getX() + cam.centerOffsetX, getRightBlockBelowEntity().getLocation().getY() + cam.centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
 
             game.changeColor(getHitboxColor());
-            game.drawRectangle(hitBoxOffsetX, hitBoxOffsetY, getWidth(), getHeight());
+            game.drawRectangle(hitBoxOffsetX, hitBoxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
         }
     }
 
@@ -166,14 +191,9 @@ public class Player extends Entity {
         this.timeJumping = 0;
     }
 
-    @Override
-    public boolean isFalling() {
-        return !isOnGround() && !canClimb();
-    }
-
     public void playerMovement(Set<Integer> keysPressed) {
         if (keysPressed.contains(32)) {//SPACE
-            if (isOnGround()) {
+            if (!isJumping() && (isOnGround() || canClimb())) {
                 //System.out.println("Jump!");
                 jump();
             } else {
@@ -181,17 +201,19 @@ public class Player extends Entity {
             }
         }
         if (keysPressed.contains(87)) {//W
-            Block b = getBlockAtLocation();
-            if (b.getType() == BlockTypes.LADDER) {
+            if (canClimb()) {
                 setDirectionY(-1);
+            } else {
+                setDirectionY(0);
             }
         }
         if (keysPressed.contains(65)) {//A
             setDirectionX(-calculateHorizontalMovement());
         }
         if (keysPressed.contains(83)) {//S
-            Block b = getBlockAtLocation();
-            setDirectionY(1);
+            if (canClimb()) {
+                setDirectionY(1);
+            }
         }
         if (keysPressed.contains(68)) {//D
             setDirectionX(calculateHorizontalMovement());
@@ -221,13 +243,6 @@ public class Player extends Entity {
         } else {
             this.runAnimationTimer.stop();
         }
-    }
-
-    public Block getBlockAtLocation() {
-        int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
-        int tileY = (int)((getLocation().getY() + 16) / Game.BLOCK_SIZE);
-
-        return getLevel().getBlockGrid().getBlockAt(tileX, tileY);
     }
 
     public Image getRunFrame() {
@@ -300,5 +315,11 @@ public class Player extends Entity {
 
     public void setAttackRegistered(boolean attackRegistered) {
         this.attackRegistered = attackRegistered;
+    }
+
+    @Override
+    public void updateCollisionBox() {
+        getCollisionBox().setLocation(getLocation().getX(), getLocation().getY());
+        getCollisionBox().setSize(getWidth() - 4, getHeight());
     }
 }
