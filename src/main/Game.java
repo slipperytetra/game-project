@@ -81,9 +81,9 @@ public class Game extends GameEngine {
             this.drawImage(imageBank.get("background"), 0, 0, this.width(), this.height());
         }
         if(getActiveLevel().getPlayer().getHealth() <= 0){
-            //gameOver = true;
+            gameOver = true;
             drawText(100,100,"You died",30);
-            getActiveLevel().reset();
+
 
 
         }else{

@@ -10,7 +10,9 @@ public enum BlockTypes {
     LADDER("resources/images/blocks/ladder.png"),
     BARRIER(""),
     WATER_TOP("resources/images/blocks/waterTop.png"),
-    WATER_BOTTOM("resources/images/blocks/waterBottom.png");
+    WATER_BOTTOM("resources/images/blocks/waterBottom.png"),
+    STONE_FLOOR("resources/images/blocks/STONE.png"),
+    STONE_FILLER("resources/images/blocks/stone_filler.png");
 
 
 

@@ -135,6 +135,11 @@ public class Camera {
         double localYDiff = healthBarLoc.getY();
 
         game.drawText(50,35,"Health:",15);
+        game.drawText(1200,50,"Key : ", 20);
+        if(game.getActiveLevel().getPlayer().hasKey()){
+            game.drawImage(game.imageBank.get("key"),1230,20,50,50);
+        }
+
         game.changeColor(Color.RED);
         game.drawSolidRectangle(localXDiff,localYDiff, player.getHealth(), 15);
         //game.drawText(zoom * localXDiff, zoom * localYDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());

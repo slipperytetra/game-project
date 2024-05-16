@@ -17,6 +17,7 @@ public class Key extends Entity {
     public void update(double dt) {
         if (getLevel().getPlayer().getCollisionBox().collidesWith(this.getCollisionBox())) {
             getLevel().getPlayer().setHasKey(true);
+
             destroy();
         }
     }
