@@ -22,6 +22,7 @@ public abstract class Block {
 
     public abstract boolean isCollidable();
 
+
     public CollisionBox getCollisionBox() {
         return collisionBox;
     }

@@ -116,7 +116,11 @@ public class Level {
                     addEntity(enemy);
                 } else if (line.charAt(x) == 'B') {
                 grid.setBlock(x, relY, new BlockSolid(BlockTypes.BARRIER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
-            }
+            }else if (line.charAt(x) == 'W') {
+                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.WATER_TOP, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                }else if (line.charAt(x) == 'O') {
+                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.WATER_BOTTOM, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                }
 
             }
 

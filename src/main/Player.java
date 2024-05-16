@@ -255,14 +255,7 @@ public class Player extends Entity {
      public void Attack(){
          attack = getLevel().getManager().getEngine().loadAudio("resources/sounds/attackSound.wav");
          getLevel().getManager().getEngine().playAudio(attack);
-
-
-
-
-
-
-
-        isAttacking = true;
+         isAttacking = true;
         attackCounter = 0;
 
      }

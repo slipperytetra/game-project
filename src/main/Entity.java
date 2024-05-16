@@ -1,6 +1,7 @@
 package main;
 
 import block.Block;
+import block.BlockLiquid;
 import level.Level;
 
 import java.awt.*;
@@ -181,6 +182,11 @@ public abstract class Entity {
 
         leftBlockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileLeftX, tileLeftY + 1);
         rightBlockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileRightX, tileRightY + 1);
+
+        if (leftBlockBelowEntity instanceof BlockLiquid || rightBlockBelowEntity instanceof BlockLiquid) {
+            setHealth(0);
+
+        }
 
         if (leftBlockBelowEntity.getCollisionBox() != null) {
             if (getCollisionBox().collidesWith(leftBlockBelowEntity.getCollisionBox()) && leftBlockBelowEntity.isCollidable()) {

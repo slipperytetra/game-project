@@ -17,6 +17,7 @@ import java.util.Set;
 
 public class Game extends GameEngine {
     public static int BLOCK_SIZE = 32;
+    private boolean gameOver;
 
     public long timeSinceLastFrame;
     public long lastTime;
@@ -79,7 +80,17 @@ public class Game extends GameEngine {
         if (imageBank.containsKey("background")) {
             this.drawImage(imageBank.get("background"), 0, 0, this.width(), this.height());
         }
-        camera.draw();
+        if(getActiveLevel().getPlayer().getHealth() <= 0){
+            gameOver = true;
+            drawText(100,100,"You died",30);
+
+
+
+
+        }else{
+            camera.draw();
+
+        }
     }
 
     @Override
