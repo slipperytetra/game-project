@@ -111,10 +111,13 @@ public class Level {
                     Location enemyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
                     EnemyPlant enemy = new EnemyPlant(this, enemyLoc);
 
-                    double heightDiff = enemy.getLocation().getY() - (enemy.getHeight() - Game.BLOCK_SIZE);
+                    double heightDiff = enemy.getLocation().getY() - ( Game.BLOCK_SIZE);
                     enemy.setLocation(enemy.getLocation().getX(), heightDiff);
                     addEntity(enemy);
-                }
+                } else if (line.charAt(x) == 'B') {
+                grid.setBlock(x, relY, new BlockSolid(BlockTypes.BARRIER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+            }
+
             }
 
             relY++;

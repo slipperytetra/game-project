@@ -239,11 +239,11 @@ public abstract class Entity {
     }
 
     public double getWidth() {
-        return getIdleFrame().getWidth() * scale;
+        return ((BufferedImage) getIdleFrame()).getWidth() * scale;
     }
 
     public double getHeight() {
-        return getIdleFrame().getHeight() * scale;
+        return ((BufferedImage)getIdleFrame()).getHeight() * scale;
     }
 
     public int getHealth() {
@@ -287,7 +287,7 @@ public abstract class Entity {
         this.isFlipped = isFlipped;
     }
 
-    public BufferedImage getIdleFrame() {
+    public Image getIdleFrame() {
         if (!isFlipped()) {
             return getLevel().getManager().getEngine().flipImageHorizontal(level.getManager().getEngine().getTexture(getType().toString().toLowerCase()));
         }
@@ -305,7 +305,7 @@ public abstract class Entity {
 
     public void updateCollisionBox() {
         getCollisionBox().setLocation(getLocation().getX(), getLocation().getY());
-        getCollisionBox().setSize(getIdleFrame().getWidth() * getScale(), getIdleFrame().getHeight() * getScale());
+        getCollisionBox().setSize(getWidth(), getHeight());
     }
 
     public void destroy() {

@@ -77,7 +77,7 @@ public class Camera {
         for (int x = 0; x < game.getActiveLevel().getBlockGrid().getWidth(); x++) {
             for (int y = 0; y < game.getActiveLevel().getBlockGrid().getHeight(); y++) { //Iterating over all the blocks
                 Block b = game.getActiveLevel().getBlockGrid().getBlocks()[x][y]; //Getting the block from the grid based on the coordinates
-                if (b.getType() == BlockTypes.VOID) {
+                if (b.getType() == BlockTypes.VOID || b.getType() == BlockTypes.BARRIER) {
                     continue; //Skip void because its an empty block.
                 }
 

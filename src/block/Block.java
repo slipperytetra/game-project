@@ -44,10 +44,16 @@ public abstract class Block {
     }
 
     public void drawBlock(Camera cam, double xOffset, double yOffset) {
+        if(getType().equals(BlockTypes.BARRIER)){
+            return;
+        }
         Image texture = cam.game.getTexture(getType().toString());
+
         if (texture == null) {
             System.out.println("Null image: " + getType().getFilePath());
         }
+
+
 
         cam.game.drawImage(texture, xOffset, yOffset, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
         if (cam.showHitboxes) {

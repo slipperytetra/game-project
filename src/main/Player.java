@@ -128,11 +128,11 @@ public class Player extends Entity {
         double playerOffsetY = getLocation().getY() + cam.centerOffsetY;
         Game game = getLevel().getManager().getEngine();
         if (isMovingVertically()) {
-            game.drawImage(getFallFrame(), playerOffsetX, playerOffsetY, getFallFrame().getWidth() * getScale(), getFallFrame().getHeight() * getScale());
+            game.drawImage(getFallFrame(), playerOffsetX, playerOffsetY, getWidth(), getHeight() );
         } else if (isMovingHorizontally()) {
-            game.drawImage(getRunFrame(), playerOffsetX, playerOffsetY, getRunFrame().getWidth() * getScale(), getRunFrame().getHeight() * getScale());
+            game.drawImage(getRunFrame(), playerOffsetX, playerOffsetY, getWidth(), getHeight());
         } else {
-            game.drawImage(getIdleFrame(), playerOffsetX, playerOffsetY, getIdleFrame().getWidth() * getScale(), getIdleFrame().getHeight() * getScale());
+            game.drawImage(getIdleFrame(), playerOffsetX, playerOffsetY, getWidth(), getHeight());
         }
 
         if (cam.showHitboxes) {
@@ -216,7 +216,7 @@ public class Player extends Entity {
         return getLevel().getBlockGrid().getBlockAt(tileX, tileY);
     }
 
-    public BufferedImage getRunFrame() {
+    public Image getRunFrame() {
         if (!isFlipped()) {
             return getLevel().getManager().getEngine().flipImageHorizontal(getLevel().getManager().getEngine().getTexture("player_run_" + runFrameIndex));
         }
@@ -224,7 +224,7 @@ public class Player extends Entity {
         return getLevel().getManager().getEngine().getTexture("player_run_" + runFrameIndex);
     }
 
-    public BufferedImage getFallFrame() {
+    public Image getFallFrame() {
         if (!isFlipped()) {
             return getLevel().getManager().getEngine().flipImageHorizontal(getLevel().getManager().getEngine().getTexture("player_jump_" + runFrameIndex));
         }

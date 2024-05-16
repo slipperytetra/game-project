@@ -1,10 +1,12 @@
 package main;
 
+import block.Block;
 import block.BlockTypes;
 import level.Level;
 import level.LevelManager;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -19,7 +21,7 @@ public class Game extends GameEngine {
     public long timeSinceLastFrame;
     public long lastTime;
     public long currentTime;
-    public HashMap<String, BufferedImage> imageBank;
+    public HashMap<String, Image> imageBank;
     private Set<Integer> keysPressed = new HashSet();
 
     LevelManager lvlManager;
@@ -104,38 +106,44 @@ public class Game extends GameEngine {
 
     public void loadBlockImages() {
         for (BlockTypes type : BlockTypes.values()) {
-            if (type == BlockTypes.VOID) {
+            if (type == BlockTypes.VOID || type == BlockTypes.BARRIER) {
                 continue;
             }
 
             System.out.println();
-            imageBank.put(type.toString(), (BufferedImage) loadImage(type.getFilePath()));
+            imageBank.put(type.toString(),  loadImage(type.getFilePath()));
         }
     }
 
     public void loadCharacterImages() {
-        imageBank.put("player_run_0", (BufferedImage) loadImage("resources/images/characters/run0.png"));
-        imageBank.put("player_run_1", (BufferedImage) loadImage("resources/images/characters/run1.png"));
-        imageBank.put("player_run_2", (BufferedImage) loadImage("resources/images/characters/run2.png"));
-        imageBank.put("player_run_3", (BufferedImage) loadImage("resources/images/characters/run3.png"));
-        imageBank.put("player_jump_0", (BufferedImage) loadImage("resources/images/characters/jump0.png"));
-        imageBank.put("player_jump_1", (BufferedImage) loadImage("resources/images/characters/jump1.png"));
-        imageBank.put("player_jump_2", (BufferedImage) loadImage("resources/images/characters/jump2.png"));
-        imageBank.put("player_jump_3", (BufferedImage) loadImage("resources/images/characters/jump3.png"));
+        imageBank.put("player_run_0",  loadImage("resources/images/characters/run0.png"));
+        imageBank.put("player_run_1",  loadImage("resources/images/characters/run1.png"));
+        imageBank.put("player_run_2",  loadImage("resources/images/characters/run2.png"));
+        imageBank.put("player_run_3", loadImage("resources/images/characters/run3.png"));
+        imageBank.put("player_jump_0",  loadImage("resources/images/characters/jump0.png"));
+        imageBank.put("player_jump_1",  loadImage("resources/images/characters/jump1.png"));
+        imageBank.put("player_jump_2",  loadImage("resources/images/characters/jump2.png"));
+        imageBank.put("player_jump_3",  loadImage("resources/images/characters/jump3.png"));
 
-        for (EntityType type : EntityType.values()) {
-            imageBank.put(type.toString().toLowerCase(), (BufferedImage) loadImage(type.getFilePath()));
-        }
+        imageBank.put(EntityType.DOOR.toString().toLowerCase(),  loadImage(EntityType.DOOR.getFilePath()));
+        imageBank.put(EntityType.PLAYER.toString().toLowerCase(), loadImage(EntityType.PLAYER.getFilePath()));
+        //imageBank.put(EntityType.KEY.toString().toLowerCase(), loadImage(EntityType.KEY.getFilePath()));
+        //imageBank.put(EntityType.PLANT_MONSTER.toString().toLowerCase(),  loadImage(EntityType.PLANT_MONSTER.getFilePath()));
+        imageBank.put("key",  Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif"));
+        imageBank.put("plant_monsterAttack", Toolkit.getDefaultToolkit().createImage("resources/images/plantAttack.gif"));
+        imageBank.put("plant_monster", loadImage("resources/images/plantAttack.gif"));
+
+
     }
 
-    public BufferedImage getTexture(String textureName) {
+    public Image getTexture(String textureName) {
         return imageBank.get(textureName);
     }
 
-    public BufferedImage flipImageHorizontal(BufferedImage img) {
+    public Image flipImageHorizontal(Image img) {
         AffineTransform tx = AffineTransform.getScaleInstance(-1.0, 1.0);
         tx.translate(-img.getWidth(null), 0.0);
         AffineTransformOp op = new AffineTransformOp(tx, 1);
-        return op.filter(img, null);
+        return op.filter((BufferedImage) img, null);
     }
 }
