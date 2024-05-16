@@ -148,6 +148,10 @@ public class Level {
         return player;
     }
 
+    public void reset() {
+        getPlayer().setLocation(spawnPoint.getX(), spawnPoint.getY());
+    }
+
     public Door getDoor() {
         return door;
     }

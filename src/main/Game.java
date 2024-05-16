@@ -86,7 +86,6 @@ public class Game extends GameEngine {
 
 
 
-
         }else{
             camera.draw();
 
