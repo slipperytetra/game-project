@@ -34,7 +34,7 @@ public class Level {
     private final String levelDoc;
     public final double gravity = 9.8;
     public double scale = 2;
-    Image backgroundImage;
+    String backgroundImgFilePath;
     Location spawnPoint;
     Location keyLoc;
     Location doorLoc;
@@ -65,14 +65,13 @@ public class Level {
         }
 
         name = lines.get(0).substring("name: ".length());
-        backgroundImage = manager.getEngine().loadImage(lines.get(1).substring("background: ".length()));
+        backgroundImgFilePath = lines.get(1).substring("background: ".length());
         nextLevel = lines.get(2).substring("next_level: ".length());
         sizeWidth = Integer.parseInt(lines.get(3).substring("level_width: ".length()));
         sizeHeight = Integer.parseInt(lines.get(4).substring("level_height: ".length()));
         System.out.println(sizeWidth);
         System.out.println(sizeHeight);
         this.grid = new BlockGrid(sizeWidth, sizeHeight);
-        this.manager.getEngine().imageBank.put("background", (BufferedImage) backgroundImage);
     }
 
     public void load() {
@@ -82,11 +81,14 @@ public class Level {
             line = line.substring(3);
             for (int x = 0; x < line.length(); x++) {
                 if (line.charAt(x) == 'P') {
-                    spawnPoint = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
-                    player = new Player(this, spawnPoint);
+                    double spawnX = x * Game.BLOCK_SIZE;
+                    double spawnY = relY * Game.BLOCK_SIZE;
 
-                    double heightDiff = player.getLocation().getY() - (player.getHeight() - Game.BLOCK_SIZE);
-                    player.setLocation(player.getLocation().getX(), heightDiff);
+                    player = new Player(this, new Location(spawnX, spawnY));
+
+                    spawnY = spawnY - (player.getHeight() - Game.BLOCK_SIZE);
+                    player.setLocation(player.getLocation().getX(), spawnY);
+                    spawnPoint = new Location(spawnX, spawnY);
                 } else if (line.charAt(x) == 'K') {
                     keyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
                     key = new Key(this, keyLoc);
@@ -126,6 +128,9 @@ public class Level {
 
             relY++;
         }
+        if (!backgroundImgFilePath.isEmpty()) {
+            getManager().getEngine().imageBank.put("background", Toolkit.getDefaultToolkit().createImage(backgroundImgFilePath));
+        }
         if (player == null) {
             System.out.println("level.Level error: no player location specified.");
             return;
@@ -150,6 +155,7 @@ public class Level {
 
     public void reset() {
         getPlayer().setLocation(spawnPoint.getX(), spawnPoint.getY());
+        getPlayer().setHealth(getPlayer().getMaxHealth());
     }
 
     public Door getDoor() {
@@ -174,10 +180,6 @@ public class Level {
 
     public LevelManager getManager() {
         return manager;
-    }
-
-    public Image getBackgroundImage() {
-        return backgroundImage;
     }
 
     public int getWidth() {

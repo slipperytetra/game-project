@@ -1,5 +1,5 @@
 name: Demo
-background: resources/images/background.jpg
+background: resources/images/bgidea.gif
 next_level: level_demo3
 level_width: 30
 level_height: 30

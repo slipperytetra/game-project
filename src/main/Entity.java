@@ -1,6 +1,7 @@
 package main;
 
 import block.Block;
+import block.BlockClimbable;
 import block.BlockLiquid;
 import level.Level;
 
@@ -158,6 +159,20 @@ public abstract class Entity {
         }
     }
 
+    public Block getBlockAtLocation() {
+        int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
+        int tileY = (int)((getLocation().getY() + 16) / Game.BLOCK_SIZE);
+
+        return getLevel().getBlockGrid().getBlockAt(tileX, tileY);
+    }
+
+    public Block getBlockAtLocation(int tileOffsetX, int tileOffsetY) {
+        int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE) + tileOffsetX;
+        int tileY = (int)((getLocation().getY() + 16) / Game.BLOCK_SIZE) + tileOffsetY;
+
+        return getLevel().getBlockGrid().getBlockAt(tileX, tileY);
+    }
+
     public boolean isFalling() {
         return !isOnGround();
     }
@@ -177,7 +192,7 @@ public abstract class Entity {
         int tileLeftX = (int)(getLocation().getX() / Game.BLOCK_SIZE);
         int tileLeftY = (int)((getLocation().getY() + getHeight() - 3) / Game.BLOCK_SIZE);
 
-        int tileRightX = (int)((getLocation().getX() + getWidth()) / Game.BLOCK_SIZE);
+        int tileRightX = (int)((getLocation().getX() + getWidth() - 5) / Game.BLOCK_SIZE);
         int tileRightY = (int)((getLocation().getY() + getHeight() - 3) / Game.BLOCK_SIZE);
 
         leftBlockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileLeftX, tileLeftY + 1);
@@ -185,7 +200,6 @@ public abstract class Entity {
 
         if (leftBlockBelowEntity instanceof BlockLiquid || rightBlockBelowEntity instanceof BlockLiquid) {
             setHealth(0);
-
         }
 
         if (leftBlockBelowEntity.getCollisionBox() != null) {
@@ -201,6 +215,10 @@ public abstract class Entity {
         }
 
         return false;
+    }
+
+    public boolean isClimbing() {
+        return getBlockAtLocation() instanceof BlockClimbable;
     }
 
     public Block getLeftBlockBelowEntity() {
