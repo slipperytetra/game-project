@@ -13,6 +13,7 @@ public class LevelManager {
 
     HashMap<String, Level> levels;
 
+    // Define the level variable name.
     public Level DEMO;
     public Level DEMO_2;
     public Level LEVEL_3;
@@ -24,7 +25,8 @@ public class LevelManager {
     }
 
     public void loadLevels() {
-        //Format: *NAME* = new level.Level(id, spawn_location, key_location)
+        // Assign the level name to your level. This points to your level's file under resources/levels.
+        // Format: *NAME* = new level.Level(id, spawn_location, key_location)
         DEMO = new Level(this, 0, "resources/levels/level_demo.txt");
         DEMO_2 = new Level(this, 1, "resources/levels/level_demo_2.txt");
         LEVEL_3 = new Level(this, 2, "resources/levels/level_demo3.txt");
@@ -34,6 +36,12 @@ public class LevelManager {
         levels.put("level_demo_2", DEMO_2);
         levels.put("level_demo3", LEVEL_3);
 
+        /*
+         *  This is for adding text to the level. You set the x and y coordinates where it should show.
+         *  The boolean static means if the text should show at a fixed position in the world e.g. the player
+         *  can walk past it or if static is set to true, then the text will show at a constant position on the screen
+         *  and follow the player as they move.
+         */
         DEMO.addTextMessage(new TextMessage(new Location(50, 100), "Welcome to our game!", 50, false, Color.black));
         DEMO.addTextMessage(new TextMessage(new Location(50, 200), "Press 'D' to move right and 'A' to move left.", 20, false, Color.black));
         DEMO.addTextMessage(new TextMessage(new Location(50, 330), "Hold 'Q' to attack with your sword.", 20, false, Color.black));

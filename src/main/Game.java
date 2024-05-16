@@ -115,6 +115,12 @@ public class Game extends GameEngine {
         }
     }
 
+    /*
+    *   This is where the image bank is loaded. Basically how it works is it uses a HashMap<String, Image> and it assigns
+    *   a string to an image object.
+    *
+    *   By doing it
+    * */
     public void loadCharacterImages() {
         imageBank.put("player_run_0",  loadImage("resources/images/characters/run0.png"));
         imageBank.put("player_run_1",  loadImage("resources/images/characters/run1.png"));
@@ -126,8 +132,9 @@ public class Game extends GameEngine {
         imageBank.put("player_jump_3",  loadImage("resources/images/characters/jump3.png"));
         imageBank.put("player_attack", Toolkit.getDefaultToolkit().createImage("resources/images/characters/attack.gif"));
 
-        imageBank.put(EntityType.DOOR.toString().toLowerCase(),  loadImage(EntityType.DOOR.getFilePath()));
-        imageBank.put(EntityType.PLAYER.toString().toLowerCase(), loadImage(EntityType.PLAYER.getFilePath()));
+        imageBank.put("door",  loadImage(EntityType.DOOR.getFilePath()));
+        imageBank.put("player", loadImage(EntityType.PLAYER.getFilePath()));
+        imageBank.put("plant_monster", loadImage(EntityType.PLANT_MONSTER.getFilePath()));
         //imageBank.put(EntityType.KEY.toString().toLowerCase(), loadImage(EntityType.KEY.getFilePath()));
         //imageBank.put(EntityType.PLANT_MONSTER.toString().toLowerCase(),  loadImage(EntityType.PLANT_MONSTER.getFilePath()));
         imageBank.put("key",  Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif"));
