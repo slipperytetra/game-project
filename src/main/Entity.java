@@ -26,7 +26,7 @@ public abstract class Entity {
     private Block rightBlockBelowEntity;
 
     double speed = 384; // pixels per second
-    double fallSpeedMultiplier = 1.1; // pixels per second
+    double fallSpeedMultiplier = 1.009; // pixels per second
 
     double fallAccel;
 

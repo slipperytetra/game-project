@@ -31,7 +31,7 @@ public class Player extends Entity {
     public Timer jumpAnimationTimer;
     private int jumpFrameIndex;
     private double timeJumping;
-    private double maxJumpTime = 0.35; //seconds
+    private double maxJumpTime = 0.25; //seconds
 
     Image gifImage;
     Image plantAttack;

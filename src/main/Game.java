@@ -142,6 +142,7 @@ public class Game extends GameEngine {
         imageBank.put("door",  loadImage(EntityType.DOOR.getFilePath()));
         imageBank.put("player", loadImage(EntityType.PLAYER.getFilePath()));
         imageBank.put("plant_monster", loadImage(EntityType.PLANT_MONSTER.getFilePath()));
+        imageBank.put("stone_door",loadImage(EntityType.STONE_DOOR.getFilePath()));
         //imageBank.put(EntityType.KEY.toString().toLowerCase(), loadImage(EntityType.KEY.getFilePath()));
         //imageBank.put(EntityType.PLANT_MONSTER.toString().toLowerCase(),  loadImage(EntityType.PLANT_MONSTER.getFilePath()));
         imageBank.put("key",  Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif"));

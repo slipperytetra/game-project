@@ -96,9 +96,14 @@ public class Level {
                     double heightDiff = key.getLocation().getY() - (key.getHeight() - Game.BLOCK_SIZE);
                     key.setLocation(key.getLocation().getX(), heightDiff);
                     addEntity(key);
-                } else if (line.charAt(x) == 'D') {
+                } else if (line.charAt(x) == 'D' ||line.charAt(x) == 'd') {
                     doorLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
                     door = new Door(this, doorLoc);
+                    if(line.charAt(x) == 'd'){
+                        door.setType(EntityType.STONE_DOOR);
+
+
+                    }
 
                     double heightDiff = door.getLocation().getY() - (door.getHeight() - Game.BLOCK_SIZE);
                     door.setLocation(door.getLocation().getX(), heightDiff);
@@ -122,6 +127,10 @@ public class Level {
                     grid.setBlock(x, relY, new BlockLiquid(BlockTypes.WATER_TOP, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 }else if (line.charAt(x) == 'O') {
                     grid.setBlock(x, relY, new BlockLiquid(BlockTypes.WATER_BOTTOM, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                }else if (line.charAt(x) == 'S') {
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.STONE_FLOOR, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                }else if (line.charAt(x) == 's') {
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.STONE_FILLER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 }
 
             }
