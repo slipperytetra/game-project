@@ -1,7 +1,6 @@
 
 Todo:
 
-Add water collisions
 
 Add attack hit for player to enemy
 
@@ -11,7 +10,6 @@ Jump of ladder
 
 Fix sticking to wall issue.
 
-Press E on door.
 
 
 LEVELS
