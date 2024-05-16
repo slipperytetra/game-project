@@ -174,10 +174,10 @@ public class Player extends Entity {
     public void playerMovement(Set<Integer> keysPressed) {
         if (keysPressed.contains(32)) {//SPACE
             if (isOnGround()) {
-                System.out.println("Jump!");
+                //System.out.println("Jump!");
                 jump();
             } else {
-                System.out.println("Not on ground!");
+                //System.out.println("Not on ground!");
             }
         }
         if (keysPressed.contains(87)) {//W

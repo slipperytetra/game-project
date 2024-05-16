@@ -35,7 +35,7 @@ public class Level {
     public final double gravity = 9.8;
     public double scale = 2;
     Image backgroundImage;
-    Location spawnPoint;
+    private Location spawnPoint;
     Location keyLoc;
     Location doorLoc;
 
@@ -82,11 +82,13 @@ public class Level {
             line = line.substring(3);
             for (int x = 0; x < line.length(); x++) {
                 if (line.charAt(x) == 'P') {
-                    spawnPoint = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
-                    player = new Player(this, spawnPoint);
+                    double spawnX = x * Game.BLOCK_SIZE;
+                    double spawnY = relY * Game.BLOCK_SIZE;
+                    player = new Player(this, new Location(spawnX, spawnY));
 
-                    double heightDiff = player.getLocation().getY() - (player.getHeight() - Game.BLOCK_SIZE);
-                    player.setLocation(player.getLocation().getX(), heightDiff);
+                    spawnY = spawnY - (player.getHeight() - Game.BLOCK_SIZE);
+                    player.setLocation(player.getLocation().getX(), spawnY);
+                    spawnPoint = new Location(spawnX, spawnY);
                 } else if (line.charAt(x) == 'K') {
                     keyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
                     key = new Key(this, keyLoc);
@@ -149,7 +151,9 @@ public class Level {
     }
 
     public void reset() {
-        getPlayer().setLocation(spawnPoint.getX(), spawnPoint.getY());
+        getPlayer().setHealth(getPlayer().getMaxHealth());
+        System.out.println("Spawn: " + getSpawnPoint().toString());
+        getPlayer().setLocation(getSpawnPoint().getX(), getSpawnPoint().getY());
     }
 
     public Door getDoor() {
