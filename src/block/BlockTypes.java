@@ -8,7 +8,10 @@ public enum BlockTypes {
     DIRT("resources/images/blocks/dirt.png"),
     GRASS("resources/images/blocks/ground.png"),
     LADDER("resources/images/blocks/ladder.png"),
-    BARRIER("");
+    BARRIER(""),
+    WATER_TOP("resources/images/blocks/waterTop.png"),
+    WATER_BOTTOM("resources/images/blocks/waterBottom.png");
+
 
 
     private final String getFilePath;

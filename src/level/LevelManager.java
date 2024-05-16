@@ -15,6 +15,7 @@ public class LevelManager {
 
     public Level DEMO;
     public Level DEMO_2;
+    public Level LEVEL_3;
 
     public LevelManager(Game engine) {
         this.engine = engine;
@@ -26,9 +27,12 @@ public class LevelManager {
         //Format: *NAME* = new level.Level(id, spawn_location, key_location)
         DEMO = new Level(this, 0, "resources/levels/level_demo.txt");
         DEMO_2 = new Level(this, 1, "resources/levels/level_demo_2.txt");
+        LEVEL_3 = new Level(this, 2, "resources/levels/level_demo3.txt");
+
 
         levels.put("level_demo", DEMO);
         levels.put("level_demo_2", DEMO_2);
+        levels.put("level_demo3", LEVEL_3);
 
         DEMO.addTextMessage(new TextMessage(new Location(50, 100), "Welcome to our game!", 50, false, Color.black));
         DEMO.addTextMessage(new TextMessage(new Location(50, 200), "Press 'D' to move right and 'A' to move left.", 20, false, Color.black));
