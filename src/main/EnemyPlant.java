@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import javax.swing.Timer;
 
 public class EnemyPlant extends Enemy {
+    private GameEngine.AudioClip audioClip;
     private boolean isAttacking;
     private boolean isCooldown;
     private Timer healthTimer;
@@ -60,8 +61,8 @@ public class EnemyPlant extends Enemy {
                     getTarget().setHealth(getTarget().getHealth() - getDamage());
                 System.out.println(getTarget().getHealth());
                 isAttacking = true;
-               // getLevel().getManager().getEngine().loadAudio();
-                //getLevel().getManager().getEngine().playAudio();
+               audioClip = getLevel().getManager().getEngine().loadAudio("resources/sounds/hitSound.wav");
+                getLevel().getManager().getEngine().playAudio(audioClip);
 
 
             }else{

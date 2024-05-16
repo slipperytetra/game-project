@@ -124,6 +124,7 @@ public class Game extends GameEngine {
         imageBank.put("player_jump_1",  loadImage("resources/images/characters/jump1.png"));
         imageBank.put("player_jump_2",  loadImage("resources/images/characters/jump2.png"));
         imageBank.put("player_jump_3",  loadImage("resources/images/characters/jump3.png"));
+        imageBank.put("player_attack", Toolkit.getDefaultToolkit().createImage("resources/images/characters/attack.gif"));
 
         imageBank.put(EntityType.DOOR.toString().toLowerCase(),  loadImage(EntityType.DOOR.getFilePath()));
         imageBank.put(EntityType.PLAYER.toString().toLowerCase(), loadImage(EntityType.PLAYER.getFilePath()));

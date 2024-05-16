@@ -21,7 +21,7 @@ public class Player extends Entity {
     private boolean attackRegistered = false;
     private boolean isJumping;
     private boolean hasKey;
-    //private Rectangle collisionBox;
+    private int attackCounter;
 
     private Timer runAnimationTimer;
     private int runFrameIndex;
@@ -77,6 +77,13 @@ public class Player extends Entity {
     public void update(double dt) {
         super.update(dt);
         animateCharacter();
+        if(isAttacking){
+            attackCounter++;
+            if(attackCounter > 10) {
+                isAttacking = false;
+            }
+            }
+
     }
 
     public boolean hasKey() {
@@ -127,7 +134,9 @@ public class Player extends Entity {
         double playerOffsetX = getLocation().getX() + cam.centerOffsetX;
         double playerOffsetY = getLocation().getY() + cam.centerOffsetY;
         Game game = getLevel().getManager().getEngine();
-        if (isMovingVertically()) {
+        if (isAttacking) {
+            game.drawImage(getAttackFrame(), playerOffsetX, playerOffsetY, getWidth(), getHeight() );
+        } else if (isMovingVertically()) {
             game.drawImage(getFallFrame(), playerOffsetX, playerOffsetY, getWidth(), getHeight() );
         } else if (isMovingHorizontally()) {
             game.drawImage(getRunFrame(), playerOffsetX, playerOffsetY, getWidth(), getHeight());
@@ -185,6 +194,9 @@ public class Player extends Entity {
         if (keysPressed.contains(68)) {//D
             setDirectionX(calculateHorizontalMovement());
         }
+        if (keysPressed.contains(81)){
+            Attack();
+        }
     }
 
     public JProgressBar getHealthBar() {
@@ -231,6 +243,25 @@ public class Player extends Entity {
 
         return getLevel().getManager().getEngine().getTexture("player_jump_" + runFrameIndex);
     }
+
+      public Image getAttackFrame(){
+
+        return getLevel().getManager().getEngine().getTexture("player_attack");
+
+     }
+
+     public void Attack(){
+
+        isAttacking = true;
+        attackCounter = 0;
+
+     }
+
+
+
+
+
+
 
     public boolean canClimb() {
         return getBlockAtLocation() instanceof BlockClimbable;
