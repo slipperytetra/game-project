@@ -15,8 +15,10 @@ public class Door extends Entity {
         super.update(dt);
 
         if (canEnter(getLevel().getPlayer())) {
+
+           if(getLevel().getManager().getEngine().keysPressed.contains(69)){
             getLevel().getManager().getEngine().setActiveLevel(getLevel().getManager().getLevels().get(getLevel().getNextLevel()));
-        }
+        }}
     }
 
     @Override
