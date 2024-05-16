@@ -22,7 +22,7 @@ public class Game extends GameEngine {
     public long lastTime;
     public long currentTime;
     public HashMap<String, Image> imageBank;
-    private Set<Integer> keysPressed = new HashSet();
+    public Set<Integer> keysPressed = new HashSet();
 
     LevelManager lvlManager;
     private Level activeLevel;
