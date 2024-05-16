@@ -5,7 +5,7 @@ import java.awt.*;
 public enum BlockTypes {
 
     VOID(""),
-    DIRT("resources/images/blocks/ground.png"),
+    DIRT("resources/images/blocks/dirt.png"),
     GRASS("resources/images/blocks/ground.png"),
     LADDER("resources/images/blocks/ladder.png"),
     BARRIER("");

@@ -14,6 +14,8 @@ import java.util.Set;
 
 public class Player extends Entity {
     private JProgressBar healthBar;
+    private GameEngine.AudioClip attack;
+
 
     private boolean isAttacking;
     private boolean keyObtained;
@@ -251,6 +253,14 @@ public class Player extends Entity {
      }
 
      public void Attack(){
+         attack = getLevel().getManager().getEngine().loadAudio("resources/sounds/attackSound.wav");
+         getLevel().getManager().getEngine().playAudio(attack);
+
+
+
+
+
+
 
         isAttacking = true;
         attackCounter = 0;

@@ -82,11 +82,11 @@ public class EnemyPlant extends Enemy {
     }
 
     public double getWidth() {
-        return 50;
+        return 80;
     }
 
     public double getHeight() {
-        return 50;    }
+        return 100;    }
 
 
     @Override

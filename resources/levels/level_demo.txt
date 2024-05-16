@@ -1,6 +1,6 @@
 name: Demo
 background: resources/images/background.jpg
-neBt_level: level_demo_2
+next_level: level_demo_2
 level_width: 30
 level_height: 30
 level_data:
@@ -31,6 +31,6 @@ level_data:
   [B.........L..................B]
   [B.........L..................B]
   [B.........L..................B]
-  [B....P....L...........E...D..B]
-  [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
+  [B....P....L...........X...D..B]
+  [XXXXXXXXXXXXXXXXXXXXXXEXXXXXXX]
   [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
