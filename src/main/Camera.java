@@ -19,12 +19,21 @@ public class Camera {
     public Game game;
     public Player player;
     public boolean showHitboxes;
+    private GameEngine.AudioClip keyObtained;
+    private boolean hasPlayedKeyAudio = false;
+
+
     public double centerOffsetX, centerOffsetY;
 
     public Camera(Game game, Player p) {
         this.game = game;
         this.player = p;
         this.loc = new Location(p.getLocation().getX(), p.getLocation().getY());
+        keyObtained = this.game.loadAudio("resources/sounds/keyObtained.wav");
+
+
+
+
 
         /*
         *   'point1' is the top left location of the screen.
@@ -144,8 +153,17 @@ public class Camera {
 
         game.drawText(50,35,"Health:",15);
         game.drawText(1200,50,"Key : ", 20);
-        if(game.getActiveLevel().getPlayer().hasKey()){
-            game.drawImage(game.imageBank.get("key"),1230,20,50,50);
+        if (game.getActiveLevel().getPlayer().hasKey()) {
+            game.drawImage(game.imageBank.get("key"), 1230, 20, 50, 50);
+
+            // Check if the audio has not been played yet
+            if (!hasPlayedKeyAudio) {
+                this.game.playAudio(keyObtained);
+                hasPlayedKeyAudio = true; // Set the flag to true after playing the audio
+            }
+        } else {
+            // Optional: Reset the flag if the player no longer has the key
+            hasPlayedKeyAudio = false;
         }
 
         game.changeColor(Color.RED);

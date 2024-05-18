@@ -9,6 +9,7 @@ public class Key extends Entity {
     public Key(Level level, Location loc) {
         super(EntityType.KEY, level, loc);
 
+
         setScale(0.5);
         setCanMove(false);
         setFlipped(true);
@@ -17,6 +18,7 @@ public class Key extends Entity {
     public void update(double dt) {
         if (getLevel().getPlayer().getCollisionBox().collidesWith(this.getCollisionBox())) {
             getLevel().getPlayer().setHasKey(true);
+
 
             destroy();
         }

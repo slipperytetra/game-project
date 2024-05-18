@@ -82,7 +82,7 @@ public class EnemyPlant extends Enemy {
     }
 
     public double getWidth() {
-        return 80;
+        return 100;
     }
 
     public double getHeight() {

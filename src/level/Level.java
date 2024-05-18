@@ -115,7 +115,7 @@ public class Level {
                 } else if (line.charAt(x) == 'L') {
                     grid.setBlock(x, relY, new BlockClimbable(BlockTypes.LADDER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'E') {
-                    Location enemyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
+                    Location enemyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE+ 65);
                     EnemyPlant enemy = new EnemyPlant(this, enemyLoc);
 
                     double heightDiff = enemy.getLocation().getY() - ( Game.BLOCK_SIZE);

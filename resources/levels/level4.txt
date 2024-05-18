@@ -30,6 +30,6 @@ level_data:
   [.....................................L.....................................]
   [............SS.......................L.....................................]
   [.................SSSSSSSS............L........SS...........................]
-  [...P......SSSSSSSssssssssSSSS...............SSssS..........................]
+  [...P....E.SSSSSSSssssssssSSSS...............SSssS..........................]
   [SSSSSSSSSSsssssssssssssssssssSSSSSSSSSSSSSSSsssssSSSSSSSSSSSSSSSSSSSSSSSSSS]
   [sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss]
