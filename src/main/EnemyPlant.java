@@ -46,6 +46,9 @@ public class EnemyPlant extends Enemy {
     @Override
     public void update(double dt) {
         super.update(dt);
+        if(!isActive()){
+            return;
+        }
         setTarget(getLevel().getPlayer());
         attack();
     }
@@ -92,5 +95,13 @@ public class EnemyPlant extends Enemy {
     @Override
     public boolean hasAttackAnimation() {
         return true;
+    }
+
+
+    @Override
+    public void destroy(){
+        super.destroy();
+        healthTimer.stop();
+
     }
 }

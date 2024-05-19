@@ -41,8 +41,8 @@ public abstract class Entity {
         this.loc = loc;
         this.isActive = true;
         this.scale = 2;
-        this.maxHealth = 5;
-        this.health = 5;
+        this.maxHealth = 100;
+        this.health = 100;
         this.canMove = true;
         this.hitboxColor = Color.YELLOW;
         this.collisionBox = new CollisionBox((int)loc.getX(), (int)loc.getY(), getWidth(), getHeight());

@@ -42,4 +42,9 @@ public class Location {
         return (this.getX() > point1.getX() && this.getX() < point2.getX())
                 && (this.getY() > point1.getY() && this.getY() < point2.getY());
     }
+    public static double calculateDistance(double x1, double y1, double x2, double y2) {
+        double deltaX = x2 - x1;
+        double deltaY = y2 - y1;
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
 }

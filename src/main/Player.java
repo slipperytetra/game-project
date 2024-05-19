@@ -38,8 +38,12 @@ public class Player extends Entity {
     Image gifImage2;
     Image level1;
 
+    private Enemy target;
+
     public Player(Level level, Location loc) {
         super(EntityType.PLAYER, level, loc);
+
+
 
         setHitboxColor(Color.cyan);
         setMaxHealth(100);
@@ -271,9 +275,52 @@ public class Player extends Entity {
          attack = getLevel().getManager().getEngine().loadAudio("resources/sounds/attackSound.wav");
          getLevel().getManager().getEngine().playAudio(attack);
          isAttacking = true;
-        attackCounter = 0;
+         attackCounter = 0;
+
+
+         if(canAttack()){
+             System.out.println(getTarget().getHealth());
+
+             getTarget().setHealth(getTarget().getHealth()- 2);
+             System.out.println(getTarget().getHealth());
+             if(getTarget().getHealth() <= 0){
+                 getTarget().setDamage(0);
+                 getTarget().destroy();
+
+             }
+
+
+
+         }
+
+
 
      }
+
+    public boolean canAttack() {
+
+
+
+        return getTarget() != null;
+    }
+
+    public Enemy getTarget() {
+        for (Entity enemy : getLevel().getEntities()){
+            if (enemy instanceof Enemy) {
+                if (Location.calculateDistance(getLocation().getX(), getLocation().getY(), enemy.getLocation().getX(), enemy.getLocation().getY()) < 64) {
+                    System.out.println("Close");
+                    return (Enemy) enemy;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public void setTarget(Enemy p) {
+        this.target = p;
+    }
+
 
 
 
