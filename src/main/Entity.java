@@ -109,11 +109,10 @@ public abstract class Entity {
     }
 
     public void moveX(double x) {
-        int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
-        int tileY = (int)((getLocation().getY() + 16) / Game.BLOCK_SIZE);
         if (x < 0) { //left
             for (int i = 0; i < Math.abs(x); i++) {
-                Block leftBlock = getLevel().getBlockGrid().getBlockAt(tileX - 1, tileY);
+                Block leftBlock = getBlockAtLocation(-1, 1);
+                //System.out.println("left: " + leftBlock.getType().toString());
                 if (getCollisionBox().collidesWith(leftBlock.getCollisionBox()) && leftBlock.isCollidable()) {
                     return;
                 }
@@ -122,7 +121,8 @@ public abstract class Entity {
             }
         } else if (x >= 0) { //right
             for (int i = 0; i < x; i++) {
-                Block rightBlock = getLevel().getBlockGrid().getBlockAt(tileX + 1, tileY);
+                Block rightBlock = getBlockAtLocation(1, 1);
+                //System.out.println("right: " + rightBlock.getType().toString());
                 if (getCollisionBox().collidesWith(rightBlock.getCollisionBox()) && rightBlock.isCollidable()) {
                     return;
                 }

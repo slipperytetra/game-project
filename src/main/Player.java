@@ -205,10 +205,8 @@ public class Player extends Entity {
             }
         }
         if (keysPressed.contains(87)) {//W
-            if (canClimb()) {
+            if (canClimb() && getBlockAtLocation(0, -1).getType() != BlockTypes.VOID) {
                 setDirectionY(-1);
-            } else {
-                setDirectionY(0);
             }
         }
         if (keysPressed.contains(65)) {//A
