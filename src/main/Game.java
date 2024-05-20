@@ -13,6 +13,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class Game extends GameEngine {
@@ -68,9 +69,14 @@ public class Game extends GameEngine {
 
         activeLevel.getPlayer().playerMovement(keysPressed);
         activeLevel.getPlayer().update(dt);
-        for (Entity entity : activeLevel.getEntities()) {
+
+        Iterator<Entity> iter = activeLevel.getEntities().iterator();
+        while (iter.hasNext()) {
+            Entity entity = iter.next();
             if (entity.isActive()) {
                 entity.update(dt);
+            } else {
+                iter.remove();
             }
         }
     }

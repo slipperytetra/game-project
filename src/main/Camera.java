@@ -18,7 +18,7 @@ public class Camera {
     public Location loc, point1, point2, centerPoint;
     public Game game;
     public Player player;
-    public boolean showHitboxes = true;
+    public boolean showHitboxes;
     private GameEngine.AudioClip keyObtained;
     private boolean hasPlayedKeyAudio = false;
 

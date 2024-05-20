@@ -87,7 +87,23 @@ public abstract class Entity {
         this.canMove = canMove;
     }
 
-    public abstract void processMovement(double dt);
+    public void processMovement(double dt) {
+        moveX = getDirectionX() * (speed * dt);
+        moveY = getDirectionY() * (speed * dt);
+
+        moveX(moveX);
+        moveY(moveY);
+
+        if (isFalling()) {
+            if (fallAccel > 0) {
+                fallAccel *= fallSpeedMultiplier;
+                setDirectionY(1 * fallAccel);
+            }
+        } else {
+            fallAccel = 1;
+            setDirectionY(0);
+        }
+    }
 
     public double getDirectionX() {
         return directionX;
