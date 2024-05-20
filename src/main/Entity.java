@@ -134,7 +134,7 @@ public abstract class Entity {
             for (int i = 0; i < Math.abs(x); i++) {
                 Block leftBlock = getBlockAtLocation(-1, 1);
                 //System.out.println("left: " + leftBlock.getType().toString());
-                if (getCollisionBox().collidesWith(leftBlock.getCollisionBox()) && leftBlock.isCollidable()) {
+                if (leftBlock == null || getCollisionBox().collidesWith(leftBlock.getCollisionBox()) && leftBlock.isCollidable()) {
                     return;
                 }
 
@@ -144,7 +144,7 @@ public abstract class Entity {
             for (int i = 0; i < x; i++) {
                 Block rightBlock = getBlockAtLocation(1, 1);
                 //System.out.println("right: " + rightBlock.getType().toString());
-                if (getCollisionBox().collidesWith(rightBlock.getCollisionBox()) && rightBlock.isCollidable()) {
+                if (rightBlock == null || getCollisionBox().collidesWith(rightBlock.getCollisionBox()) && rightBlock.isCollidable()) {
                     return;
                 }
 
@@ -159,6 +159,10 @@ public abstract class Entity {
         if (y < 0) { //up
             for (int i = 0; i < Math.abs(y); i++) {
                 Block blockAbove = getLevel().getBlockGrid().getBlockAt(tileX, tileY - 1);
+                if (blockAbove == null) {
+                    return;
+                }
+
                 if (blockAbove.getCollisionBox() != null) {
                     if (getCollisionBox().collidesWith(blockAbove.getCollisionBox()) && blockAbove.isCollidable()) {
                         setDirectionY(0);
@@ -215,6 +219,10 @@ public abstract class Entity {
 
 
         blockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileX, tileY + 2);
+
+        if (blockBelowEntity == null) {
+            return true;
+        }
 
         if (blockBelowEntity instanceof BlockLiquid) {
             setHealth(0);

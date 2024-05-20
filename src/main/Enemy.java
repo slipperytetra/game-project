@@ -18,7 +18,6 @@ public abstract class Enemy extends EntityLiving {
         super.update(dt);
 
         if (isTargetInRange()) {
-            System.out.println("Player in range");
             attack();
         }
     }

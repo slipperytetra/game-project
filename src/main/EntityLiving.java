@@ -108,7 +108,7 @@ public abstract class EntityLiving extends Entity {
     }
 
     public boolean canAttack() {
-        return attackCounter >= getAttackCooldown();
+        return getAttackTicks() >= getAttackCooldown();
     }
 
     public void damage(EntityLiving attacker) {
@@ -120,6 +120,6 @@ public abstract class EntityLiving extends Entity {
 
     public void setAttackCooldown(double cooldown) {
         this.attackCooldown = cooldown;
-        this.attackCounter = attackCooldown - 0.01;
+        setAttackTicks(getAttackCooldown() - 0.01);
     }
 }
