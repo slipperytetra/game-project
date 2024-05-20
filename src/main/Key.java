@@ -7,12 +7,10 @@ import java.awt.image.BufferedImage;
 
 public class Key extends Entity {
     public Key(Level level, Location loc) {
-        super(EntityType.KEY, level, loc);
-
+        super(EntityType.KEY, level, loc, 46, 99);
 
         setScale(0.5);
         setCanMove(false);
-        setFlipped(true);
     }
 
     public void update(double dt) {
@@ -24,9 +22,7 @@ public class Key extends Entity {
         }
     }
     @Override
-    public Image getIdleFrame() {
-
-
+    public Image getActiveFrame() {
         return getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase());
     }
 
@@ -35,7 +31,8 @@ public class Key extends Entity {
     }
 
     public double getHeight() {
-        return 50;    }
+        return 50;
+    }
 
     @Override
     public void processMovement(double dt) {

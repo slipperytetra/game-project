@@ -11,8 +11,8 @@ public abstract class Enemy extends Entity {
     private int speed;
     private Player target;
 
-    public Enemy(Level level, EntityType type, Location loc) {
-        super(type, level, loc);
+    public Enemy(Level level, EntityType type, Location loc, int hitboxWidth, int hitboxHeight) {
+        super(type, level, loc, hitboxWidth, hitboxHeight);
         this.damage = 1;
         this.speed = 1;
 

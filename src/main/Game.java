@@ -147,7 +147,7 @@ public class Game extends GameEngine {
         //imageBank.put(EntityType.PLANT_MONSTER.toString().toLowerCase(),  loadImage(EntityType.PLANT_MONSTER.getFilePath()));
         imageBank.put("key",  Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif"));
         imageBank.put("plant_monsterAttack", Toolkit.getDefaultToolkit().createImage("resources/images/plantAttack.gif"));
-        imageBank.put("plant_monster", loadImage("resources/images/plantAttack.gif"));
+        imageBank.put("plant_monster", loadImage("resources/images/characters/plant_monster.png"));
 
 
     }
