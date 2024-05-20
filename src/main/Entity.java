@@ -15,15 +15,15 @@ public abstract class Entity {
     private Location loc;
     private CollisionBox collisionBox;
 
+    private int hitboxWidth, hitboxHeight;
     private int health;
     private int maxHealth;
     private double scale;
     private boolean isActive;
+    private Block blockBelowEntity;
 
     private double directionX, directionY;
     public double moveX, moveY;
-    private Block leftBlockBelowEntity;
-    private Block rightBlockBelowEntity;
 
     double speed = 384; // pixels per second
     double fallSpeedMultiplier = 1.009; // pixels per second
@@ -34,29 +34,34 @@ public abstract class Entity {
     private boolean canMove;
     private Color hitboxColor;
 
-    public Entity(EntityType type, Level level, Location loc) {
+    public Entity(EntityType type, Level level, Location loc, int hitboxWidth, int hitboxHeight) {
         this.type = type;
         this.level = level;
-        loc.setY(loc.getY() - getHeight());
         this.loc = loc;
-        this.isActive = true;
         this.scale = 2;
+        this.hitboxWidth = hitboxWidth;
+        this.hitboxHeight = hitboxHeight;
+
+        this.isActive = true;
         this.maxHealth = 100;
         this.health = 100;
         this.canMove = true;
         this.hitboxColor = Color.YELLOW;
-        this.collisionBox = new CollisionBox((int)loc.getX(), (int)loc.getY(), getWidth(), getHeight());
+        this.collisionBox = new CollisionBox((int)loc.getX(), (int)loc.getY(), hitboxWidth * scale, hitboxHeight * scale);
     }
 
     public void render(Camera cam) {
         double offsetX = getLocation().getX() + cam.centerOffsetX;
         double offsetY = getLocation().getY() + cam.centerOffsetY;
 
-        getLevel().getManager().getEngine().drawImage(getIdleFrame(), offsetX, offsetY, getWidth(), getHeight());
+        getLevel().getManager().getEngine().drawImage(getActiveFrame(), offsetX, offsetY, getWidth(), getHeight());
 
         if (cam.showHitboxes) {
+            double hitBoxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
+            double hitBoxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
+
             getLevel().getManager().getEngine().changeColor(getHitboxColor());
-            getLevel().getManager().getEngine().drawRectangle(offsetX, offsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            getLevel().getManager().getEngine().drawRectangle(hitBoxOffsetX, hitBoxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
         }
     }
 
@@ -109,11 +114,10 @@ public abstract class Entity {
     }
 
     public void moveX(double x) {
-        int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
-        int tileY = (int)((getLocation().getY() + 16) / Game.BLOCK_SIZE);
         if (x < 0) { //left
             for (int i = 0; i < Math.abs(x); i++) {
-                Block leftBlock = getLevel().getBlockGrid().getBlockAt(tileX - 1, tileY);
+                Block leftBlock = getBlockAtLocation(-1, 1);
+                //System.out.println("left: " + leftBlock.getType().toString());
                 if (getCollisionBox().collidesWith(leftBlock.getCollisionBox()) && leftBlock.isCollidable()) {
                     return;
                 }
@@ -122,7 +126,8 @@ public abstract class Entity {
             }
         } else if (x >= 0) { //right
             for (int i = 0; i < x; i++) {
-                Block rightBlock = getLevel().getBlockGrid().getBlockAt(tileX + 1, tileY);
+                Block rightBlock = getBlockAtLocation(1, 1);
+                //System.out.println("right: " + rightBlock.getType().toString());
                 if (getCollisionBox().collidesWith(rightBlock.getCollisionBox()) && rightBlock.isCollidable()) {
                     return;
                 }
@@ -189,27 +194,18 @@ public abstract class Entity {
         return moveY != 0;
     }
     public boolean isOnGround() {
-        int tileLeftX = (int)(getLocation().getX() / Game.BLOCK_SIZE);
-        int tileLeftY = (int)((getLocation().getY() + getHeight() - 3) / Game.BLOCK_SIZE);
+        int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
+        int tileY = (int)((getLocation().getY()) / Game.BLOCK_SIZE);
 
-        int tileRightX = (int)((getLocation().getX() + getWidth() - 5) / Game.BLOCK_SIZE);
-        int tileRightY = (int)((getLocation().getY() + getHeight() - 3) / Game.BLOCK_SIZE);
 
-        leftBlockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileLeftX, tileLeftY + 1);
-        rightBlockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileRightX, tileRightY + 1);
+        blockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileX, tileY + 2);
 
-        if (leftBlockBelowEntity instanceof BlockLiquid || rightBlockBelowEntity instanceof BlockLiquid) {
+        if (blockBelowEntity instanceof BlockLiquid) {
             setHealth(0);
         }
 
-        if (leftBlockBelowEntity.getCollisionBox() != null) {
-            if (getCollisionBox().collidesWith(leftBlockBelowEntity.getCollisionBox()) && leftBlockBelowEntity.isCollidable()) {
-                return true;
-            }
-        }
-
-        if (rightBlockBelowEntity.getCollisionBox() != null) {
-            if (getCollisionBox().collidesWith(rightBlockBelowEntity.getCollisionBox()) && rightBlockBelowEntity.isCollidable()) {
+        if (blockBelowEntity.getCollisionBox() != null) {
+            if (getCollisionBox().collidesWith(blockBelowEntity.getCollisionBox()) && blockBelowEntity.isCollidable()) {
                 return true;
             }
         }
@@ -221,12 +217,8 @@ public abstract class Entity {
         return getBlockAtLocation() instanceof BlockClimbable;
     }
 
-    public Block getLeftBlockBelowEntity() {
-        return leftBlockBelowEntity;
-    }
-
-    public Block getRightBlockBelowEntity() {
-        return rightBlockBelowEntity;
+    public Block getBlockBelowEntity() {
+        return blockBelowEntity;
     }
 
     public EntityType getType() {
@@ -267,7 +259,7 @@ public abstract class Entity {
     }
 
     public double getHeight() {
-        return ((BufferedImage)getIdleFrame()).getHeight() * scale;
+        return ((BufferedImage) getIdleFrame()).getHeight() * scale;
     }
 
     public int getHealth() {
@@ -311,6 +303,10 @@ public abstract class Entity {
         this.isFlipped = isFlipped;
     }
 
+    public Image getActiveFrame() {
+        return getIdleFrame();
+    }
+
     public Image getIdleFrame() {
         if (!isFlipped()) {
             return getLevel().getManager().getEngine().flipImageHorizontal(level.getManager().getEngine().getTexture(getType().toString().toLowerCase()));
@@ -329,7 +325,7 @@ public abstract class Entity {
 
     public void updateCollisionBox() {
         getCollisionBox().setLocation(getLocation().getX(), getLocation().getY());
-        getCollisionBox().setSize(getWidth(), getHeight());
+        getCollisionBox().setSize(hitboxWidth * getScale(), hitboxHeight * getScale());
     }
 
     public void destroy() {

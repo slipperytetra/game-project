@@ -7,7 +7,7 @@ public class Door extends Entity {
     private boolean audioPlayed;
 
     public Door(Level level, Location loc) {
-        super(EntityType.DOOR, level, loc);
+        super(EntityType.DOOR, level, loc, 29, 51);
 
 
         setScale(1.5);

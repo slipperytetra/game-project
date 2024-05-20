@@ -1,6 +1,6 @@
 name: Demo
 background: resources/images/bgidea.gif
-neSt_level: level4
+next_level: level4
 level_width: 30
 level_height: 30
 level_data:
@@ -15,7 +15,7 @@ level_data:
   [B............................B]
   [B............................B]
   [B............................B]
-  [B..........K....L............B]
+  [B...............L............B]
   [B........SSSSSSSL............B]
   [B........sssssssL............B]
   [B...............L............B]
@@ -31,6 +31,6 @@ level_data:
   [B.........Lssssss............B]
   [B.........Lssssss............B]
   [B.........Lssssss............B]
-  [B....P..E.Lssssss.........D..B]
+  [B....P..E.Lssssss.....K...D..B]
   [SSSSSSSSSSSSSSSSSSSSSSSSSSSSSS]
   [ssssssssssssssssssssssssssssss]
