@@ -26,13 +26,14 @@ public class Door extends Entity {
             }
 
             // Play the audio if it hasn't been played yet
-            if (!audioPlayed) {
-                getLevel().getManager().getEngine().playAudio(newLevel);
-                audioPlayed = true; // Set the flag to true to indicate that the audio has been played
-            }
+
 
             // Check if the specified key is pressed to switch to the next level
             if (getLevel().getManager().getEngine().keysPressed.contains(69)) {
+                if (!audioPlayed) {
+                    getLevel().getManager().getEngine().playAudio(newLevel);
+                    audioPlayed = true; // Set the flag to true to indicate that the audio has been played
+                }
                 getLevel().getManager().getEngine().setActiveLevel(getLevel().getManager().getLevels().get(getLevel().getNextLevel()));
             }
         }

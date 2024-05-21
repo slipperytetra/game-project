@@ -32,10 +32,11 @@ public class BlockGrid {
     }
 
     public Block getBlockAt(int x, int y) {
-        if (x < 0 || x > getWidth() || y < 0 || y > getHeight()) {
+        if (x < 0 || x >= getWidth() || y < 0 || y >= getHeight()) {
             System.out.println("Error: trying to get block outside of block.BlockGrid dimensions.");
             return null;
         }
+
         return blocks[x][y];
     }
 

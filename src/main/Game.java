@@ -13,6 +13,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class Game extends GameEngine {
@@ -44,7 +45,7 @@ public class Game extends GameEngine {
 
         this.setWindowSize(1280, 720);
         this.lvlManager = new LevelManager(this);
-        setActiveLevel(lvlManager.DEMO);
+        setActiveLevel(lvlManager.FOREST);
 
         System.out.println("Starting X position: " + this.activeLevel.getPlayer().getLocation().getX());
         System.out.println("Starting Y position: " + this.activeLevel.getPlayer().getLocation().getY());
@@ -68,9 +69,14 @@ public class Game extends GameEngine {
 
         activeLevel.getPlayer().playerMovement(keysPressed);
         activeLevel.getPlayer().update(dt);
-        for (Entity entity : activeLevel.getEntities()) {
+
+        Iterator<Entity> iter = activeLevel.getEntities().iterator();
+        while (iter.hasNext()) {
+            Entity entity = iter.next();
             if (entity.isActive()) {
                 entity.update(dt);
+            } else {
+                iter.remove();
             }
         }
     }
@@ -98,7 +104,7 @@ public class Game extends GameEngine {
     public void keyReleased(KeyEvent event) {
         this.keysPressed.remove(event.getKeyCode());
         if (event.getKeyCode() == 72) {
-            camera.showHitboxes = !camera.showHitboxes;
+            camera.debugMode = !camera.debugMode;
             //setActiveLevel(lvlManager.DEMO_2);
         }
 

@@ -18,9 +18,12 @@ public class Camera {
     public Location loc, point1, point2, centerPoint;
     public Game game;
     public Player player;
-    public boolean showHitboxes = true;
     private GameEngine.AudioClip keyObtained;
     private boolean hasPlayedKeyAudio = false;
+
+    public boolean debugMode;
+    private int DEBUG_ENTITIES_ON_SCREEN;
+    private int DEBUG_BLOCKS_ON_SCREEN;
 
 
     public double centerOffsetX, centerOffsetY;
@@ -91,6 +94,7 @@ public class Camera {
     *
     * */
     private void renderBlocks() {
+        DEBUG_BLOCKS_ON_SCREEN = 0;
         for (int x = 0; x < game.getActiveLevel().getBlockGrid().getWidth(); x++) {
             for (int y = 0; y < game.getActiveLevel().getBlockGrid().getHeight(); y++) { //Iterating over all the blocks
                 Block b = game.getActiveLevel().getBlockGrid().getBlocks()[x][y]; //Getting the block from the grid based on the coordinates
@@ -110,15 +114,22 @@ public class Camera {
                     double blockOffsetY = b.getLocation().getY() + centerOffsetY;
 
                     b.drawBlock(this, blockOffsetX, blockOffsetY);
+                    DEBUG_BLOCKS_ON_SCREEN++;
                 }
             }
         }
     }
 
     public void renderEntities() {
+        DEBUG_ENTITIES_ON_SCREEN = 0;
         for (Entity entity : game.getActiveLevel().getEntities()) {
-            if (entity.getLocation().isBetween(point1, point2) && entity.isActive()) {
+            if (!entity.isActive()) {
+                continue;
+            }
+
+            if (entity.getCollisionBox().getLocation().isBetween(point1, point2) || entity.getCollisionBox().getCorner().isBetween(point1, point2)) {
                 entity.render(this);
+                DEBUG_ENTITIES_ON_SCREEN++;
             }
         }
     }
@@ -143,6 +154,22 @@ public class Camera {
                 game.drawBoldText(localXDiff, localYDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());
             }
         }
+
+        if (debugMode) {
+            game.changeColor(Color.yellow);
+            game.drawText(25, 100, "entities on screen: " + DEBUG_ENTITIES_ON_SCREEN, "Serif", 20);
+            game.drawText(25, 120, "blocks on screen: " + DEBUG_BLOCKS_ON_SCREEN, "Serif", 20);
+            game.drawText(25, 140, "player:", "Serif", 20);
+            game.drawText(35, 160, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
+            game.drawText(35, 180, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
+            if (getPlayer().getTarget() != null) {
+                game.drawText(35, 200, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
+            } else {
+                game.drawText(35, 200, "target: null", "Serif", 20);
+            }
+            game.drawText(35, 220, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
+            game.drawText(35, 240, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
+        }
     }
 
     public void renderUI() {
@@ -151,6 +178,7 @@ public class Camera {
         double localXDiff = healthBarLoc.getX();
         double localYDiff = healthBarLoc.getY();
 
+        game.changeColor(Color.white);
         game.drawText(50,35,"Health:",15);
         game.drawText(1200,50,"Key : ", 20);
         if (game.getActiveLevel().getPlayer().hasKey()) {
@@ -168,7 +196,6 @@ public class Camera {
 
         game.changeColor(Color.RED);
         game.drawSolidRectangle(localXDiff,localYDiff, player.getHealth(), 15);
-        //game.drawText(zoom * localXDiff, zoom * localYDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());
     }
 
     public Player getPlayer() {

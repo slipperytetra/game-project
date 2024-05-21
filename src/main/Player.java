@@ -11,19 +11,10 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.Set;
 
-public class Player extends Entity {
+public class Player extends EntityLiving {
     private JProgressBar healthBar;
-    private GameEngine.AudioClip attack;
-
-
-    private boolean keyObtained;
-    private boolean doorTouched;
-    private boolean attackRegistered = false;
     private boolean isJumping;
     private boolean hasKey;
-    private double attackCounter;
-
-    private double ATTACK_COOLDOWN = 0.4;
 
     private Timer runAnimationTimer;
     private int runFrameIndex;
@@ -38,15 +29,12 @@ public class Player extends Entity {
     Image gifImage2;
     Image level1;
 
-    private Enemy target;
-
     public Player(Level level, Location loc) {
         super(EntityType.PLAYER, level, loc, 19, 29);
 
-
-
         setHitboxColor(Color.cyan);
         setMaxHealth(100);
+        setDamage(5);
         setHealth(getMaxHealth());
         setDirectionY(1);
 
@@ -59,6 +47,9 @@ public class Player extends Entity {
 
         gifImage2 = Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif");
         level1 = Toolkit.getDefaultToolkit().createImage("resources/images/level1.gif");
+
+        setHitSound(getLevel().getManager().getEngine().loadAudio("resources/sounds/hitSound.wav"));
+        setAttackSound(getLevel().getManager().getEngine().loadAudio("resources/sounds/attackSound.wav"));
 
         this.healthBar = new JProgressBar(0, getMaxHealth());
         this.healthBar.setBounds(100, 25, 100, 10); // Adjust position and size as needed
@@ -84,10 +75,6 @@ public class Player extends Entity {
     public void update(double dt) {
         super.update(dt);
         animateCharacter();
-        System.out.println(attackCounter);
-        if (attackCounter < ATTACK_COOLDOWN) {
-            attackCounter += 1 * dt;
-        }
     }
 
     public boolean hasKey() {
@@ -151,13 +138,15 @@ public class Player extends Entity {
 
         game.drawImage(getActiveFrame(), playerOffsetX, playerOffsetY, getWidth(), getHeight());
 
-        if (cam.showHitboxes) {
+        if (cam.debugMode) {
             game.changeColor(Color.magenta);
+
+            if (getBlockBelowEntity() != null) {
+                game.drawRectangle(getBlockBelowEntity().getLocation().getX() + cam.centerOffsetX, getBlockBelowEntity().getLocation().getY() + cam.centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+            }
 
             double hitBoxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
             double hitBoxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
-            game.drawRectangle(getBlockBelowEntity().getLocation().getX() + cam.centerOffsetX, getBlockBelowEntity().getLocation().getY() + cam.centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-
             game.changeColor(getHitboxColor());
             game.drawRectangle(hitBoxOffsetX, hitBoxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
         }
@@ -172,11 +161,8 @@ public class Player extends Entity {
 
     public void playerMovement(Set<Integer> keysPressed) {
         if (keysPressed.contains(32)) {//SPACE
-            if (!isJumping() && (isOnGround() || canClimb())) {
-                //System.out.println("Jump!");
+            if (!isJumping() && !isAttacking() && (isOnGround() || canClimb())) {
                 jump();
-            } else {
-                //System.out.println("Not on ground!");
             }
         }
         if (keysPressed.contains(87)) {//W
@@ -196,7 +182,7 @@ public class Player extends Entity {
             setDirectionX(calculateHorizontalMovement());
         }
         if (keysPressed.contains(81)){
-            Attack();
+            attack();
         }
     }
 
@@ -223,6 +209,10 @@ public class Player extends Entity {
     }
 
     public double calculateHorizontalMovement() {
+        if (isAttacking()) {
+            return 0;
+        }
+
         if (isMovingVertically()) {
             return 0.75;
         }
@@ -256,10 +246,6 @@ public class Player extends Entity {
         return getLevel().getManager().getEngine().getTexture("player_jump_" + runFrameIndex);
     }
 
-    public boolean isAttacking() {
-        return attackCounter <= ATTACK_COOLDOWN;
-    }
-
     @Override
     public Image getActiveFrame() {
         if (isAttacking()) {
@@ -277,33 +263,6 @@ public class Player extends Entity {
         return getLevel().getManager().getEngine().getTexture("player_attack");
      }
 
-     public void Attack(){
-        if (!canAttack()) {
-            return;
-        }
-
-
-        attack = getLevel().getManager().getEngine().loadAudio("resources/sounds/attackSound.wav");
-        getLevel().getManager().getEngine().playAudio(attack);
-        attackCounter = 0;
-
-        Enemy target = getTarget();
-        if (target == null) {
-            return;
-        }
-        System.out.println(target.getHealth());
-
-        getTarget().setHealth(target.getHealth()- 2);
-        System.out.println(target.getHealth());
-        if (target.getHealth() <= 0){
-            target.setDamage(0);
-            target.destroy();
-        }
-    }
-
-    public boolean canAttack() {
-        return attackCounter >= ATTACK_COOLDOWN;
-    }
 
     public Enemy getTarget() {
         for (Entity enemy : getLevel().getEntities()){
@@ -318,42 +277,7 @@ public class Player extends Entity {
         return null;
     }
 
-    public void setTarget(Enemy p) {
-        this.target = p;
-    }
-
-
-
-
-
-
-
-
     public boolean canClimb() {
         return getBlockAtLocation() instanceof BlockClimbable;
-    }
-
-    public boolean hasObtainedKey() {
-        return this.keyObtained;
-    }
-
-    public void setKeyObtained(boolean keyObtained) {
-        this.keyObtained = keyObtained;
-    }
-
-    public boolean isTouchingDoor() {
-        return this.doorTouched;
-    }
-
-    public void setTouchingDoor(boolean doorTouched) {
-        this.doorTouched = doorTouched;
-    }
-
-    public boolean hasRegisteredAttack() {
-        return this.attackRegistered;
-    }
-
-    public void setAttackRegistered(boolean attackRegistered) {
-        this.attackRegistered = attackRegistered;
     }
 }

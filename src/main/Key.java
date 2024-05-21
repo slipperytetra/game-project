@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 
 public class Key extends Entity {
     public Key(Level level, Location loc) {
-        super(EntityType.KEY, level, loc, 46, 99);
+        super(EntityType.KEY, level, loc, 100, 100);
 
         setScale(0.5);
         setCanMove(false);

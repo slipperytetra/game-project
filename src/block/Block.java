@@ -57,7 +57,7 @@ public abstract class Block {
 
 
         cam.game.drawImage(texture, xOffset, yOffset, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-        if (cam.showHitboxes) {
+        if (cam.debugMode) {
             cam.game.changeColor(Color.GREEN);
             cam.game.drawRectangle(xOffset, yOffset, getCollisionBox().getWidth(), getCollisionBox().getHeight());
             //cam.game.drawRectangle(cam.zoom * xOffset, cam.zoom *yOffset, cam.zoom *Game.BLOCK_SIZE, cam.zoom *Game.BLOCK_SIZE);

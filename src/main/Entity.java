@@ -56,7 +56,7 @@ public abstract class Entity {
 
         getLevel().getManager().getEngine().drawImage(getActiveFrame(), offsetX, offsetY, getWidth(), getHeight());
 
-        if (cam.showHitboxes) {
+        if (cam.debugMode) {
             double hitBoxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
             double hitBoxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
 
@@ -87,7 +87,23 @@ public abstract class Entity {
         this.canMove = canMove;
     }
 
-    public abstract void processMovement(double dt);
+    public void processMovement(double dt) {
+        moveX = getDirectionX() * (speed * dt);
+        moveY = getDirectionY() * (speed * dt);
+
+        moveX(moveX);
+        moveY(moveY);
+
+        if (isFalling()) {
+            if (fallAccel > 0) {
+                fallAccel *= fallSpeedMultiplier;
+                setDirectionY(1 * fallAccel);
+            }
+        } else {
+            fallAccel = 1;
+            setDirectionY(0);
+        }
+    }
 
     public double getDirectionX() {
         return directionX;
@@ -118,7 +134,7 @@ public abstract class Entity {
             for (int i = 0; i < Math.abs(x); i++) {
                 Block leftBlock = getBlockAtLocation(-1, 1);
                 //System.out.println("left: " + leftBlock.getType().toString());
-                if (getCollisionBox().collidesWith(leftBlock.getCollisionBox()) && leftBlock.isCollidable()) {
+                if (leftBlock == null || getCollisionBox().collidesWith(leftBlock.getCollisionBox()) && leftBlock.isCollidable()) {
                     return;
                 }
 
@@ -128,7 +144,7 @@ public abstract class Entity {
             for (int i = 0; i < x; i++) {
                 Block rightBlock = getBlockAtLocation(1, 1);
                 //System.out.println("right: " + rightBlock.getType().toString());
-                if (getCollisionBox().collidesWith(rightBlock.getCollisionBox()) && rightBlock.isCollidable()) {
+                if (rightBlock == null || getCollisionBox().collidesWith(rightBlock.getCollisionBox()) && rightBlock.isCollidable()) {
                     return;
                 }
 
@@ -143,6 +159,10 @@ public abstract class Entity {
         if (y < 0) { //up
             for (int i = 0; i < Math.abs(y); i++) {
                 Block blockAbove = getLevel().getBlockGrid().getBlockAt(tileX, tileY - 1);
+                if (blockAbove == null) {
+                    return;
+                }
+
                 if (blockAbove.getCollisionBox() != null) {
                     if (getCollisionBox().collidesWith(blockAbove.getCollisionBox()) && blockAbove.isCollidable()) {
                         setDirectionY(0);
@@ -156,6 +176,11 @@ public abstract class Entity {
                 this.setLocation(getLocation().getX(), getLocation().getY() - 1);
             }
         } else if (y > 0) { //down
+            if (getBlockAtLocation(0, 2) == null) {
+                setHealth(0);
+                return;
+            }
+
             for (int i = 0; i < y; i++) {
                 if (isFalling()) {
                     this.setLocation(getLocation().getX(), getLocation().getY() + 1);
@@ -199,6 +224,10 @@ public abstract class Entity {
 
 
         blockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileX, tileY + 2);
+
+        if (blockBelowEntity == null) {
+            return true;
+        }
 
         if (blockBelowEntity instanceof BlockLiquid) {
             setHealth(0);
@@ -330,5 +359,10 @@ public abstract class Entity {
 
     public void destroy() {
         setActive(false);
+    }
+
+    @Override
+    public String toString() {
+        return getType().toString().toLowerCase();
     }
 }
