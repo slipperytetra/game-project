@@ -45,7 +45,7 @@ public class Game extends GameEngine {
 
         this.setWindowSize(1280, 720);
         this.lvlManager = new LevelManager(this);
-        setActiveLevel(lvlManager.DEMO);
+        setActiveLevel(lvlManager.FOREST);
 
         System.out.println("Starting X position: " + this.activeLevel.getPlayer().getLocation().getX());
         System.out.println("Starting Y position: " + this.activeLevel.getPlayer().getLocation().getY());
@@ -104,7 +104,7 @@ public class Game extends GameEngine {
     public void keyReleased(KeyEvent event) {
         this.keysPressed.remove(event.getKeyCode());
         if (event.getKeyCode() == 72) {
-            camera.showHitboxes = !camera.showHitboxes;
+            camera.debugMode = !camera.debugMode;
             //setActiveLevel(lvlManager.DEMO_2);
         }
 

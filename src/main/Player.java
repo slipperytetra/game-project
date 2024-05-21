@@ -138,7 +138,7 @@ public class Player extends EntityLiving {
 
         game.drawImage(getActiveFrame(), playerOffsetX, playerOffsetY, getWidth(), getHeight());
 
-        if (cam.showHitboxes) {
+        if (cam.debugMode) {
             game.changeColor(Color.magenta);
 
             if (getBlockBelowEntity() != null) {

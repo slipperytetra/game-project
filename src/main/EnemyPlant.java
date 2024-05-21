@@ -44,7 +44,7 @@ public class EnemyPlant extends Enemy {
 
         getLevel().getManager().getEngine().drawImage(getActiveFrame(), offsetX, offsetY, getWidth(), getHeight());
 
-        if (cam.showHitboxes) {
+        if (cam.debugMode) {
             double hitBoxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
             double hitBoxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
 

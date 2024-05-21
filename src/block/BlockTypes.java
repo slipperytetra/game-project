@@ -7,6 +7,8 @@ public enum BlockTypes {
     VOID(""),
     DIRT("resources/images/blocks/dirt.png"),
     GRASS("resources/images/blocks/ground.png"),
+    FOREST_GRASS("resources/images/blocks/forest_grass.png"),
+    FOREST_GROUND("resources/images/blocks/forest_ground.png"),
     LADDER("resources/images/blocks/ladder.png"),
     BARRIER(""),
     WATER_TOP("resources/images/blocks/waterTop.png"),
@@ -16,7 +18,9 @@ public enum BlockTypes {
     LAVA("resources/images/lava.png"),
     BRIDGE("resources/images/bridgeMid.png"),
     BL("resources/images/bridgeL.png"),
-    BR("resources/images/bridgeR.png");
+    BR("resources/images/bridgeR.png"),
+
+    DECORATION_ROCK("resources/images/blocks/rock.png");
 
 
 
