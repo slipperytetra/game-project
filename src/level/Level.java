@@ -148,7 +148,8 @@ public class Level {
                 }else if (line.charAt(x) == 'h') {
                     Location heartLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
                     Heart heart = new Heart(this, heartLoc);
-                    addEntity(heart);                }
+                    addEntity(heart);
+                }
 
             }
 

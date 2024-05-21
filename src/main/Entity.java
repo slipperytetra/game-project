@@ -223,6 +223,32 @@ public abstract class Entity {
         int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
         int tileY = (int)((getLocation().getY()) / Game.BLOCK_SIZE);
 
+        blockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileX, tileY + 2);
+
+        if (blockBelowEntity == null) {
+            return true;
+        }
+
+        if (blockBelowEntity instanceof BlockLiquid) {
+            setHealth(0);
+        }
+
+        if (blockBelowEntity.getCollisionBox() != null) {
+            if (getCollisionBox().collidesWith(blockBelowEntity.getCollisionBox()) && blockBelowEntity.isCollidable()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean canJump() {
+        int tileX = (int)((getLocation().getX()) / Game.BLOCK_SIZE);
+        int tileY = (int)((getLocation().getY()) / Game.BLOCK_SIZE);
+
+        if (!isFlipped()) {
+            tileX = (int)((getLocation().getX() + getCollisionBox().getWidth()) / Game.BLOCK_SIZE);
+        }
 
         blockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileX, tileY + 2);
 

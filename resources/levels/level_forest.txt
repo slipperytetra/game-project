@@ -4,7 +4,7 @@ next_level: level4
 level_width: 120
 level_height: 60
 level_data:
-  [BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB]
+  [BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB]
   [B......................................................................................................................B]
   [B......................................................................................................................B]
   [B......................................................................................................................B]

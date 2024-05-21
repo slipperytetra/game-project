@@ -199,16 +199,16 @@ public class Camera {
             game.drawText(25, 100, "fps: " + currentFps, "Serif", 20);
             game.drawText(25, 120, "entities on screen: " + DEBUG_ENTITIES_ON_SCREEN, "Serif", 20);
             game.drawText(25, 140, "blocks on screen: " + DEBUG_BLOCKS_ON_SCREEN, "Serif", 20);
-            game.drawText(25, 160, "player:", "Serif", 20);
-            game.drawText(35, 180, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
-            game.drawText(35, 200, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
+            game.drawText(25, 180, "player:", "Serif", 20);
+            game.drawText(35, 200, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
+            game.drawText(35, 220, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
             if (getPlayer().getTarget() != null) {
-                game.drawText(35, 220, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
+                game.drawText(35, 240, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
             } else {
-                game.drawText(35, 220, "target: null", "Serif", 20);
+                game.drawText(35, 240, "target: null", "Serif", 20);
             }
-            game.drawText(35, 240, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
-            game.drawText(35, 260, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
+            game.drawText(35, 260, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
+            game.drawText(35, 280, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
         }
     }
 

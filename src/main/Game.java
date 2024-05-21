@@ -35,7 +35,7 @@ public class Game extends GameEngine {
     }
 
     public void startGame(){
-        createGame(this);
+        createGame(this,  60);
     }
 
     public void init() {
@@ -47,8 +47,8 @@ public class Game extends GameEngine {
         this.lvlManager = new LevelManager(this);
         setActiveLevel(lvlManager.FOREST);
 
-        System.out.println("Starting X position: " + this.activeLevel.getPlayer().getLocation().getX());
-        System.out.println("Starting Y position: " + this.activeLevel.getPlayer().getLocation().getY());
+        //System.out.println("Starting X position: " + this.activeLevel.getPlayer().getLocation().getX());
+        //System.out.println("Starting Y position: " + this.activeLevel.getPlayer().getLocation().getY());
     }
 
     public Level getActiveLevel() {
@@ -153,6 +153,7 @@ public class Game extends GameEngine {
         //imageBank.put(EntityType.PLANT_MONSTER.toString().toLowerCase(),  loadImage(EntityType.PLANT_MONSTER.getFilePath()));
         imageBank.put("key",  Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif"));
         imageBank.put("plant_monsterAttack", Toolkit.getDefaultToolkit().createImage("resources/images/plantAttack.gif"));
+        imageBank.put("plant_monsterAttack_flipped", Toolkit.getDefaultToolkit().createImage("resources/images/plantAttack_flipped.gif"));
         imageBank.put("plant_monster", loadImage("resources/images/characters/plant_monster.png"));
         imageBank.put("heart", Toolkit.getDefaultToolkit().createImage("resources/images/heart.gif"));
 
