@@ -20,7 +20,8 @@ public enum BlockTypes {
     BL("resources/images/bridgeL.png"),
     BR("resources/images/bridgeR.png"),
 
-    DECORATION_ROCK("resources/images/blocks/rock.png");
+    DECORATION_ROCK("resources/images/blocks/rock.png"),
+    DECORATION_BUSH("resources/images/blocks/bush.png");
 
 
 

@@ -176,6 +176,11 @@ public abstract class Entity {
                 this.setLocation(getLocation().getX(), getLocation().getY() - 1);
             }
         } else if (y > 0) { //down
+            if (getBlockAtLocation(0, 2) == null) {
+                setHealth(0);
+                return;
+            }
+
             for (int i = 0; i < y; i++) {
                 if (isFalling()) {
                     this.setLocation(getLocation().getX(), getLocation().getY() + 1);
