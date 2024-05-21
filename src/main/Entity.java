@@ -3,6 +3,7 @@ package main;
 import block.Block;
 import block.BlockClimbable;
 import block.BlockLiquid;
+import block.BlockTypes;
 import level.Level;
 
 import java.awt.*;

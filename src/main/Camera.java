@@ -25,6 +25,10 @@ public class Camera {
     private int DEBUG_ENTITIES_ON_SCREEN;
     private int DEBUG_BLOCKS_ON_SCREEN;
 
+    private long lastFpsCheck = 0;
+    private int currentFps = 0;
+    private int totalFrames = 0;
+
 
     public double centerOffsetX, centerOffsetY;
 
@@ -56,6 +60,13 @@ public class Camera {
     *   This method constantly updates the points. This is needed because the players location always changes.
     * */
     public void update() {
+        totalFrames++;
+        if (System.nanoTime() > lastFpsCheck + 1000000000) {
+            lastFpsCheck = System.nanoTime();
+            currentFps = totalFrames;
+            totalFrames = 0;
+        }
+
         this.loc.setX(player.getLocation().getX());
         this.loc.setY(player.getLocation().getY());
 
@@ -154,22 +165,6 @@ public class Camera {
                 game.drawBoldText(localXDiff, localYDiff, txtMsg.getText(), "Serif", txtMsg.getFontSize());
             }
         }
-
-        if (debugMode) {
-            game.changeColor(Color.yellow);
-            game.drawText(25, 100, "entities on screen: " + DEBUG_ENTITIES_ON_SCREEN, "Serif", 20);
-            game.drawText(25, 120, "blocks on screen: " + DEBUG_BLOCKS_ON_SCREEN, "Serif", 20);
-            game.drawText(25, 140, "player:", "Serif", 20);
-            game.drawText(35, 160, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
-            game.drawText(35, 180, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
-            if (getPlayer().getTarget() != null) {
-                game.drawText(35, 200, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
-            } else {
-                game.drawText(35, 200, "target: null", "Serif", 20);
-            }
-            game.drawText(35, 220, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
-            game.drawText(35, 240, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
-        }
     }
 
     public void renderUI() {
@@ -198,6 +193,23 @@ public class Camera {
         game.drawSolidRectangle(localXDiff,localYDiff, player.getHealth(), 15);
         game.drawText(localXDiff+50,localYDiff, String.valueOf(player.getHealth()), 20);
 
+
+        if (debugMode) {
+            game.changeColor(Color.yellow);
+            game.drawText(25, 100, "fps: " + currentFps, "Serif", 20);
+            game.drawText(25, 120, "entities on screen: " + DEBUG_ENTITIES_ON_SCREEN, "Serif", 20);
+            game.drawText(25, 140, "blocks on screen: " + DEBUG_BLOCKS_ON_SCREEN, "Serif", 20);
+            game.drawText(25, 160, "player:", "Serif", 20);
+            game.drawText(35, 180, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
+            game.drawText(35, 200, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
+            if (getPlayer().getTarget() != null) {
+                game.drawText(35, 220, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
+            } else {
+                game.drawText(35, 220, "target: null", "Serif", 20);
+            }
+            game.drawText(35, 240, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
+            game.drawText(35, 260, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
+        }
     }
 
     public Player getPlayer() {
