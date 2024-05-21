@@ -196,6 +196,8 @@ public class Camera {
 
         game.changeColor(Color.RED);
         game.drawSolidRectangle(localXDiff,localYDiff, player.getHealth(), 15);
+        game.drawText(localXDiff+50,localYDiff, String.valueOf(player.getHealth()), 20);
+
     }
 
     public Player getPlayer() {
