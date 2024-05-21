@@ -6,7 +6,9 @@ public enum EntityType {
     DOOR("resources/images/blocks/door.png"),
     KEY("resources/images/blocks/key.png"),
     PLANT_MONSTER("resources/images/characters/plant_monster.png"),
-    STONE_DOOR("resources/images/blocks/stoneDoor.png");
+    STONE_DOOR("resources/images/blocks/stoneDoor.png"),
+    HEART("resources/images/heart.gif");
+
 
     private final String filePath;
 

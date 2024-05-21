@@ -139,13 +139,16 @@ public class Level {
                     grid.setBlock(x, relY, new BlockSolid(BlockTypes.STONE_FILLER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'l') {
                     grid.setBlock(x, relY, new BlockLiquid(BlockTypes.LAVA, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
-                } else if (line.charAt(x) == 'b') {
+                } else if (line.charAt(x) == 'p') {
                     grid.setBlock(x, relY, new BlockSolid(BlockTypes.BRIDGE, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'm') {
                     grid.setBlock(x, relY, new BlockSolid(BlockTypes.BL, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
                 } else if (line.charAt(x) == 'r') {
                     grid.setBlock(x, relY, new BlockSolid(BlockTypes.BR, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
-                }
+                }else if (line.charAt(x) == 'h') {
+                    Location heartLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
+                    Heart heart = new Heart(this, heartLoc);
+                    addEntity(heart);                }
 
             }
 
