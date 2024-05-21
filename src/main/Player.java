@@ -161,7 +161,7 @@ public class Player extends EntityLiving {
 
     public void playerMovement(Set<Integer> keysPressed) {
         if (keysPressed.contains(32)) {//SPACE
-            if (!isJumping() && !isAttacking() && (isOnGround() || canClimb())) {
+            if (!isJumping() && !isAttacking() && (canJump() || isOnGround() || canClimb())) {
                 jump();
             }
         }
@@ -266,9 +266,13 @@ public class Player extends EntityLiving {
 
     public Enemy getTarget() {
         for (Entity enemy : getLevel().getEntities()){
+            if (!enemy.isActive()) {
+                continue;
+            }
+
             if (enemy instanceof Enemy) {
                 if (Location.calculateDistance(getLocation().getX(), getLocation().getY(), enemy.getLocation().getX(), enemy.getLocation().getY()) < 64) {
-                    System.out.println("Close");
+                    //System.out.println("Close");
                     return (Enemy) enemy;
                 }
             }

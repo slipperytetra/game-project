@@ -10,7 +10,10 @@ import java.awt.event.ActionListener;
 public class Heart extends Entity{
     public Heart( Level level, Location loc) {
         super(EntityType.HEART, level, loc,28,28);
+        health = getLevel().getManager().getEngine().loadAudio("resources/sounds/health.wav");
+
     }
+
     private Timer timer;
     private GameEngine.AudioClip health;
 
@@ -21,8 +24,6 @@ public class Heart extends Entity{
 
     }
     public void update(double dt) {
-        health = getLevel().getManager().getEngine().loadAudio("resources/sounds/health.wav");
-
         if (getLevel().getPlayer().getCollisionBox().collidesWith(this.getCollisionBox())) {
             if (timer != null && timer.isRunning()) {
                 timer.stop();
@@ -47,9 +48,7 @@ public class Heart extends Entity{
         }
     }
     @Override
-    public Image getIdleFrame() {
-
-
+    public Image getActiveFrame() {
         return getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase());
     }
 
@@ -58,8 +57,7 @@ public class Heart extends Entity{
     }
 
     public double getHeight() {
-        return 50;    }
-
-
+        return 50;
+    }
 }
 

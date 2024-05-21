@@ -83,6 +83,13 @@ public abstract class EntityLiving extends Entity {
         }
         System.out.println(target.getHealth());
 
+        double direction = getLocation().getX() - getTarget().getLocation().getX();
+        if (direction < 0) {
+            setFlipped(true);
+        } else {
+            setFlipped(false);
+        }
+
         getTarget().damage(this);
         System.out.println(target.getHealth());
         if (target.getHealth() <= 0){

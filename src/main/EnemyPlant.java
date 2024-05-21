@@ -38,8 +38,14 @@ public class EnemyPlant extends Enemy {
         double offsetY = getLocation().getY() + cam.centerOffsetY;
 
         if (isAttacking()) {
-            offsetX = offsetX - 70;
-            offsetY = offsetY - 17;
+            int diffX = -70;
+            int diffY = -17;
+
+            if (isFlipped()) {
+                diffX = 8;
+            }
+            offsetX = offsetX + diffX;
+            offsetY = offsetY + diffY;
         }
 
         getLevel().getManager().getEngine().drawImage(getActiveFrame(), offsetX, offsetY, getWidth(), getHeight());
@@ -56,7 +62,15 @@ public class EnemyPlant extends Enemy {
     @Override
     public Image getActiveFrame() {
         if (isAttacking()){
+            if (isFlipped()) {
+                return getLevel().getManager().getEngine().getTexture("plant_monsterAttack_flipped");
+            }
+
             return getLevel().getManager().getEngine().getTexture("plant_monsterAttack");
+        }
+
+        if (isFlipped()) {
+            return getLevel().getManager().getEngine().flipImageHorizontal(getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase()));
         }
 
         return getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase());
