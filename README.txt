@@ -2,13 +2,8 @@
 Todo:
 
 
-Add attack hit for player to enemy
+Make Demo level more understandable
 
-Fix mob spawns.
-
-Jump of ladder
-
-Fix sticking to wall issue.
 
 
 
