@@ -33,7 +33,7 @@ public class LevelManager {
         DEMO_2 = new Level(this, 1, "resources/levels/level_demo_2.txt");
         LEVEL_3 = new Level(this, 2, "resources/levels/level_demo3.txt");
         LEVEL_4 = new Level(this,3,"resources/levels/level4.txt");
-        FOREST = new Level(this,3,"resources/levels/level_forest.txt");
+        FOREST = new Level(this,4,"resources/levels/level_forest.txt");
 
 
         levels.put("level_demo", DEMO);

@@ -169,6 +169,22 @@ public class Level {
                 } else if (line.charAt(x) == '4') {
                     addDecoration(DecorationTypes.HANGING_VINE_FLOWERS, spawnLoc);
                 }
+                else if (line.charAt(x) == '5') {
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.SNOWTOPR, spawnLoc));
+                }else if (line.charAt(x) == '6') {
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.SNOWMID, spawnLoc));
+                }else if (line.charAt(x) == '7') {
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.SNOWFILL, spawnLoc));
+                }
+                else if (line.charAt(x) == '8') {
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.SNOWDOWN, spawnLoc));
+                }
+                else if (line.charAt(x) == '9') {
+                    addDecoration(DecorationTypes.SNOW_TREE, spawnLoc);
+                }
+                else if (line.charAt(x) == 'a') {
+                    addDecoration(DecorationTypes.SNOW_BUSH, spawnLoc);
+                }
 
             }
 
@@ -234,6 +250,9 @@ public class Level {
 
     public Location getSpawnPoint() {
         return spawnPoint;
+    }
+    public int getId(){
+        return id;
     }
 
     public ArrayList<Entity> getEntities() {

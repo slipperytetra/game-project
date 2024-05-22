@@ -4,6 +4,7 @@ import block.Block;
 import block.BlockTypes;
 import block.decorations.Decoration;
 import block.decorations.FakeLightSpot;
+import level.LevelManager;
 import level.TextMessage;
 
 import java.awt.*;
@@ -95,6 +96,7 @@ public class Camera {
         renderEntities();
         getPlayer().render(this);
         renderTextMessages();
+        renderFX();
         renderUI();
     }
 
@@ -262,6 +264,11 @@ public class Camera {
             double hitboxOffsetY = getCollisionBox().getLocation().getY() + centerOffsetY;
             game.changeColor(Color.RED);
             game.drawRectangle(hitboxOffsetX, hitboxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
+        }
+    }
+    public void renderFX(){
+        if(game.getActiveLevel().getId() == 3){
+            game.drawImage(game.getTexture("snow_fx"),0,0,game.width(),game.height());
         }
     }
 

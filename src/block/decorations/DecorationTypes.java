@@ -14,7 +14,9 @@ public enum DecorationTypes {
     TREE_WILLOW_2("resources/images/blocks/decorations/willow_2.png", 1.5),
     HANGING_VINE("resources/images/blocks/decorations/hanging_vine.png", 3),
     HANGING_VINE_FLOWERS("resources/images/blocks/decorations/hanging_vine_flowers.png", 3),
-    LAMP_POST("resources/images/blocks/decorations/lamp_post.png", 1, 15.0, 24.0, 1, true);
+    LAMP_POST("resources/images/blocks/decorations/lamp_post.png", 1, 15.0, 24.0, 1, true),
+    SNOW_TREE("resources/images/blocks/decorations/snowTree.png"),
+    SNOW_BUSH("resources/images/blocks/decorations/snowBush.png");
 
     private final String getFilePath;
     private final double scale;

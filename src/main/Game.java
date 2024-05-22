@@ -47,7 +47,7 @@ public class Game extends GameEngine {
 
         this.setWindowSize(1280, 720);
         this.lvlManager = new LevelManager(this);
-        setActiveLevel(lvlManager.FOREST);
+        setActiveLevel(lvlManager.LEVEL_4);
 
         //System.out.println("Starting X position: " + this.activeLevel.getPlayer().getLocation().getX());
         //System.out.println("Starting Y position: " + this.activeLevel.getPlayer().getLocation().getY());
@@ -159,6 +159,8 @@ public class Game extends GameEngine {
         imageBank.put("plant_monsterAttack_flipped", Toolkit.getDefaultToolkit().createImage("resources/images/plantAttack_flipped.gif"));
         imageBank.put("plant_monster", loadImage("resources/images/characters/plant_monster.png"));
         imageBank.put("heart", Toolkit.getDefaultToolkit().createImage("resources/images/heart.gif"));
+        imageBank.put("snow_fx", Toolkit.getDefaultToolkit().createImage("resources/images/idea.gif"));
+
 
 
 
