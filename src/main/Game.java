@@ -167,6 +167,8 @@ public class Game extends GameEngine {
         imageBank.put("plant_monster", loadImage("resources/images/characters/plant_monster.png"));
         imageBank.put("heart", Toolkit.getDefaultToolkit().createImage("resources/images/heart.gif"));
         imageBank.put("snow_fx", Toolkit.getDefaultToolkit().createImage("resources/images/idea.gif"));
+        imageBank.put("cloud",  loadImage("resources/images/cloud.png"));
+
 
 
 

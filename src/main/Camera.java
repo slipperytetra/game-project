@@ -8,6 +8,7 @@ import level.LevelManager;
 import level.TextMessage;
 
 import java.awt.*;
+import java.util.Iterator;
 import java.util.Random;
 
 /*
@@ -269,8 +270,13 @@ public class Camera {
         }
     }
     public void renderFX(){
+
         if(game.getActiveLevel().getId() == 3){
             game.drawImage(game.getTexture("snow_fx"),0,0,game.width(),game.height());
+        }
+
+        for (Particle particle : game.getActiveLevel().getParticles()){
+            particle.render(this);
         }
     }
 

@@ -94,6 +94,11 @@ public class Player extends EntityLiving {
         moveX(moveX);
         moveY(moveY);
 
+        if(isMovingHorizontally()){
+            Particle particle = new Particle(this.getLocation(), 10.0, (BufferedImage) getLevel().getManager().getEngine().getTexture("cloud"),getLevel());
+            getLevel().getParticles().add(particle);
+        }
+
         if (isJumping()) {
             setDirectionY(-1.5);
             timeJumping += 1 * dt;
