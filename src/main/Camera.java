@@ -8,6 +8,7 @@ import level.LevelManager;
 import level.TextMessage;
 
 import java.awt.*;
+import java.util.Iterator;
 import java.util.Random;
 
 /*
@@ -214,6 +215,8 @@ public class Camera {
         if (game.isPaused) {
             game.changeColor(Color.orange);
             game.drawText((game.width() / 2) - 100, game.height() / 2, "Paused", 75);
+            game.drawText((game.width() / 2) - 110, game.height() / 2 + 100, "Press 'Q' to Quit.", 40);
+
             return;
         }
 
@@ -267,8 +270,13 @@ public class Camera {
         }
     }
     public void renderFX(){
+
         if(game.getActiveLevel().getId() == 3){
             game.drawImage(game.getTexture("snow_fx"),0,0,game.width(),game.height());
+        }
+
+        for (Particle particle : game.getActiveLevel().getParticles()){
+            particle.render(this);
         }
     }
 

@@ -45,6 +45,7 @@ public class Level {
     ArrayList<Decoration> decorations;
     ArrayList<FakeLightSpot> spotLights;
     ArrayList<Entity> entities;
+    ArrayList<Particle> particles;
 
     public Level(LevelManager manager, int id, String levelDoc) {
         this.manager = manager;
@@ -54,6 +55,7 @@ public class Level {
         this.entities = new ArrayList<>();
         this.decorations = new ArrayList<>();
         this.spotLights = new ArrayList<>();
+        this.particles = new ArrayList<>();
         this.textMessages = new HashMap<>();
         init();
     }
@@ -225,6 +227,17 @@ public class Level {
                 iter.remove();
             }
         }
+        Iterator<Particle> iterPart = getParticles().iterator();
+        while (iterPart.hasNext()) {
+            Particle particle = iterPart.next();
+            if (particle.isActive()) {
+                particle.update(dt);
+            } else {
+                iterPart.remove();
+            }
+        }
+
+
 
         for (FakeLightSpot spotLight : getSpotLights()) {
             spotLight.update(dt);
@@ -257,6 +270,10 @@ public class Level {
 
     public ArrayList<Entity> getEntities() {
         return entities;
+    }
+
+    public ArrayList<Particle> getParticles(){
+        return particles;
     }
 
     public void addEntity(Entity entity) {
