@@ -1,7 +1,7 @@
 package main;
 
-import block.Block;
 import block.BlockTypes;
+import block.decorations.DecorationTypes;
 import level.Level;
 import level.LevelManager;
 
@@ -19,6 +19,7 @@ import java.util.Set;
 public class Game extends GameEngine {
     public static int BLOCK_SIZE = 32;
     private boolean gameOver;
+    public boolean isPaused;
 
     public long timeSinceLastFrame;
     public long lastTime;
@@ -40,6 +41,7 @@ public class Game extends GameEngine {
 
     public void init() {
         this.imageBank = new HashMap<>();
+        loadDecorationImages();
         loadBlockImages();
         loadCharacterImages();
 
@@ -67,17 +69,8 @@ public class Game extends GameEngine {
         timeSinceLastFrame = currentTime - lastTime;
         camera.update();
 
-        activeLevel.getPlayer().playerMovement(keysPressed);
-        activeLevel.getPlayer().update(dt);
-
-        Iterator<Entity> iter = activeLevel.getEntities().iterator();
-        while (iter.hasNext()) {
-            Entity entity = iter.next();
-            if (entity.isActive()) {
-                entity.update(dt);
-            } else {
-                iter.remove();
-            }
+        if (!isPaused) {
+            getActiveLevel().update(dt);
         }
     }
 
@@ -98,6 +91,10 @@ public class Game extends GameEngine {
     @Override
     public void keyPressed(KeyEvent event) {
         this.keysPressed.add(event.getKeyCode());
+
+        if (event.getKeyCode() == 27) { //ESCAPE
+            isPaused = !isPaused;
+        }
     }
 
     @Override
@@ -117,13 +114,18 @@ public class Game extends GameEngine {
         }
     }
 
+    public void loadDecorationImages() {
+        for (DecorationTypes type : DecorationTypes.values()) {
+            imageBank.put(type.toString(),  loadImage(type.getFilePath()));
+        }
+    }
+
     public void loadBlockImages() {
         for (BlockTypes type : BlockTypes.values()) {
             if (type == BlockTypes.VOID || type == BlockTypes.BARRIER) {
                 continue;
             }
 
-            System.out.println();
             imageBank.put(type.toString(),  loadImage(type.getFilePath()));
         }
     }
@@ -145,6 +147,7 @@ public class Game extends GameEngine {
         imageBank.put("player_jump_3",  loadImage("resources/images/characters/jump3.png"));
         imageBank.put("player_attack", Toolkit.getDefaultToolkit().createImage("resources/images/characters/attack.gif"));
 
+        imageBank.put("spot_light",  loadImage("resources/images/blocks/decorations/spot_light.png"));
         imageBank.put("door",  loadImage(EntityType.DOOR.getFilePath()));
         imageBank.put("player", loadImage(EntityType.PLAYER.getFilePath()));
        // imageBank.put("plant_monster", loadImage(EntityType.PLANT_MONSTER.getFilePath()));

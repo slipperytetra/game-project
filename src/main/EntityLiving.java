@@ -91,7 +91,7 @@ public abstract class EntityLiving extends Entity {
         }
 
         getTarget().damage(this);
-        System.out.println(target.getHealth());
+        //System.out.println(target.getHealth());
         if (target.getHealth() <= 0){
             target.setDamage(0);
             target.destroy();

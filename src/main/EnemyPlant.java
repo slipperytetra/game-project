@@ -14,7 +14,7 @@ public class EnemyPlant extends Enemy {
         super(level, EntityType.PLANT_MONSTER, loc, 58, 79);
 
         setDamage(5);
-        setMaxHealth(100);
+        setMaxHealth(50);
         setScale(1);
         setAttackCooldown(1.0);
 

@@ -18,14 +18,12 @@ public enum BlockTypes {
     LAVA("resources/images/lava.png"),
     BRIDGE("resources/images/bridgeMid.png"),
     BL("resources/images/bridgeL.png"),
-    BR("resources/images/bridgeR.png"),
-
-    DECORATION_ROCK("resources/images/blocks/rock.png"),
-    DECORATION_BUSH("resources/images/blocks/bush.png");
+    BR("resources/images/bridgeR.png");
 
 
 
     private final String getFilePath;
+
     BlockTypes(String getFilePath) {
         this.getFilePath = getFilePath;
     }

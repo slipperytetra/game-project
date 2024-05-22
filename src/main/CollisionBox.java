@@ -2,13 +2,14 @@ package main;
 
 public class CollisionBox {
 
-    private Location loc;
+    private Location loc, corner;
     private double width, height;
 
     public CollisionBox(double x, double y, double width, double height) {
         this.loc = new Location(x, y);
         this.width = width;
         this.height = height;
+        this.corner = new Location(getLocation().getX() + getWidth(), getLocation().getY() + getHeight());
     }
 
     public Location getLocation() {
@@ -21,7 +22,10 @@ public class CollisionBox {
     }
 
     public Location getCorner() {
-        return new Location(getLocation().getX() + getWidth(), getLocation().getY() + getHeight());
+        corner.setX(getLocation().getX() + getWidth());
+        corner.setY(getLocation().getY() + getHeight());
+
+        return corner;
     }
 
     public double getWidth() {
