@@ -3,7 +3,6 @@ package main;
 import block.Block;
 import block.BlockClimbable;
 import block.BlockLiquid;
-import block.BlockTypes;
 import level.Level;
 
 import java.awt.*;
@@ -21,7 +20,8 @@ public abstract class Entity {
     private int maxHealth;
     private double scale;
     private boolean isActive;
-    private Block blockBelowEntity;
+    private Block blockBelowEntityLeft;
+    private Block blockBelowEntityRight;
 
     private double directionX, directionY;
     public double moveX, moveY;
@@ -220,21 +220,34 @@ public abstract class Entity {
         return moveY != 0;
     }
     public boolean isOnGround() {
-        int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
-        int tileY = (int)((getLocation().getY()) / Game.BLOCK_SIZE);
+        int tileX = (int)((getCollisionBox().getLocation().getX()) / Game.BLOCK_SIZE);
+        int tileY = (int)((getCollisionBox().getLocation().getY()) / Game.BLOCK_SIZE);
 
-        blockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileX, tileY + 2);
+        int tileXCorner = (int)((getCollisionBox().getCorner().getX() - 1) / Game.BLOCK_SIZE);
+        int tileYCorner = (int)((getCollisionBox().getCorner().getY() - getCollisionBox().getHeight()) / Game.BLOCK_SIZE);
 
-        if (blockBelowEntity == null) {
+        blockBelowEntityLeft = getLevel().getBlockGrid().getBlockAt(tileX, tileY + 2);
+        blockBelowEntityRight = getLevel().getBlockGrid().getBlockAt(tileXCorner, tileYCorner + 2);
+        Block directlyBelow = getLevel().getBlockGrid().getBlockAt((int) (getLocation().getX() + (getWidth() / 2)) / Game.BLOCK_SIZE, tileY + 2);
+
+
+
+        if (blockBelowEntityLeft == null || blockBelowEntityRight == null) {
             return true;
         }
 
-        if (blockBelowEntity instanceof BlockLiquid) {
+        if (directlyBelow instanceof BlockLiquid) {
             setHealth(0);
         }
 
-        if (blockBelowEntity.getCollisionBox() != null) {
-            if (getCollisionBox().collidesWith(blockBelowEntity.getCollisionBox()) && blockBelowEntity.isCollidable()) {
+        if (blockBelowEntityLeft.getCollisionBox() != null) {
+            if (getCollisionBox().collidesWith(blockBelowEntityLeft.getCollisionBox()) && blockBelowEntityLeft.isCollidable()) {
+                return true;
+            }
+        }
+
+        if (blockBelowEntityRight.getCollisionBox() != null) {
+            if (getCollisionBox().collidesWith(blockBelowEntityRight.getCollisionBox()) && blockBelowEntityRight.isCollidable()) {
                 return true;
             }
         }
@@ -242,7 +255,7 @@ public abstract class Entity {
         return false;
     }
 
-    public boolean canJump() {
+    /*public boolean canJump() {
         int tileX = (int)((getLocation().getX()) / Game.BLOCK_SIZE);
         int tileY = (int)((getLocation().getY()) / Game.BLOCK_SIZE);
 
@@ -250,31 +263,30 @@ public abstract class Entity {
             tileX = (int)((getLocation().getX() + getCollisionBox().getWidth()) / Game.BLOCK_SIZE);
         }
 
-        blockBelowEntity = getLevel().getBlockGrid().getBlockAt(tileX, tileY + 2);
+        blockBelowEntityLeft = getLevel().getBlockGrid().getBlockAt(tileX, tileY + 2);
 
-        if (blockBelowEntity == null) {
+        if (blockBelowEntityLeft == null) {
             return true;
         }
 
-        if (blockBelowEntity instanceof BlockLiquid) {
-            setHealth(0);
-        }
-
-        if (blockBelowEntity.getCollisionBox() != null) {
-            if (getCollisionBox().collidesWith(blockBelowEntity.getCollisionBox()) && blockBelowEntity.isCollidable()) {
+        if (blockBelowEntityLeft.getCollisionBox() != null) {
+            if (getCollisionBox().collidesWith(blockBelowEntityLeft.getCollisionBox()) && blockBelowEntityLeft.isCollidable()) {
                 return true;
             }
         }
 
         return false;
-    }
+    }*/
 
     public boolean isClimbing() {
         return getBlockAtLocation() instanceof BlockClimbable;
     }
 
-    public Block getBlockBelowEntity() {
-        return blockBelowEntity;
+    public Block getBlockBelowEntityLeft() {
+        return blockBelowEntityLeft;
+    }
+    public Block getBlockBelowEntityRight() {
+        return blockBelowEntityRight;
     }
 
     public EntityType getType() {

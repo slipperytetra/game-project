@@ -92,8 +92,8 @@ public class Camera {
         renderDecorations();
         renderSpotLights();
         renderBlocks();
-        getPlayer().render(this);
         renderEntities();
+        getPlayer().render(this);
         renderTextMessages();
         renderUI();
     }

@@ -141,8 +141,12 @@ public class Player extends EntityLiving {
         if (cam.debugMode) {
             game.changeColor(Color.magenta);
 
-            if (getBlockBelowEntity() != null) {
-                game.drawRectangle(getBlockBelowEntity().getLocation().getX() + cam.centerOffsetX, getBlockBelowEntity().getLocation().getY() + cam.centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+            if (getBlockBelowEntityLeft() != null) {
+                game.drawRectangle(getBlockBelowEntityLeft().getLocation().getX() + cam.centerOffsetX, getBlockBelowEntityLeft().getLocation().getY() + cam.centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+            }
+
+            if (getBlockBelowEntityRight() != null) {
+                game.drawRectangle(getBlockBelowEntityRight().getLocation().getX() + cam.centerOffsetX, getBlockBelowEntityRight().getLocation().getY() + cam.centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
             }
 
             double hitBoxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
@@ -161,7 +165,7 @@ public class Player extends EntityLiving {
 
     public void playerMovement(Set<Integer> keysPressed) {
         if (keysPressed.contains(32)) {//SPACE
-            if (!isJumping() && !isAttacking() && (canJump() || isOnGround() || canClimb())) {
+            if (!isJumping() && !isAttacking() && (isOnGround() || canClimb())) {
                 jump();
             }
         }

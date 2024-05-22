@@ -87,25 +87,25 @@ public class Level {
             String line = lines.get(y);
             line = line.substring(3);
             for (int x = 0; x < line.length(); x++) {
+                double spawnX = x * Game.BLOCK_SIZE;
+                double spawnY = relY * Game.BLOCK_SIZE;
+                Location spawnLoc = new Location(spawnX, spawnY);
                 if (line.charAt(x) == 'P') {
-                    double spawnX = x * Game.BLOCK_SIZE;
-                    double spawnY = relY * Game.BLOCK_SIZE;
-
-                    player = new Player(this, new Location(spawnX, spawnY));
+                    player = new Player(this, spawnLoc);
 
                     spawnY = spawnY - (player.getHeight() - Game.BLOCK_SIZE);
                     player.setLocation(player.getLocation().getX(), spawnY);
                     spawnPoint = new Location(spawnX, spawnY);
                 } else if (line.charAt(x) == 'K') {
-                    keyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
-                    key = new Key(this, keyLoc);
+                    keyLoc = spawnLoc;
+                    key = new Key(this, spawnLoc);
 
                     double heightDiff = key.getLocation().getY() - (key.getHeight() - Game.BLOCK_SIZE);
                     key.setLocation(key.getLocation().getX(), heightDiff);
                     addEntity(key);
                 } else if (line.charAt(x) == 'D' ||line.charAt(x) == 'd') {
-                    doorLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
-                    door = new Door(this, doorLoc);
+                    doorLoc = spawnLoc;
+                    door = new Door(this, spawnLoc);
                     if(line.charAt(x) == 'd'){
                         door.setType(EntityType.STONE_DOOR);
                     }
@@ -114,62 +114,60 @@ public class Level {
                     door.setLocation(door.getLocation().getX(), heightDiff);
                     addEntity(door);
                 } else if (line.charAt(x) == 'X') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.DIRT, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.DIRT, spawnLoc));
                 } else if (line.charAt(x) == 'G') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.GRASS, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.GRASS, spawnLoc));
                 } else if (line.charAt(x) == 'L') {
-                    grid.setBlock(x, relY, new BlockClimbable(BlockTypes.LADDER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockClimbable(BlockTypes.LADDER, spawnLoc));
                 } else if (line.charAt(x) == 'E') {
-                    Location enemyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
-                    EnemyPlant enemy = new EnemyPlant(this, enemyLoc);
+                    EnemyPlant enemy = new EnemyPlant(this, spawnLoc);
 
                     double heightDiff = enemy.getLocation().getY() - Game.BLOCK_SIZE - 16;
                     enemy.setLocation(enemy.getLocation().getX(), heightDiff);
                     addEntity(enemy);
                 } else if (line.charAt(x) == 'B') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BARRIER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BARRIER, spawnLoc));
                 } else if (line.charAt(x) == '@') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.FOREST_GRASS, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.FOREST_GRASS, spawnLoc));
                 } else if (line.charAt(x) == '!') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.FOREST_GROUND, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.FOREST_GROUND, spawnLoc));
                 } else if (line.charAt(x) == 'W') {
-                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.WATER_TOP, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.WATER_TOP, spawnLoc));
                 } else if (line.charAt(x) == 'O') {
-                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.WATER_BOTTOM, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.WATER_BOTTOM, spawnLoc));
                 } else if (line.charAt(x) == 'S') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.STONE_FLOOR, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.STONE_FLOOR, spawnLoc));
                 } else if (line.charAt(x) == 's') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.STONE_FILLER, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.STONE_FILLER, spawnLoc));
                 } else if (line.charAt(x) == 'l') {
-                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.LAVA, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.LAVA, spawnLoc));
                 } else if (line.charAt(x) == 'p') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BRIDGE, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BRIDGE, spawnLoc));
                 } else if (line.charAt(x) == 'm') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BL, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BL, spawnLoc));
                 } else if (line.charAt(x) == 'r') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BR, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE)));
+                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BR, spawnLoc));
                 } else if (line.charAt(x) == 'h') {
-                    Location heartLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
-                    Heart heart = new Heart(this, heartLoc);
+                    Heart heart = new Heart(this, spawnLoc);
                     addEntity(heart);
                 } else if (line.charAt(x) == 'R') {
-                    addDecoration(DecorationTypes.ROCK, x, relY);
+                    addDecoration(DecorationTypes.ROCK, spawnLoc);
                 } else if (line.charAt(x) == 'b') {
-                    addDecoration(DecorationTypes.BUSH, x, relY);
+                    addDecoration(DecorationTypes.BUSH, spawnLoc);
                 } else if (line.charAt(x) == 't') {
-                    addDecoration(DecorationTypes.TREE, x, relY);
+                    addDecoration(DecorationTypes.TREE, spawnLoc);
                 } else if (line.charAt(x) == 'z') {
-                    addDecoration(DecorationTypes.LAMP_POST, x, relY);
+                    addDecoration(DecorationTypes.LAMP_POST, spawnLoc);
                 } else if (line.charAt(x) == '0') {
-                    addDecoration(DecorationTypes.TREE_WILLOW_0, x, relY);
+                    addDecoration(DecorationTypes.TREE_WILLOW_0, spawnLoc);
                 } else if (line.charAt(x) == '1') {
-                    addDecoration(DecorationTypes.TREE_WILLOW_1, x, relY);
+                    addDecoration(DecorationTypes.TREE_WILLOW_1, spawnLoc);
                 } else if (line.charAt(x) == '2') {
-                    addDecoration(DecorationTypes.TREE_WILLOW_2, x, relY);
+                    addDecoration(DecorationTypes.TREE_WILLOW_2, spawnLoc);
                 } else if (line.charAt(x) == '3') {
-                    addDecoration(DecorationTypes.HANGING_VINE, x, relY);
+                    addDecoration(DecorationTypes.HANGING_VINE, spawnLoc);
                 } else if (line.charAt(x) == '4') {
-                    addDecoration(DecorationTypes.HANGING_VINE_FLOWERS, x, relY);
+                    addDecoration(DecorationTypes.HANGING_VINE_FLOWERS, spawnLoc);
                 }
 
             }
@@ -295,9 +293,9 @@ public class Level {
         return decorations;
     }
 
-    private void addDecoration(DecorationTypes type, int x, int relY) {
+    private void addDecoration(DecorationTypes type, Location loc) {
         BufferedImage texture = (BufferedImage) getManager().getEngine().getTexture(type.toString());
-        Decoration decoTree = new Decoration(type, new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE), texture.getWidth(), texture.getHeight());
+        Decoration decoTree = new Decoration(type, loc, texture.getWidth(), texture.getHeight());
         decorations.add(decoTree);
 
         if (decoTree.getType().hasLightSpots()) {
