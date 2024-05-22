@@ -18,7 +18,11 @@ public enum BlockTypes {
     LAVA("resources/images/lava.png"),
     BRIDGE("resources/images/bridgeMid.png"),
     BL("resources/images/bridgeL.png"),
-    BR("resources/images/bridgeR.png");
+    BR("resources/images/bridgeR.png"),
+    SNOWTOPR("resources/images/blocks/SnowTopL.png"),
+    SNOWMID("resources/images/blocks/SnowMiddle.png"),
+    SNOWFILL("resources/images/snowB.png"),
+    SNOWDOWN("resources/images/snowmiddle.png");
 
 
 
