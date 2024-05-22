@@ -214,6 +214,8 @@ public class Camera {
         if (game.isPaused) {
             game.changeColor(Color.orange);
             game.drawText((game.width() / 2) - 100, game.height() / 2, "Paused", 75);
+            game.drawText((game.width() / 2) - 110, game.height() / 2 + 100, "Press 'Q' to Quit.", 40);
+
             return;
         }
 

@@ -69,8 +69,11 @@ public class Game extends GameEngine {
         timeSinceLastFrame = currentTime - lastTime;
         camera.update();
 
+
         if (!isPaused) {
             getActiveLevel().update(dt);
+
+
         }
     }
 
@@ -94,6 +97,10 @@ public class Game extends GameEngine {
 
         if (event.getKeyCode() == 27) { //ESCAPE
             isPaused = !isPaused;
+        }
+
+        if(event.getKeyCode() == 81){
+            System.exit(0);
         }
     }
 
