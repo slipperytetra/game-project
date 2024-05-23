@@ -7,7 +7,11 @@ public enum EntityType {
     KEY("resources/images/blocks/key.png"),
     PLANT_MONSTER("resources/images/characters/plant_monster.png"),
     STONE_DOOR("resources/images/blocks/stoneDoor.png"),
-    HEART("resources/images/heart.gif");
+    SKULL_HEAD("resources/images/characters/skull_head"),
+    GOLD_COIN("resources/images/goldcoin/gold_coin"),
+    HEART("resources/images/heart.gif"),
+    BEE("resources/images/characters/bee/bee_idle"),
+    BEE_STINGER("resources/images/characters/bee/bee_stinger.png");
 
 
     private final String filePath;
