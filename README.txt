@@ -53,12 +53,11 @@ ENTITIES
                     }
 
         Next, you want to set its letter icon so the levels know what it is. So in the Level.class file you'll want to add this
-        code in the load() function during the for loop;
+        code in the load() function during the for loop inside the "if (entityKeyMap.containsKey(key))":
             e.g:
-                     if (line.charAt(x) == 'E') {
-                            Location enemyLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);    <---- This shouldn't need to change.
-                            EnemyPlant enemy = new EnemyPlant(this, enemyLoc);      <----- This you'll want to make it your new entity class
-                            addEntity(enemy);                                              in this case it is EnemyPlant
+                     if (type == EntityType.PLANT_MONSTER) {
+                        entity = new EnemyPlant(this, spawnLoc);                     <----- This you'll want to make it your new entity class
+                                                                                            in this case it is EnemyPlant
                      }
 
         Lastly, you just want to define it's texture in the Game.class under the loadCharacterImages() functions
