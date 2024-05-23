@@ -29,7 +29,6 @@ public class DecorationTree extends Decoration {
         }
 
         if  (particleCounter >= particleFrequency) {
-            System.out.println("leaf");
             particleFrequency = rand.nextInt(5, 10);
             level.spawnParticle(ParticleTypes.LEAF, getLocation().getX() + (getWidth() / 2), getLocation().getY() - (getHeight() / 2));
             particleCounter = 0;

@@ -89,7 +89,13 @@ public class Player extends EntityLiving {
 
         if  (runParticleTimer >= RUN_PARTICLE_FREQUENCY) {
             if(isMovingHorizontally() && isOnGround()){
-                getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY() + 40);
+                double partVelX = 0.75;
+                double partVelY = -0.5;
+                if (isFlipped()) {
+                    partVelX *= -1;
+                }
+
+                getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY() + 44, partVelX, partVelY);
                 runParticleTimer = 0;
             }
         }

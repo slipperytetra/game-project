@@ -20,16 +20,20 @@ public class Particle
     double opacity;
     double size;
     double offsetX, offsetY;
-    final double fallSpeed = 32; //pixels per second
+    double velX, velY;
+    final double speed = 32; //pixels per second
     public Particle(ParticleTypes type, Location spawnLoc, Level level){
         this.loc = spawnLoc;
         this.timeAlive = type.getTimeAlive();
         this.type = type;
         this.image = (BufferedImage) level.getManager().getEngine().getTexture(type.toString().toLowerCase());
         this.level =  level;
+
         this.isActive = true;
         this.ticksAlive = 0;
         this.opacity = 1.0;
+        this.velX = getType().getVelX();
+        this.velY = getType().getVelY();
 
         this.size = 32;
         if (type.getMinSize() > -1 && type.getMaxSize() > -1) {
@@ -57,8 +61,12 @@ public class Particle
           setActive(false);
       }
 
-      if (getType().hasGravity()) {
-            this.loc.setY(loc.getY() + (fallSpeed * dt));
+      if (getVelX() != 0) {
+          this.loc.setX(loc.getX() + ((getVelX() * speed) * dt));
+      }
+
+      if (getVelY() != 0) {
+          this.loc.setY(loc.getY() + ((getVelY() * speed) * dt));
       }
     }
 
@@ -91,5 +99,21 @@ public class Particle
 
     public void setTimeAlive(double timeAlive) {
         this.timeAlive = timeAlive;
+    }
+
+    public double getVelX() {
+        return velX;
+    }
+
+    public void setVelX(double velX) {
+        this.velX = velX;
+    }
+
+    public double getVelY() {
+        return velY;
+    }
+
+    public void setVelY(double velY) {
+        this.velY = velY;
     }
 }
