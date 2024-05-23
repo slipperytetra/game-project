@@ -1,8 +1,11 @@
 package block.decorations;
 
+import main.Camera;
 import main.CollisionBox;
 import main.Game;
 import main.Location;
+
+import java.awt.*;
 
 public class Decoration {
 
@@ -20,6 +23,25 @@ public class Decoration {
         this.height = height;
 
         this.collisionBox = new CollisionBox(getLocation().getX(), getLocation().getY() - getHeight() + Game.BLOCK_SIZE, getWidth(), getHeight());
+    }
+
+    public void update(double dt) {
+        //
+    }
+
+    public void render(Camera cam) {
+        double decoOffsetX = getLocation().getX() + cam.centerOffsetX;
+        double decoOffsetY = getLocation().getY() + cam.centerOffsetY;
+
+        Image texture = cam.game.getTexture(getType().toString());
+        cam.game.drawImage(texture, decoOffsetX, decoOffsetY - getHeight() + Game.BLOCK_SIZE, getWidth(), getHeight());
+
+        if (cam.debugMode) {
+            double hitboxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
+            double hitboxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
+            cam.game.changeColor(Color.GREEN);
+            cam.game.drawRectangle(hitboxOffsetX, hitboxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
+        }
     }
 
     public DecorationTypes getType() {

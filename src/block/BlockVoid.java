@@ -8,8 +8,8 @@ import java.awt.geom.Rectangle2D;
 
 public class BlockVoid extends Block {
 
-    public BlockVoid(BlockTypes type, Location loc) {
-        super(type, loc);
+    public BlockVoid(Location loc) {
+        super(BlockTypes.VOID, loc);
     }
 
     @Override

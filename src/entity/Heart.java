@@ -1,6 +1,8 @@
-package main;
+package entity;
 
 import level.Level;
+import main.GameEngine;
+import main.Location;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +35,6 @@ public class Heart extends Entity{
                 public void actionPerformed(ActionEvent e) {
                     // Increase player's health by 2
                     getLevel().getPlayer().setHealth(getLevel().getPlayer().getHealth() + 3);
-
 
                 }
             });

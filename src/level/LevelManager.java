@@ -39,8 +39,8 @@ public class LevelManager {
         levels.put("level_demo", DEMO);
         levels.put("level_demo_2", DEMO_2);
         levels.put("level_demo3", LEVEL_3);
-        levels.put("level4",LEVEL_4);
-        levels.put("forest",FOREST);
+        levels.put("level4", LEVEL_4);
+        levels.put("forest", FOREST);
 
         /*
          *  This is for adding text to the level. You set the x and y coordinates where it should show.

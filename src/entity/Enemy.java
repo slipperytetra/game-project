@@ -1,9 +1,9 @@
-package main;
+package entity;
 
 import level.Level;
+import main.Location;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 public abstract class Enemy extends EntityLiving {
 

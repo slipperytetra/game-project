@@ -14,7 +14,7 @@ public class BlockGrid {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                blocks[x][y] = new BlockVoid(BlockTypes.VOID, new Location(x, y));
+                blocks[x][y] = new BlockVoid(new Location(x, y));
             }
         }
     }

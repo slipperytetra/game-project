@@ -1,12 +1,11 @@
-package main;
+package entity;
 
 import level.Level;
+import main.Camera;
+import main.Location;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import javax.swing.Timer;
 
 public class EnemyPlant extends Enemy {
 

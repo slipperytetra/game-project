@@ -2,8 +2,10 @@ package main;
 
 import block.BlockTypes;
 import block.decorations.DecorationTypes;
+import entity.EntityType;
 import level.Level;
 import level.LevelManager;
+import level.ParticleTypes;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +15,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class Game extends GameEngine {
@@ -47,10 +48,7 @@ public class Game extends GameEngine {
 
         this.setWindowSize(1280, 720);
         this.lvlManager = new LevelManager(this);
-        setActiveLevel(lvlManager.LEVEL_4);
-
-        //System.out.println("Starting X position: " + this.activeLevel.getPlayer().getLocation().getX());
-        //System.out.println("Starting Y position: " + this.activeLevel.getPlayer().getLocation().getY());
+        setActiveLevel(lvlManager.FOREST);
     }
 
     public Level getActiveLevel() {
@@ -99,7 +97,7 @@ public class Game extends GameEngine {
             isPaused = !isPaused;
         }
 
-        if(event.getKeyCode() == 81){
+        if(event.getKeyCode() == 81 && isPaused){
             System.exit(0);
         }
     }
@@ -167,10 +165,11 @@ public class Game extends GameEngine {
         imageBank.put("plant_monster", loadImage("resources/images/characters/plant_monster.png"));
         imageBank.put("heart", Toolkit.getDefaultToolkit().createImage("resources/images/heart.gif"));
         imageBank.put("snow_fx", Toolkit.getDefaultToolkit().createImage("resources/images/idea.gif"));
-        imageBank.put("cloud",  loadImage("resources/images/cloud.png"));
 
 
-
+        for (ParticleTypes particleType : ParticleTypes.values()) {
+            imageBank.put(particleType.toString().toLowerCase(), loadImage(particleType.getFilePath()));
+        }
 
 
     }
@@ -184,5 +183,9 @@ public class Game extends GameEngine {
         tx.translate(-img.getWidth(null), 0.0);
         AffineTransformOp op = new AffineTransformOp(tx, 1);
         return op.filter((BufferedImage) img, null);
+    }
+
+    public Camera getCamera() {
+        return camera;
     }
 }

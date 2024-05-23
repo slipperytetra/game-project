@@ -1,4 +1,4 @@
-name: Demo
+name: DEMO
 background: resources/images/bgidea.gif
 next_level: level4
 level_width: 30
@@ -16,8 +16,8 @@ level_data:
   [B............................B]
   [B............................B]
   [B...............L............B]
-  [B........SSSSSSSL............B]
-  [B........sssssssL............B]
+  [B........GGGGGGGL............B]
+  [B........XXXXXXXL............B]
   [B...............L............B]
   [B...............L............B]
   [B...............L............B]
@@ -27,10 +27,22 @@ level_data:
   [B...............L............B]
   [B...............L............B]
   [B.........L.E...L............B]
-  [B.........LSSSSSS............B]
-  [B.........Lssssss............B]
-  [B.........Lssssss............B]
-  [B.........Lssssss............B]
-  [B....P..E.Lssssss.....K...D..B]
-  [SSSSSSSSSSSSSSSSSSSSSSSSSSSSSS]
-  [ssssssssssssssssssssssssssssss]
+  [B.........LGGGGGG............B]
+  [B.........LXXXXXX............B]
+  [B.........LXXXXXX............B]
+  [B.........LXXXXXX............B]
+  [B....P..E.LXXXXXX.....K...D..B]
+  [GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG]
+  [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
+keymap:
+  P: PLAYER
+  D: DOOR
+  K: KEY
+  E: PLANT_MONSTER
+  H: HEART
+  B: BARRIER
+  L: LADDER
+  l: LAVA
+  W: WATER_TOP
+  G: STONE_FLOOR
+  X: STONE_FILLER
