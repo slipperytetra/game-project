@@ -7,8 +7,14 @@ public enum DecorationTypes {
 
     //Can be any size, not limited to 32x32.
     ROCK("resources/images/blocks/decorations/rock.png"),
+    ROCK_LARGE("resources/images/blocks/decorations/rock_large.png", 2),
+    MUSHROOM("resources/images/blocks/decorations/mushroom.png", 1.5),
+    MUSHROOM_BLUE("resources/images/blocks/decorations/mushroom_blue.png", 1),
+    TALL_GRASS("resources/images/blocks/decorations/tall_grass.png"),
     BUSH("resources/images/blocks/decorations/bush.png", 2),
     TREE("resources/images/blocks/decorations/tree.png", 2),
+    FOREST_PLANT_0("resources/images/blocks/decorations/forest_plant_0.png", 0.5),
+    FOREST_PLANT_1("resources/images/blocks/decorations/forest_plant_1.png", 0.5),
     TREE_WILLOW_0("resources/images/blocks/decorations/willow_0.png", 1.5),
     TREE_WILLOW_1("resources/images/blocks/decorations/willow_1.png", 1.5),
     TREE_WILLOW_2("resources/images/blocks/decorations/willow_2.png", 1.5),

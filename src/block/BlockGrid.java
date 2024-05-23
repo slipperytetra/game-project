@@ -33,7 +33,7 @@ public class BlockGrid {
 
     public Block getBlockAt(int x, int y) {
         if (x < 0 || x >= getWidth() || y < 0 || y >= getHeight()) {
-            System.out.println("Error: trying to get block outside of block.BlockGrid dimensions.");
+            //System.out.println("Error: trying to get block outside of block.BlockGrid dimensions.");
             return null;
         }
 
@@ -42,7 +42,7 @@ public class BlockGrid {
 
     public void setBlock(int x, int y, Block block) {
         if (x < 0 || x > getWidth() || y < 0 || y > getHeight()) {
-            System.out.println("Error: trying to set block outside of BlockGrid dimensions [" + x + ", " + y + "]");
+            //System.out.println("Error: trying to set block outside of BlockGrid dimensions [" + x + ", " + y + "]");
             return;
         }
         blocks[x][y] = block;

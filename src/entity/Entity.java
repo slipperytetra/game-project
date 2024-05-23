@@ -260,29 +260,6 @@ public abstract class Entity {
         return false;
     }
 
-    /*public boolean canJump() {
-        int tileX = (int)((getLocation().getX()) / Game.BLOCK_SIZE);
-        int tileY = (int)((getLocation().getY()) / Game.BLOCK_SIZE);
-
-        if (!isFlipped()) {
-            tileX = (int)((getLocation().getX() + getCollisionBox().getWidth()) / Game.BLOCK_SIZE);
-        }
-
-        blockBelowEntityLeft = getLevel().getBlockGrid().getBlockAt(tileX, tileY + 2);
-
-        if (blockBelowEntityLeft == null) {
-            return true;
-        }
-
-        if (blockBelowEntityLeft.getCollisionBox() != null) {
-            if (getCollisionBox().collidesWith(blockBelowEntityLeft.getCollisionBox()) && blockBelowEntityLeft.isCollidable()) {
-                return true;
-            }
-        }
-
-        return false;
-    }*/
-
     public boolean isClimbing() {
         return getBlockAtLocation() instanceof BlockClimbable;
     }

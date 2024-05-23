@@ -1,7 +1,4 @@
-package level;//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+package level;
 
 import block.*;
 import block.decorations.Decoration;
@@ -15,44 +12,48 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Scanner;
+import java.util.*;
 
 public class Level {
-    LevelManager manager;
     private Player player;
-    private Door door;
-    private Key key;
-    private String nextLevel;
 
-    int id;
-    String name;
-    int sizeWidth;
-    int sizeHeight;
-    ArrayList<String> lines;
-    HashMap<Integer, TextMessage> textMessages;
-    BlockGrid grid;
+    private int id;
+    private int sizeWidth;
+    private int sizeHeight;
     private int textCounter;
-
     private final String levelDoc;
-    public final double gravity = 9.8;
-    public double scale = 2;
     private int currentLine;
-    String backgroundImgFilePath;
-    Location spawnPoint;
-    Location keyLoc;
-    Location doorLoc;
 
-    ArrayList<Decoration> decorations;
-    ArrayList<FakeLightSpot> spotLights;
-    ArrayList<Entity> entities;
-    ArrayList<Particle> particles;
+    private String name;
+    private String nextLevel;
+    private String backgroundImgFilePath;
 
-    HashMap<Character, BlockTypes> blockKeyMap;
-    HashMap<Character, EntityType> entityKeyMap;
-    HashMap<Character, DecorationTypes> decorationKeyMap;
+    private BlockGrid grid;
+    private LevelManager manager;
+
+    private Location spawnPoint;
+    private Location keyLoc;
+    private Location doorLoc;
+
+    private ArrayList<Decoration> decorations;
+    private ArrayList<FakeLightSpot> spotLights;
+    private ArrayList<Entity> entities;
+    private ArrayList<Particle> particles;
+    private ArrayList<String> lines;
+
+    private HashMap<Integer, TextMessage> textMessages;
+    private HashMap<Character, BlockTypes> blockKeyMap;
+    private HashMap<Character, EntityType> entityKeyMap;
+    private HashMap<Character, DecorationTypes> decorationKeyMap;
+
+    /*
+    *   The purpose of the level class is to extract and store data from level.txt files.
+    *
+    *   It reads each character after level_data and stores blocks into the level's BlockGrid
+    *   based on the keycodes assigned in the txt file.
+    *
+    *   FOr entities and decorations, they are stored into the appropriate lists.
+    * */
 
     public Level(LevelManager manager, int id, String levelDoc) {
         this.manager = manager;
@@ -98,7 +99,7 @@ public class Level {
 
     public void load() {
         int relY = 0;
-        for (int y = currentLine + sizeHeight + 1; y < lines.size(); y++) {
+        for (int y = currentLine + sizeHeight + 1; y < lines.size(); y++) { // Assign character codes to types
             String line = lines.get(y).replaceAll(" ", "").replaceAll(":", "");
             char key = line.charAt(0);
             String type = line.substring(1);
@@ -106,7 +107,7 @@ public class Level {
             assignKeyToMap(key, type);
         }
 
-        for (int y = currentLine; y < sizeHeight + currentLine; y++) {
+        for (int y = currentLine; y < sizeHeight + currentLine; y++) { // Place objects into the world via BlockGrid and lists
             String line = lines.get(y).replaceAll(" ", "").replaceAll("\\[", "").replaceAll("]", "");
             //System.out.println(line);
             for (int x = 0; x < line.length(); x++) {
@@ -121,6 +122,8 @@ public class Level {
                     if (type == BlockTypes.VOID) {
                         block = new BlockVoid(spawnLoc);
                     } else if (type == BlockTypes.LADDER) {
+                        block = new BlockClimbable(type, spawnLoc);
+                    }else if (type == BlockTypes.ROPE) {
                         block = new BlockClimbable(type, spawnLoc);
                     } else if (type == BlockTypes.WATER_TOP) {
                         block = new BlockLiquid(type, spawnLoc);
@@ -194,6 +197,7 @@ public class Level {
         getPlayer().playerMovement(getManager().getEngine().keysPressed);
         getPlayer().update(dt);
 
+        // Using Iterators so that objects can be removed dynamically.
         Iterator<Entity> iter = getEntities().iterator();
         while (iter.hasNext()) {
             Entity entity = iter.next();
@@ -216,7 +220,6 @@ public class Level {
             }
         }
 
-
         for (Decoration deco : getDecorations()) {
             if (deco.getCollisionBox().collidesWith(getManager().getEngine().getCamera().getCollisionBox())) {
                 deco.update(dt);
@@ -228,17 +231,17 @@ public class Level {
         }
     }
 
-    public Player getPlayer() {
-        return player;
-    }
-
     public void reset() {
         getPlayer().setLocation(spawnPoint.getX(), spawnPoint.getY());
         getPlayer().setHealth(getPlayer().getMaxHealth());
     }
 
-    public Door getDoor() {
-        return door;
+    public Player getPlayer() {
+        return player;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getNextLevel() {
@@ -276,18 +279,6 @@ public class Level {
         return sizeHeight;
     }
 
-    public Location getKeyLocation() {
-        return keyLoc;
-    }
-
-    public Location getDoorLocation() {
-        return doorLoc;
-    }
-
-    public double getGravity() {
-        return 0.98;
-    }
-
     public BlockGrid getBlockGrid() {
         return grid;
     }
@@ -316,10 +307,17 @@ public class Level {
     private void addDecoration(DecorationTypes type, Location loc) {
         BufferedImage texture = (BufferedImage) getManager().getEngine().getTexture(type.toString());
         Decoration deco = null;
+        loc.setY(loc.getY() + 1);
         if (type.hasFallingLeaves()) {
             deco = new DecorationTree(type, loc, texture.getWidth(), texture.getHeight(), this);
         } else {
             deco = new Decoration(type, loc, texture.getWidth(), texture.getHeight());
+        }
+
+        if (type == DecorationTypes.TALL_GRASS || type == DecorationTypes.FOREST_PLANT_0 || type == DecorationTypes.FOREST_PLANT_1) {
+            Random rand = new Random();
+            deco.getLocation().setY(loc.getY() + rand.nextDouble(0, 16));
+            deco.setScale(rand.nextDouble(deco.getScale() * 0.75, deco.getScale() * 1.25));
         }
 
         decorations.add(deco);

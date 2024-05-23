@@ -2,7 +2,7 @@ package level;
 
 public enum ParticleTypes {
 
-    CLOUD("resources/images/particles/cloud.png", 1,0.5, 1.0, 4, true),
+    CLOUD("resources/images/particles/cloud.png", 1,0.5, 0.75, 4, true),
     LEAF("resources/images/particles/leaf.png", 3,0.25, 0.5, 32, true, 0, 1);
 
     private final String filePath;

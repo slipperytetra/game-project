@@ -8,8 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 
-public class Particle
-{
+public class Particle {
     Location loc;
     double timeAlive, ticksAlive;
     boolean isActive;
@@ -47,11 +46,14 @@ public class Particle
             Random rand = new Random();
             this.offsetX += rand.nextDouble(-type.getOffset(), type.getOffset());
             this.offsetY += rand.nextDouble(-type.getOffset(), type.getOffset());
-
         }
     }
 
   public void  update(double dt){
+        if (!isActive) {
+            return;
+        }
+
       opacity = opacity - ((1 / timeAlive) * dt);
 
       if (ticksAlive < timeAlive) {

@@ -35,11 +35,8 @@ public class EnemyPlant extends Enemy {
     public void render(Camera cam) {
         double offsetX = getLocation().getX() + cam.centerOffsetX;
         double offsetY = getLocation().getY() + cam.centerOffsetY;
-        double difference = (double) 100 / getMaxHealth();
-        cam.game.changeColor(Color.red);
         if(getHealth() < getMaxHealth()){
-            cam.game.drawSolidRectangle(offsetX,offsetY - 50, getHealth() * difference, 15);
-
+            cam.drawHealthBar(this, offsetX, offsetY - 50);
         }
 
 
@@ -99,10 +96,5 @@ public class EnemyPlant extends Enemy {
         }
 
         return ((BufferedImage) getIdleFrame()).getHeight() * getScale();
-    }
-
-    @Override
-    public void destroy(){
-        super.destroy();
     }
 }

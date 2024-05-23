@@ -44,9 +44,6 @@ public class Camera {
         this.loc = new Location(p.getLocation().getX(), p.getLocation().getY());
 
 
-
-
-
         /*
         *   'point1' is the top left location of the screen.
         *   'point2' is the bottom right location of the screen.
@@ -231,8 +228,9 @@ public class Camera {
             game.drawImage(game.imageBank.get("key"), 1230, 20, 50, 50);
         }
 
-        game.changeColor(Color.RED);
-        game.drawSolidRectangle(localXDiff,localYDiff, player.getHealth(), 15);
+        drawHealthBar(player, localXDiff, localYDiff);
+        game.changeColor(Color.red);
+        //game.drawSolidRectangle(localXDiff,localYDiff, player.getHealth(), 15);
         game.drawText(localXDiff+50,localYDiff, String.valueOf(player.getHealth()), 20);
 
 
@@ -302,5 +300,15 @@ public class Camera {
             currentFps = totalFrames;
             totalFrames = 0;
         }
+    }
+
+    public void drawHealthBar(Entity entity, double xPos, double yPos) {
+        double difference = (double) 100 / entity.getMaxHealth();
+        double barSize = entity.getHealth() * difference;
+
+        game.changeColor(Color.red);
+        game.drawSolidRectangle(xPos,yPos, barSize, 15);
+        game.changeColor(Color.darkGray);
+        game.drawSolidRectangle(xPos + barSize,yPos, 100 - barSize, 15);
     }
 }

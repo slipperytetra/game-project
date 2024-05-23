@@ -95,7 +95,7 @@ public class Player extends EntityLiving {
                     partVelX *= -1;
                 }
 
-                getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY() + 44, partVelX, partVelY);
+                getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY() + 48, partVelX, partVelY);
                 runParticleTimer = 0;
             }
         }
