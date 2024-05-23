@@ -99,6 +99,25 @@ public class Player extends EntityLiving {
                 runParticleTimer = 0;
             }
         }
+        checkGoldCoinCollisions(getLevel().getManager().getEngine());
+    }
+
+    public void incrementScore(){
+        score += 10;
+    }
+
+    // New method to check for collisions with gold coins
+    public void checkGoldCoinCollisions(Game game) {
+        ArrayList<Entity> entities = getLevel().getEntities();
+        for (Entity entity : entities) {
+            if (entity instanceof goldCoin) {
+                goldCoin coin = (goldCoin) entity;
+                if (!coin.isCollected() && getCollisionBox().collidesWith(coin.getCollisionBox())) {
+                    coin.collect();
+                    incrementScore(); // Increment score by 1 for each coin collected
+                }
+            }
+        }
     }
 
     public boolean hasKey() {
