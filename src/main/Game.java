@@ -80,6 +80,7 @@ public class Game extends GameEngine {
         if (imageBank.containsKey("background")) {
             this.drawImage(imageBank.get("background"), 0, 0, this.width(), this.height());
         }
+
         if(getActiveLevel().getPlayer().getHealth() <= 0){
             gameOver = true;
             drawText(100,100,"You died",30);
@@ -170,8 +171,6 @@ public class Game extends GameEngine {
         for (ParticleTypes particleType : ParticleTypes.values()) {
             imageBank.put(particleType.toString().toLowerCase(), loadImage(particleType.getFilePath()));
         }
-
-
     }
 
     public Image getTexture(String textureName) {

@@ -23,7 +23,6 @@ public class Camera {
     public Location loc, centerPoint;
     public Game game;
     public Player player;
-    private GameEngine.AudioClip keyObtained;
     private boolean hasPlayedKeyAudio = false;
 
     public boolean debugMode;
@@ -43,7 +42,6 @@ public class Camera {
         this.game = game;
         this.player = p;
         this.loc = new Location(p.getLocation().getX(), p.getLocation().getY());
-        keyObtained = this.game.loadAudio("resources/sounds/keyObtained.wav");
 
 
 
@@ -70,12 +68,7 @@ public class Camera {
     *   This method constantly updates the points. This is needed because the players location always changes.
     * */
     public void update() {
-        totalFrames++;
-        if (System.nanoTime() > lastFpsCheck + 1000000000) {
-            lastFpsCheck = System.nanoTime();
-            currentFps = totalFrames;
-            totalFrames = 0;
-        }
+        calculateFPS();
 
         this.loc.setX(player.getLocation().getX());
         this.loc.setY(player.getLocation().getY());
@@ -102,13 +95,17 @@ public class Camera {
         renderUI();
     }
 
-    private void renderBackground() {
-        if (game.imageBank.get("background") != null) {
-            //System.out.println("Draw bg");
-            game.drawImage(game.imageBank.get("background"), 0, 0, game.width(), game.height());
-        }
-    }
 
+
+
+    /*
+    *   Most renderer functions work the same way. They look through all the objects in the relevant list,
+    *   in this case its decorations. Then it calls their render function which just draws the object's texture
+    *   taking into account certain factors like scale, offsets ect.
+    *
+    *   It also checks if the object is viewable on the camera before drawing it by comparing its collision
+    *   box to the camera's collision box (width and height of the screen)
+    * */
     private void renderDecorations() {
         DEBUG_DECORATIONS_ON_SCREEN = 0;
         for (Decoration deco : game.getActiveLevel().getDecorations()) {
@@ -122,12 +119,7 @@ public class Camera {
     private void renderSpotLights() {
         for (FakeLightSpot spotLight : game.getActiveLevel().getSpotLights()) {
             if (spotLight.getParent().getCollisionBox().collidesWith(this.getCollisionBox())) {
-                double decoOffsetX = spotLight.getParent().getLocation().getX() + centerOffsetX;
-                double decoOffsetY = spotLight.getParent().getLocation().getY() + centerOffsetY;
-
-                game.drawImage(game.getTexture("spot_light"),
-                        decoOffsetX + spotLight.getOffsetX(), decoOffsetY - spotLight.getParent().getHeight() + Game.BLOCK_SIZE + spotLight.getOffsetY(),
-                        spotLight.getWidth(), spotLight.getHeight());
+                spotLight.render(this);
             }
         }
     }
@@ -164,6 +156,10 @@ public class Camera {
         }
     }
 
+
+    /*
+    *   Same renderer concept, entities just have an active boolean.
+    * */
     public void renderEntities() {
         DEBUG_ENTITIES_ON_SCREEN = 0;
         for (Entity entity : game.getActiveLevel().getEntities()) {
@@ -178,6 +174,14 @@ public class Camera {
         }
     }
 
+
+    /*
+    *   This renders text in the actual level. It's mostly used in the demo levels for displaying help
+    *   messages.
+    *
+    *   Levels have an embedded list of TextMessage objects that have an assigned location, string and other
+    *   string attributes. Makes it easier for displaying the text relative to the player's position.
+    * */
     public void renderTextMessages() {
         for (TextMessage txtMsg : game.getActiveLevel().getTextMessages().values()) {
             if (txtMsg == null) {
@@ -200,6 +204,12 @@ public class Camera {
         }
     }
 
+    /*
+    *   Here is where all the UI related things are drawn. It displays the player health, pause menu, key ect
+    *   and is the one of the last things to render so that it displays on top of the level.
+    *
+    *   It also displays all the debug information which is useful when making the game or testing features.
+    * */
     public void renderUI() {
         if (game.isPaused) {
             game.changeColor(Color.orange);
@@ -219,15 +229,6 @@ public class Camera {
         game.drawText(1200,50,"Key : ", 20);
         if (game.getActiveLevel().getPlayer().hasKey()) {
             game.drawImage(game.imageBank.get("key"), 1230, 20, 50, 50);
-
-            // Check if the audio has not been played yet
-            if (!hasPlayedKeyAudio) {
-                this.game.playAudio(keyObtained);
-                hasPlayedKeyAudio = true; // Set the flag to true after playing the audio
-            }
-        } else {
-            // Optional: Reset the flag if the player no longer has the key
-            hasPlayedKeyAudio = false;
         }
 
         game.changeColor(Color.RED);
@@ -235,7 +236,7 @@ public class Camera {
         game.drawText(localXDiff+50,localYDiff, String.valueOf(player.getHealth()), 20);
 
 
-        if (debugMode) {
+        if (debugMode) { //Press 'H' to enable
             game.changeColor(Color.yellow);
             game.drawText(25, 100, "fps: " + currentFps, "Serif", 20);
             game.drawText(25, 120, "entities on screen: " + DEBUG_ENTITIES_ON_SCREEN, "Serif", 20);
@@ -260,7 +261,6 @@ public class Camera {
         }
     }
     public void renderFX(){
-
         if(game.getActiveLevel().getId() == 3){
             game.drawImage(game.getTexture("snow_fx"),0,0,game.width(),game.height());
         }
@@ -269,6 +269,13 @@ public class Camera {
         for (Particle particle : game.getActiveLevel().getParticles()){
             particle.render(this);
             DEBUG_PARTICLES_ON_SCREEN++;
+        }
+    }
+
+    private void renderBackground() {
+        if (game.imageBank.get("background") != null) {
+            //System.out.println("Draw bg");
+            game.drawImage(game.imageBank.get("background"), 0, 0, game.width(), game.height());
         }
     }
 
@@ -288,4 +295,12 @@ public class Camera {
         return getCollisionBox().getCorner();
     }
 
+    private void calculateFPS() {
+        totalFrames++;
+        if (System.nanoTime() > lastFpsCheck + 1000000000) {
+            lastFpsCheck = System.nanoTime();
+            currentFps = totalFrames;
+            totalFrames = 0;
+        }
+    }
 }

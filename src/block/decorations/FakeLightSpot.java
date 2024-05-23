@@ -1,5 +1,8 @@
 package block.decorations;
 
+import main.Camera;
+import main.Game;
+
 import java.util.Random;
 
 public class FakeLightSpot {
@@ -38,6 +41,15 @@ public class FakeLightSpot {
             flicker = random.nextDouble(1.0, random.nextDouble(1.12, 1.2));
             flickerCooldown = 0;
         }
+    }
+
+    public void render(Camera cam) {
+        double decoOffsetX = getParent().getLocation().getX() + cam.centerOffsetX;
+        double decoOffsetY = getParent().getLocation().getY() + cam.centerOffsetY;
+
+        cam.game.drawImage(cam.game.getTexture("spot_light"),
+                decoOffsetX + getOffsetX(), decoOffsetY - getParent().getHeight() + Game.BLOCK_SIZE + getOffsetY(),
+                getWidth(), getHeight());
     }
 
     public Decoration getParent() {

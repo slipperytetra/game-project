@@ -5,6 +5,13 @@ public class CollisionBox {
     private Location loc, corner;
     private double width, height;
 
+    /*
+    *   Simple collision box class. Basically it just consists of a theoretical rectangle from 'loc' to 'corner' than can be compared
+    *   with other collision boxes using a formula we found online.
+    *
+    *   https://stackoverflow.com/questions/306316/determine-if-two-rectangles-overlap-each-other
+    * */
+
     public CollisionBox(double x, double y, double width, double height) {
         this.loc = new Location(x, y);
         this.width = width;

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class GameMenu {
+
     private JFrame frame;
 
     public GameMenu() {
