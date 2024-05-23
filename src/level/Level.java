@@ -154,6 +154,18 @@ public class Level {
                     } else if (type == EntityType.KEY) {
                         keyLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
                         entity = new Key(this, spawnLoc);
+                    } else if (type == EntityType.SKULL_HEAD) {
+                        Location skullHeadLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
+                        SkullHead skullHead = new SkullHead(this, skullHeadLoc);
+                        addEntity(skullHead);
+                    } else if (type == EntityType.GOLD_COIN) {
+                        Location coinLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
+                        goldCoin coin = new goldCoin(this, coinLoc);
+                        addEntity(coin);
+                    } else if (type == EntityType.BEE) {
+                        Location beeLoc = new Location(x * Game.BLOCK_SIZE, relY * Game.BLOCK_SIZE);
+                        Bee bee = new Bee(this, beeLoc);
+                        addEntity(bee);
                     }
 
                     if (entity != null) {
