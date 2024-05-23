@@ -99,7 +99,7 @@ public class Bee extends Enemy {
 
     // Load attack animation frames
     private void loadAttackFrames() {
-        for (int i = 0; i < 4; i++) { // Adjust the frame count as necessary
+        for (int i = 0; i < 12; i++) {
             String path = "resources/images/characters/bee/bee_attack_frame" + i + ".png";
             BufferedImage frame = loadImage(path);
             if (frame != null) {
