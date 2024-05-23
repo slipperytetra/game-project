@@ -7,17 +7,24 @@ import java.io.File;
 import java.io.IOException;
 
 public class GameMenu {
-
     private JFrame frame;
+    private JLabel backgroundLabel;
 
     public GameMenu() {
         frame = new JFrame("Game Menu");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(300, 200);
-        frame.setLayout(new GridLayout(3, 1));
-        frame.setVisible(true);
+        frame.setSize(1280, 720);
 
-        System.out.println("Add button");
+        JLabel titleLabel = new JLabel("", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 36));
+        titleLabel.setForeground(Color.BLACK);
+        titleLabel.setOpaque(false);
+
+        ImageIcon backgroundIcon = new ImageIcon("resources/images/bgidea.gif");
+        backgroundLabel = new JLabel(backgroundIcon);
+        frame.setContentPane(backgroundLabel);
+        backgroundLabel.setLayout(new GridBagLayout());
+
         JButton startGameButton = new JButton("Start Game");
         startGameButton.addActionListener(e -> {
             // Get the reference to the frame containing the button
@@ -35,17 +42,26 @@ public class GameMenu {
         JButton quitButton = new JButton("Quit Game");
         quitButton.addActionListener(e -> System.exit(0));
 
-        frame.add(startGameButton);
-        frame.add(infoButton);
-        frame.add(quitButton);
+        GridBagConstraints buttonConstraints = new GridBagConstraints();
+        buttonConstraints.gridx = 0;
+        buttonConstraints.fill = GridBagConstraints.HORIZONTAL;
+        Insets insets = buttonConstraints.insets;
+        new Insets(10, 10, 10, 10);
+
+
+        backgroundLabel.add(titleLabel, buttonConstraints);
+        backgroundLabel.add(startGameButton, buttonConstraints);
+        backgroundLabel.add(infoButton, buttonConstraints);
+        backgroundLabel.add(quitButton, buttonConstraints);
 
         frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 
     private void showInfo(){
         if (Desktop.isDesktopSupported()){
             try {
-                File readmeFile = new File("README.txt");
+                File readmeFile = new File("src/gameInfo.txt");
                 if (readmeFile.exists()) {
                     Desktop.getDesktop().open(readmeFile);
                 } else {
