@@ -147,7 +147,6 @@ public class Level {
                     } else if (type == EntityType.HEART) {
                         entity = new Heart(this, spawnLoc);
                     } else if (type == EntityType.PLANT_MONSTER) {
-                        spawnLoc.setY(spawnLoc.getY());
                         entity = new EnemyPlant(this, spawnLoc);
                     } else if (type == EntityType.KEY) {
                         keyLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
@@ -333,6 +332,13 @@ public class Level {
 
     public void spawnParticle(ParticleTypes type, double x, double y) {
         Particle particle = new Particle(type, new Location(x, y), this);
+        getParticles().add(particle);
+    }
+
+    public void spawnParticle(ParticleTypes type, double x, double y, double velX, double velY) {
+        Particle particle = new Particle(type, new Location(x, y), this);
+        particle.setVelX(velX);
+        particle.setVelY(velY);
         getParticles().add(particle);
     }
 
