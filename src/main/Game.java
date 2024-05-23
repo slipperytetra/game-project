@@ -166,6 +166,9 @@ public class Game extends GameEngine {
         imageBank.put("plant_monster", loadImage("resources/images/characters/plant_monster.png"));
         imageBank.put("heart", Toolkit.getDefaultToolkit().createImage("resources/images/heart.gif"));
         imageBank.put("snow_fx", Toolkit.getDefaultToolkit().createImage("resources/images/idea.gif"));
+        imageBank.put("skull_head", loadImage("resources/images/characters/skull_head_frame0.png"));
+        imageBank.put("gold_coin", loadImage(EntityType.GOLD_COIN.getFilePath() + "_frame0.png"));
+        imageBank.put("bee", loadImage("resources/images/characters/bee/bee_idle_frame0.png"));
 
 
         for (ParticleTypes particleType : ParticleTypes.values()) {
@@ -177,7 +180,7 @@ public class Game extends GameEngine {
         return imageBank.get(textureName);
     }
 
-    public Image flipImageHorizontal(Image img) {
+    public static Image flipImageHorizontal(Image img) {
         AffineTransform tx = AffineTransform.getScaleInstance(-1.0, 1.0);
         tx.translate(-img.getWidth(null), 0.0);
         AffineTransformOp op = new AffineTransformOp(tx, 1);
