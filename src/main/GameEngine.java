@@ -542,6 +542,27 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
         mGraphics.drawImage(image, (int)x, (int)y, (int)w, (int)h, null);
     }
 
+    // Draws an image on the screen at position (x,y)
+    public void drawImage(Image image, double x, double y, double w, double h, float opacity) {
+        // Check if image is null
+        if(image == null) {
+            // Print Error message
+            System.out.println("Error: cannot draw null image.\n");
+            return;
+        }
+
+        if (opacity < 0) {
+            opacity = 0.0f;
+        }
+        // Draw image on screen at (x,y) with size (w,h)
+        AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity);
+        mGraphics.setComposite(ac);
+        mGraphics.drawImage(image, (int)x, (int)y, (int)w, (int)h, null);
+
+        ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f);
+        mGraphics.setComposite(ac);
+    }
+
     //-------------------------------------------------------
     // Transform Functions
     //-------------------------------------------------------

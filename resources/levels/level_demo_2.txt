@@ -1,4 +1,4 @@
-name: Demo
+name: DEMO_2
 background: resources/images/background.jpg
 next_level: level_demo3
 level_width: 75
@@ -10,7 +10,7 @@ level_data:
   [.........................................E......................GGGG.......]
   [.....................................L...GGGG..............................]
   [.....................................L.....................................]
-  [.......B.............................L.....................................]
+  [.....................................L.....................................]
   [.....................................L.....................................]
   [.....................................L.....................................]
   [.....................................L.....................................]
@@ -33,3 +33,16 @@ level_data:
   [...P......GGGGGGGXXXXXXXXGGGG...............GGXXG............K...........D.]
   [GGGGGGGGGGXXXXXXXXXXXXXXXXXXXGGGGGGGGGGGGGGGXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGG]
   [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
+  [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
+keymap:
+  P: PLAYER
+  D: DOOR
+  K: KEY
+  E: PLANT_MONSTER
+  H: HEART
+  B: BARRIER
+  L: LADDER
+  l: LAVA
+  W: WATER_TOP
+  G: GRASS
+  X: DIRT

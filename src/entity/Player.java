@@ -1,8 +1,12 @@
-package main;
+package entity;
 
 import block.BlockClimbable;
 import block.BlockTypes;
 import level.Level;
+import level.ParticleTypes;
+import main.Camera;
+import main.Game;
+import main.Location;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +27,9 @@ public class Player extends EntityLiving {
     private int jumpFrameIndex;
     private double timeJumping;
     private double maxJumpTime = 0.20; //seconds
+
+    private double runParticleTimer;
+    private double RUN_PARTICLE_FREQUENCY = 0.075;
 
     Image gifImage;
     Image plantAttack;
@@ -75,6 +82,17 @@ public class Player extends EntityLiving {
     public void update(double dt) {
         super.update(dt);
         animateCharacter();
+        //System.out.println("run: " + runParticleTimer);
+        if (runParticleTimer < RUN_PARTICLE_FREQUENCY) {
+            runParticleTimer += 1 * dt;
+        }
+
+        if  (runParticleTimer >= RUN_PARTICLE_FREQUENCY) {
+            if(isMovingHorizontally() && isOnGround()){
+                getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY() + 40);
+                runParticleTimer = 0;
+            }
+        }
     }
 
     public boolean hasKey() {
@@ -93,11 +111,6 @@ public class Player extends EntityLiving {
 
         moveX(moveX);
         moveY(moveY);
-
-        if(isMovingHorizontally()){
-            Particle particle = new Particle(this.getLocation(), 10.0, (BufferedImage) getLevel().getManager().getEngine().getTexture("cloud"),getLevel());
-            getLevel().getParticles().add(particle);
-        }
 
         if (isJumping()) {
             setDirectionY(-1.5);

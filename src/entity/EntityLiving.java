@@ -1,6 +1,8 @@
-package main;
+package entity;
 
 import level.Level;
+import main.GameEngine;
+import main.Location;
 
 public abstract class EntityLiving extends Entity {
 
@@ -15,14 +17,12 @@ public abstract class EntityLiving extends Entity {
 
     public EntityLiving(EntityType type, Level level, Location loc, int hitboxWidth, int hitboxHeight) {
         super(type, level, loc, hitboxWidth, hitboxHeight);
-
-        setAttackCooldown(0.4);
+        setAttackCooldown(0.5); //Default attack cooldown
     }
 
     @Override
     public void update(double dt) {
         super.update(dt);
-
 
         if (attackCounter < attackCooldown) {
             attackCounter += 1 * dt;
@@ -102,7 +102,7 @@ public abstract class EntityLiving extends Entity {
     }
 
     public boolean isAttacking() {
-        return attackCounter <= getAttackCooldown();
+        return attackCounter < getAttackCooldown();
     }
 
     public double getAttackTicks() {

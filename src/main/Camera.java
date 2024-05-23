@@ -4,12 +4,12 @@ import block.Block;
 import block.BlockTypes;
 import block.decorations.Decoration;
 import block.decorations.FakeLightSpot;
-import level.LevelManager;
+import entity.Entity;
+import entity.Player;
+import level.Particle;
 import level.TextMessage;
 
 import java.awt.*;
-import java.util.Iterator;
-import java.util.Random;
 
 /*
 *   This class handles the rendering of all objects on the screen.
@@ -30,6 +30,7 @@ public class Camera {
     private int DEBUG_ENTITIES_ON_SCREEN;
     private int DEBUG_BLOCKS_ON_SCREEN;
     private int DEBUG_DECORATIONS_ON_SCREEN;
+    private int DEBUG_PARTICLES_ON_SCREEN;
 
     private long lastFpsCheck = 0;
     private int currentFps = 0;
@@ -112,20 +113,8 @@ public class Camera {
         DEBUG_DECORATIONS_ON_SCREEN = 0;
         for (Decoration deco : game.getActiveLevel().getDecorations()) {
             if (deco.getCollisionBox().collidesWith(this.getCollisionBox())) {
-                double decoOffsetX = deco.getLocation().getX() + centerOffsetX;
-                double decoOffsetY = deco.getLocation().getY() + centerOffsetY;
-
-                Image texture = game.getTexture(deco.getType().toString());
-                game.drawImage(texture, decoOffsetX, decoOffsetY - deco.getHeight() + Game.BLOCK_SIZE, deco.getWidth(), deco.getHeight());
-
+                deco.render(this);
                 DEBUG_DECORATIONS_ON_SCREEN++;
-
-                if (debugMode) {
-                    double hitboxOffsetX = deco.getCollisionBox().getLocation().getX() + centerOffsetX;
-                    double hitboxOffsetY = deco.getCollisionBox().getLocation().getY() + centerOffsetY;
-                    game.changeColor(Color.GREEN);
-                    game.drawRectangle(hitboxOffsetX, hitboxOffsetY, deco.getCollisionBox().getWidth(), deco.getCollisionBox().getHeight());
-                }
             }
         }
     }
@@ -252,16 +241,17 @@ public class Camera {
             game.drawText(25, 120, "entities on screen: " + DEBUG_ENTITIES_ON_SCREEN, "Serif", 20);
             game.drawText(25, 140, "blocks on screen: " + DEBUG_BLOCKS_ON_SCREEN, "Serif", 20);
             game.drawText(25, 160, "decorations on screen: " + DEBUG_DECORATIONS_ON_SCREEN, "Serif", 20);
-            game.drawText(25, 200, "player:", "Serif", 20);
-            game.drawText(35, 220, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
-            game.drawText(35, 240, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
+            game.drawText(25, 180, "particles on screen: " + DEBUG_PARTICLES_ON_SCREEN, "Serif", 20);
+            game.drawText(25, 220, "player:", "Serif", 20);
+            game.drawText(35, 240, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
+            game.drawText(35, 260, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
             if (getPlayer().getTarget() != null) {
-                game.drawText(35, 260, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
+                game.drawText(35, 280, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
             } else {
-                game.drawText(35, 260, "target: null", "Serif", 20);
+                game.drawText(35, 280, "target: null", "Serif", 20);
             }
-            game.drawText(35, 280, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
-            game.drawText(35, 300, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
+            game.drawText(35, 300, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
+            game.drawText(35, 320, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
 
             double hitboxOffsetX = getCollisionBox().getLocation().getX() + centerOffsetX;
             double hitboxOffsetY = getCollisionBox().getLocation().getY() + centerOffsetY;
@@ -275,8 +265,10 @@ public class Camera {
             game.drawImage(game.getTexture("snow_fx"),0,0,game.width(),game.height());
         }
 
+        DEBUG_PARTICLES_ON_SCREEN = 0;
         for (Particle particle : game.getActiveLevel().getParticles()){
             particle.render(this);
+            DEBUG_PARTICLES_ON_SCREEN++;
         }
     }
 

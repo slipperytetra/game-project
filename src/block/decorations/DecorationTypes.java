@@ -72,4 +72,9 @@ public enum DecorationTypes {
     public boolean shouldSpotLightFlicker() {
         return spotLightFlicker;
     }
+
+    public boolean hasFallingLeaves() {
+        return this == DecorationTypes.TREE || this == DecorationTypes.TREE_WILLOW_0 || this == DecorationTypes.TREE_WILLOW_1
+                || this == DecorationTypes.TREE_WILLOW_2;
+    }
 }

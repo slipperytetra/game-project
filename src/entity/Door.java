@@ -1,6 +1,8 @@
-package main;
+package entity;
 
 import level.Level;
+import main.GameEngine;
+import main.Location;
 
 public class Door extends Entity {
     private GameEngine.AudioClip newLevel;

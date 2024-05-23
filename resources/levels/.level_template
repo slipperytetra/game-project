@@ -7,3 +7,15 @@ level_data:
   [...]
   [...]
   [...]
+keycodes:
+  P: PLAYER
+  D: DOOR
+  K: KEY
+  E: PLANT_MONSTER
+  H: HEART
+  B: BARRIER
+  L: LADDER
+  l: LAVA
+  W: WATER_TOP
+  G: GRASS
+  X: DIRT

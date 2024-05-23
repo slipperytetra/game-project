@@ -5,8 +5,10 @@ package level;//
 
 import block.*;
 import block.decorations.Decoration;
+import block.decorations.DecorationTree;
 import block.decorations.DecorationTypes;
 import block.decorations.FakeLightSpot;
+import entity.*;
 import main.*;
 
 import java.awt.*;
@@ -37,6 +39,7 @@ public class Level {
     private final String levelDoc;
     public final double gravity = 9.8;
     public double scale = 2;
+    private int currentLine;
     String backgroundImgFilePath;
     Location spawnPoint;
     Location keyLoc;
@@ -46,6 +49,10 @@ public class Level {
     ArrayList<FakeLightSpot> spotLights;
     ArrayList<Entity> entities;
     ArrayList<Particle> particles;
+
+    HashMap<Character, BlockTypes> blockKeyMap;
+    HashMap<Character, EntityType> entityKeyMap;
+    HashMap<Character, DecorationTypes> decorationKeyMap;
 
     public Level(LevelManager manager, int id, String levelDoc) {
         this.manager = manager;
@@ -57,6 +64,11 @@ public class Level {
         this.spotLights = new ArrayList<>();
         this.particles = new ArrayList<>();
         this.textMessages = new HashMap<>();
+
+        this.blockKeyMap = new HashMap<>();
+        this.entityKeyMap = new HashMap<>();
+        this.decorationKeyMap = new HashMap<>();
+
         init();
     }
 
@@ -81,113 +93,78 @@ public class Level {
         System.out.println(sizeWidth);
         System.out.println(sizeHeight);
         this.grid = new BlockGrid(sizeWidth, sizeHeight);
+        currentLine = 6;
     }
 
     public void load() {
         int relY = 0;
-        for (int y = 6; y < lines.size(); y++) {
-            String line = lines.get(y);
-            line = line.substring(3);
+        for (int y = currentLine + sizeHeight + 1; y < lines.size(); y++) {
+            String line = lines.get(y).replaceAll(" ", "").replaceAll(":", "");
+            char key = line.charAt(0);
+            String type = line.substring(1);
+            //System.out.println("assigning '" + key + "' to " + type);
+            assignKeyToMap(key, type);
+        }
+
+        for (int y = currentLine; y < sizeHeight + currentLine; y++) {
+            String line = lines.get(y).replaceAll(" ", "").replaceAll("\\[", "").replaceAll("]", "");
+            //System.out.println(line);
             for (int x = 0; x < line.length(); x++) {
+                char key = line.charAt(x);
                 double spawnX = x * Game.BLOCK_SIZE;
                 double spawnY = relY * Game.BLOCK_SIZE;
                 Location spawnLoc = new Location(spawnX, spawnY);
-                if (line.charAt(x) == 'P') {
-                    player = new Player(this, spawnLoc);
 
-                    spawnY = spawnY - (player.getHeight() - Game.BLOCK_SIZE);
-                    player.setLocation(player.getLocation().getX(), spawnY);
-                    spawnPoint = new Location(spawnX, spawnY);
-                } else if (line.charAt(x) == 'K') {
-                    keyLoc = spawnLoc;
-                    key = new Key(this, spawnLoc);
-
-                    double heightDiff = key.getLocation().getY() - (key.getHeight() - Game.BLOCK_SIZE);
-                    key.setLocation(key.getLocation().getX(), heightDiff);
-                    addEntity(key);
-                } else if (line.charAt(x) == 'D' ||line.charAt(x) == 'd') {
-                    doorLoc = spawnLoc;
-                    door = new Door(this, spawnLoc);
-                    if(line.charAt(x) == 'd'){
-                        door.setType(EntityType.STONE_DOOR);
+                if (blockKeyMap.containsKey(key)) {
+                    BlockTypes type = blockKeyMap.get(key);
+                    Block block = new BlockSolid(blockKeyMap.get(key), spawnLoc);
+                    if (type == BlockTypes.VOID) {
+                        block = new BlockVoid(spawnLoc);
+                    } else if (type == BlockTypes.LADDER) {
+                        block = new BlockClimbable(type, spawnLoc);
+                    } else if (type == BlockTypes.WATER_TOP) {
+                        block = new BlockLiquid(type, spawnLoc);
+                    } else if (type == BlockTypes.WATER_BOTTOM) {
+                        block = new BlockLiquid(type, spawnLoc);
+                    } else if (type == BlockTypes.LAVA) {
+                        block = new BlockLiquid(type, spawnLoc);
                     }
 
-                    double heightDiff = door.getLocation().getY() - (door.getHeight() - Game.BLOCK_SIZE);
-                    door.setLocation(door.getLocation().getX(), heightDiff);
-                    addEntity(door);
-                } else if (line.charAt(x) == 'X') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.DIRT, spawnLoc));
-                } else if (line.charAt(x) == 'G') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.GRASS, spawnLoc));
-                } else if (line.charAt(x) == 'L') {
-                    grid.setBlock(x, relY, new BlockClimbable(BlockTypes.LADDER, spawnLoc));
-                } else if (line.charAt(x) == 'E') {
-                    EnemyPlant enemy = new EnemyPlant(this, spawnLoc);
-
-                    double heightDiff = enemy.getLocation().getY() - Game.BLOCK_SIZE - 16;
-                    enemy.setLocation(enemy.getLocation().getX(), heightDiff);
-                    addEntity(enemy);
-                } else if (line.charAt(x) == 'B') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BARRIER, spawnLoc));
-                } else if (line.charAt(x) == '@') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.FOREST_GRASS, spawnLoc));
-                } else if (line.charAt(x) == '!') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.FOREST_GROUND, spawnLoc));
-                } else if (line.charAt(x) == 'W') {
-                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.WATER_TOP, spawnLoc));
-                } else if (line.charAt(x) == 'O') {
-                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.WATER_BOTTOM, spawnLoc));
-                } else if (line.charAt(x) == 'S') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.STONE_FLOOR, spawnLoc));
-                } else if (line.charAt(x) == 's') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.STONE_FILLER, spawnLoc));
-                } else if (line.charAt(x) == 'l') {
-                    grid.setBlock(x, relY, new BlockLiquid(BlockTypes.LAVA, spawnLoc));
-                } else if (line.charAt(x) == 'p') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BRIDGE, spawnLoc));
-                } else if (line.charAt(x) == 'm') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BL, spawnLoc));
-                } else if (line.charAt(x) == 'r') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.BR, spawnLoc));
-                } else if (line.charAt(x) == 'h') {
-                    Heart heart = new Heart(this, spawnLoc);
-                    addEntity(heart);
-                } else if (line.charAt(x) == 'R') {
-                    addDecoration(DecorationTypes.ROCK, spawnLoc);
-                } else if (line.charAt(x) == 'b') {
-                    addDecoration(DecorationTypes.BUSH, spawnLoc);
-                } else if (line.charAt(x) == 't') {
-                    addDecoration(DecorationTypes.TREE, spawnLoc);
-                } else if (line.charAt(x) == 'z') {
-                    addDecoration(DecorationTypes.LAMP_POST, spawnLoc);
-                } else if (line.charAt(x) == '0') {
-                    addDecoration(DecorationTypes.TREE_WILLOW_0, spawnLoc);
-                } else if (line.charAt(x) == '1') {
-                    addDecoration(DecorationTypes.TREE_WILLOW_1, spawnLoc);
-                } else if (line.charAt(x) == '2') {
-                    addDecoration(DecorationTypes.TREE_WILLOW_2, spawnLoc);
-                } else if (line.charAt(x) == '3') {
-                    addDecoration(DecorationTypes.HANGING_VINE, spawnLoc);
-                } else if (line.charAt(x) == '4') {
-                    addDecoration(DecorationTypes.HANGING_VINE_FLOWERS, spawnLoc);
-                }
-                else if (line.charAt(x) == '5') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.SNOWTOPR, spawnLoc));
-                }else if (line.charAt(x) == '6') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.SNOWMID, spawnLoc));
-                }else if (line.charAt(x) == '7') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.SNOWFILL, spawnLoc));
-                }
-                else if (line.charAt(x) == '8') {
-                    grid.setBlock(x, relY, new BlockSolid(BlockTypes.SNOWDOWN, spawnLoc));
-                }
-                else if (line.charAt(x) == '9') {
-                    addDecoration(DecorationTypes.SNOW_TREE, spawnLoc);
-                }
-                else if (line.charAt(x) == 'a') {
-                    addDecoration(DecorationTypes.SNOW_BUSH, spawnLoc);
+                    grid.setBlock(x, relY, block);
                 }
 
+                if (entityKeyMap.containsKey(key)) {
+                    EntityType type = entityKeyMap.get(key);
+                    Entity entity = null;
+                    if (type == EntityType.PLAYER) {
+                        player = new Player(this, spawnLoc);
+                        double heightDiff = player.getLocation().getY() - (player.getHeight() - Game.BLOCK_SIZE);
+                        spawnPoint = new Location(player.getLocation().getX(), heightDiff);
+                        player.setLocation(player.getLocation().getX(), heightDiff);
+                    } else if (type == EntityType.DOOR) {
+                        doorLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
+                        entity = new Door(this, spawnLoc);
+                    } else if (type == EntityType.HEART) {
+                        entity = new Heart(this, spawnLoc);
+                    } else if (type == EntityType.PLANT_MONSTER) {
+                        spawnLoc.setY(spawnLoc.getY());
+                        entity = new EnemyPlant(this, spawnLoc);
+                    } else if (type == EntityType.KEY) {
+                        keyLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
+                        entity = new Key(this, spawnLoc);
+                    }
+
+                    if (entity != null) {
+                        double heightDiff = entity.getLocation().getY() - (entity.getCollisionBox().getHeight() - Game.BLOCK_SIZE);
+                        entity.setLocation(entity.getLocation().getX(), heightDiff);
+                        addEntity(entity);
+                    }
+                }
+
+                if (decorationKeyMap.containsKey(key)) {
+                    DecorationTypes type = decorationKeyMap.get(key);
+                    addDecoration(type, spawnLoc);
+                }
             }
 
             relY++;
@@ -196,15 +173,15 @@ public class Level {
             getManager().getEngine().imageBank.put("background", Toolkit.getDefaultToolkit().createImage(backgroundImgFilePath));
         }
         if (player == null) {
-            System.out.println("level.Level error: no player location specified.");
+            System.out.println("Warning: no player location specified.");
             return;
         }
         if (keyLoc == null) {
-            System.out.println("level.Level error: no key location specified.");
+            System.out.println("Warning: no key location specified.");
             return;
         }
         if (doorLoc == null) {
-            System.out.println("level.Level error: no door location specified.");
+            System.out.println("Warning: no door location specified.");
             return;
         }
 
@@ -222,11 +199,14 @@ public class Level {
         while (iter.hasNext()) {
             Entity entity = iter.next();
             if (entity.isActive()) {
-                entity.update(dt);
+                if (entity.getCollisionBox().collidesWith(getManager().getEngine().getCamera().getCollisionBox())) {
+                    entity.update(dt);
+                }
             } else {
                 iter.remove();
             }
         }
+
         Iterator<Particle> iterPart = getParticles().iterator();
         while (iterPart.hasNext()) {
             Particle particle = iterPart.next();
@@ -238,6 +218,11 @@ public class Level {
         }
 
 
+        for (Decoration deco : getDecorations()) {
+            if (deco.getCollisionBox().collidesWith(getManager().getEngine().getCamera().getCollisionBox())) {
+                deco.update(dt);
+            }
+        }
 
         for (FakeLightSpot spotLight : getSpotLights()) {
             spotLight.update(dt);
@@ -331,12 +316,47 @@ public class Level {
 
     private void addDecoration(DecorationTypes type, Location loc) {
         BufferedImage texture = (BufferedImage) getManager().getEngine().getTexture(type.toString());
-        Decoration decoTree = new Decoration(type, loc, texture.getWidth(), texture.getHeight());
-        decorations.add(decoTree);
+        Decoration deco = null;
+        if (type.hasFallingLeaves()) {
+            deco = new DecorationTree(type, loc, texture.getWidth(), texture.getHeight(), this);
+        } else {
+            deco = new Decoration(type, loc, texture.getWidth(), texture.getHeight());
+        }
 
-        if (decoTree.getType().hasLightSpots()) {
-            FakeLightSpot spotLight = new FakeLightSpot(decoTree);
+        decorations.add(deco);
+
+        if (deco.getType().hasLightSpots()) {
+            FakeLightSpot spotLight = new FakeLightSpot(deco);
             spotLights.add(spotLight);
+        }
+    }
+
+    public void spawnParticle(ParticleTypes type, double x, double y) {
+        Particle particle = new Particle(type, new Location(x, y), this);
+        getParticles().add(particle);
+    }
+
+    private void assignKeyToMap(char key, String input) {
+        input = input.toUpperCase();
+        for (BlockTypes type : BlockTypes.values()) {
+            if (type.toString().equals(input)) {
+                blockKeyMap.put(key, BlockTypes.valueOf(input));
+                return;
+            }
+        }
+
+        for (EntityType type : EntityType.values()) {
+            if (type.toString().equals(input)) {
+                entityKeyMap.put(key, EntityType.valueOf(input));
+                return;
+            }
+        }
+
+        for (DecorationTypes type : DecorationTypes.values()) {
+            if (type.toString().equals(input)) {
+                decorationKeyMap.put(key, DecorationTypes.valueOf(input));
+                return;
+            }
         }
     }
 }

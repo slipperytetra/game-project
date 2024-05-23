@@ -1,9 +1,13 @@
-package main;
+package entity;
 
 import block.Block;
 import block.BlockClimbable;
 import block.BlockLiquid;
 import level.Level;
+import main.Camera;
+import main.CollisionBox;
+import main.Game;
+import main.Location;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
