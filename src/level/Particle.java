@@ -47,6 +47,7 @@ public class Particle
             Random rand = new Random();
             this.offsetX += rand.nextDouble(-type.getOffset(), type.getOffset());
             this.offsetY += rand.nextDouble(-type.getOffset(), type.getOffset());
+
         }
     }
 
