@@ -61,6 +61,7 @@ public abstract class Entity {
 
         getLevel().getManager().getEngine().drawImage(getActiveFrame(), offsetX, offsetY, getWidth(), getHeight());
 
+
         if (cam.debugMode) {
             double hitBoxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
             double hitBoxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
@@ -354,6 +355,9 @@ public abstract class Entity {
     }
 
     public void setMaxHealth(int maxHealth) {
+        if(getHealth() > maxHealth) {
+         setHealth(maxHealth);
+        }
         this.maxHealth = maxHealth;
     }
 

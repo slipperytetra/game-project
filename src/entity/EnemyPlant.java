@@ -13,7 +13,7 @@ public class EnemyPlant extends Enemy {
         super(level, EntityType.PLANT_MONSTER, loc, 58, 79);
 
         setDamage(5);
-        setMaxHealth(50);
+        setMaxHealth(20);
         setScale(1);
         setAttackCooldown(1.0);
 
@@ -35,6 +35,14 @@ public class EnemyPlant extends Enemy {
     public void render(Camera cam) {
         double offsetX = getLocation().getX() + cam.centerOffsetX;
         double offsetY = getLocation().getY() + cam.centerOffsetY;
+        double difference = (double) 100 / getMaxHealth();
+        cam.game.changeColor(Color.red);
+        if(getHealth() < getMaxHealth()){
+            cam.game.drawSolidRectangle(offsetX,offsetY - 50, getHealth() * difference, 15);
+
+        }
+
+
 
         if (isAttacking()) {
             int diffX = -70;
