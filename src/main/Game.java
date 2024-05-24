@@ -6,6 +6,7 @@ import entity.EntityType;
 import level.Level;
 import level.LevelManager;
 import level.ParticleTypes;
+import entity.Player;
 
 import javax.swing.*;
 import java.awt.*;
@@ -81,10 +82,12 @@ public class Game extends GameEngine {
             this.drawImage(imageBank.get("background"), 0, 0, this.width(), this.height());
         }
 
+        Player player = getActiveLevel().getPlayer();
         if(getActiveLevel().getPlayer().getHealth() <= 0){
             gameOver = true;
             drawText(100,100,"You died",30);
             getActiveLevel().reset();
+            player.handleDeath();
         } else {
             camera.draw();
         }
