@@ -307,9 +307,16 @@ public class Player extends EntityLiving {
         return getIdleFrame();
     }
 
-      public Image getAttackFrame(){
+    public Image getAttackFrame(){
         return getLevel().getManager().getEngine().getTexture("player_attack");
      }
+
+    public void handleDeath() {
+        score /= 2;
+        if(score < 0){
+            score = 0;
+        }
+    }
 
 
     public Enemy getTarget() {
