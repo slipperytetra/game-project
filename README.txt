@@ -4,7 +4,7 @@ Todo:
 
 Make Demo level more understandable
 
-Add menu/level music
+Add level music
 
 Add running sound effect
 
