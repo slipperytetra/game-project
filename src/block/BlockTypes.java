@@ -30,7 +30,12 @@ public enum BlockTypes {
     SNOWTOPR("resources/images/blocks/SnowTopL.png"),
     SNOWMID("resources/images/blocks/SnowMiddle.png"),
     SNOWFILL("resources/images/snowB.png"),
-    SNOWDOWN("resources/images/snowmiddle.png");
+    SNOWDOWN("resources/images/snowmiddle.png"),
+    STONERCORNER("resources/images/blocks/STONERCORNER.png"),
+    STONERMIDDLE("resources/images/blocks/STONERIGHTMIDDLE.png"),
+    STONELCORNER("resources/images/blocks/STONELCORNER.png"),
+    STONELMIDDLE("resources/images/blocks/STONELMIDDLE.png");
+
 
 
 

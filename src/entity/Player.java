@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Set;
 
 public class Player extends EntityLiving {
@@ -103,7 +104,7 @@ public class Player extends EntityLiving {
     }
 
     public void incrementScore(){
-        score += 10;
+        //score += 10;
     }
 
     // New method to check for collisions with gold coins
