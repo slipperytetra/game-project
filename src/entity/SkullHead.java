@@ -1,6 +1,5 @@
 package entity;
 
-
 import level.Level;
 import main.Camera;
 import main.Location;
@@ -15,14 +14,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class SkullHead extends Enemy {
     private List<BufferedImage> frames;
     private int currentFrame;
     private long lastFrameTime, frameDuration, lastAttackTime, attackCooldown = 1500;
-    private double upwardRange = 160, downwardRange = 5, speed = 50, startY;
-    private boolean movingUp = true;
+    private double upwardRange = 160, downwardRange = 5, speed = 0.5, startY;
     private Clip damageSound;
+    private Random random;
+    private double initialPhase;
+    private long movementStartTime;
 
     public SkullHead(Level level, Location loc) {
         super(level, EntityType.SKULL_HEAD, loc, 30, 28);
@@ -31,10 +33,17 @@ public class SkullHead extends Enemy {
         this.lastFrameTime = 0;
         this.frameDuration = 100;
 
+        this.random = new Random();
         this.startY = loc.getY();
         this.setDamage(30); // Set the damage amount
 
         this.lastAttackTime = 0;
+
+        // Randomize initial phase for movement
+        this.initialPhase = random.nextDouble() * 2 * Math.PI;
+
+        // Record the start time of movement
+        this.movementStartTime = System.currentTimeMillis();
 
         loadFrames(); // Load animation frames
         loadSound(); // Load damage sound
@@ -83,17 +92,16 @@ public class SkullHead extends Enemy {
     // Process enemy movement
     @Override
     public void processMovement(double dt) {
-        double moveY = (movingUp ? -1 : 1) * speed * dt;
+        long currentTime = System.currentTimeMillis();
+        double elapsedTime = (currentTime - movementStartTime) / 1000.0;
+
+        // Calculate the Y position based on a sine wave for smooth up and down movement
+        double amplitude = (upwardRange + downwardRange) / 2;
+        double center = startY - upwardRange + amplitude;
+        double moveY = center + amplitude * Math.sin(elapsedTime * speed + initialPhase);
 
         // Update the Y position
-        setLocation(getLocation().getX(), getLocation().getY() + moveY);
-
-        // Check if we've reached the movement bounds and reverse direction if necessary
-        if (movingUp && getLocation().getY() <= startY - upwardRange) {
-            movingUp = false;
-        } else if (!movingUp && getLocation().getY() >= startY + downwardRange) {
-            movingUp = true;
-        }
+        setLocation(getLocation().getX(), moveY);
 
         // Check for collision with player and attack if possible
         if (canAttack()) {
