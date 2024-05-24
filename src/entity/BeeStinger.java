@@ -22,7 +22,7 @@ public class BeeStinger extends Entity {
 
     // Constructor
     public BeeStinger(Level level, Location loc, double speedX, double speedY) {
-        super(EntityType.BEE_STINGER, level, loc, 10, 10);
+        super(EntityType.BEE_STINGER, level, loc, 5, 5);
         Player player = level.getPlayer();
         if (player != null) {
             double dx = player.getLocation().getX() - loc.getX();
