@@ -6,8 +6,6 @@ Make Demo level more understandable
 
 Add level music
 
-Add running sound effect
-
 Finish respective levels
 
 Reset enemies(maybe all entities?) if player dies
