@@ -224,6 +224,8 @@ public class Camera {
         game.changeColor(Color.white);
         game.drawText(50,35,"Health:",15);
         game.drawText(1180,50,"Key : ", 20);
+        game.drawText(150,35,"Score : " + player.getScore(), 20);
+
         //game.drawText(1180,80,"Score : " + player.score, 20);
         if (game.getActiveLevel().getPlayer().hasKey()) {
             game.drawImage(game.imageBank.get("key"), 1230, 20, 50, 50);

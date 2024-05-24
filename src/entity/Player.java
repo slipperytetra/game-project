@@ -27,7 +27,8 @@ public class Player extends EntityLiving {
     public Timer jumpAnimationTimer;
     private int jumpFrameIndex;
     private double timeJumping;
-    private double maxJumpTime = 0.20; //seconds
+    private double maxJumpTime = 0.20;
+    public static int score;//seconds
 
     private double runParticleTimer;
     private double RUN_PARTICLE_FREQUENCY = 0.075;
@@ -338,5 +339,9 @@ public class Player extends EntityLiving {
 
     public boolean canClimb() {
         return getBlockAtLocation() instanceof BlockClimbable;
+    }
+
+    public int getScore() {
+        return score;
     }
 }

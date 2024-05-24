@@ -49,7 +49,7 @@ public class Game extends GameEngine {
 
         this.setWindowSize(1280, 720);
         this.lvlManager = new LevelManager(this);
-        setActiveLevel(lvlManager.LEVEL_4);
+        setActiveLevel(lvlManager.FOREST);
     }
 
     public Level getActiveLevel() {
@@ -145,7 +145,7 @@ public class Game extends GameEngine {
     *
     *   By doing it
     * */
-    public void loadCharacterImages() {
+    public void  loadCharacterImages() {
         imageBank.put("player_run_0",  loadImage("resources/images/characters/run0.png"));
         imageBank.put("player_run_1",  loadImage("resources/images/characters/run1.png"));
         imageBank.put("player_run_2",  loadImage("resources/images/characters/run2.png"));

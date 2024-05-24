@@ -8,6 +8,7 @@ public abstract class EntityLiving extends Entity {
 
     private int hitDamage;
     private EntityLiving target;
+    Player player;
 
     private GameEngine.AudioClip soundHit;
     private GameEngine.AudioClip soundAttack;
@@ -94,6 +95,8 @@ public abstract class EntityLiving extends Entity {
         //System.out.println(target.getHealth());
         if (target.getHealth() <= 0){
             target.destroy();
+            player.score = player.score + 20;
+
         }
     }
 
