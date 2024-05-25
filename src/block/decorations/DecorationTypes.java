@@ -22,7 +22,10 @@ public enum DecorationTypes {
     HANGING_VINE_FLOWERS("resources/images/blocks/decorations/hanging_vine_flowers.png", 3),
     LAMP_POST("resources/images/blocks/decorations/lamp_post.png", 1, 15.0, 24.0, 1, true),
     SNOW_TREE("resources/images/blocks/decorations/snowTree.png"),
-    SNOW_BUSH("resources/images/blocks/decorations/snowBush.png");
+    SNOW_BUSH("resources/images/blocks/decorations/snowBush.png"),
+    CAVEINSIDE("resources/images/blocks/decorations/cave.png"),
+    ICEBERG("resources/images/blocks/decorations/iceberg.png"),
+    ICEICLES("resources/images/blocks/decorations/ice.png");
 
     private final String getFilePath;
     private final double scale;

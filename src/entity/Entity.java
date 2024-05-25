@@ -388,6 +388,13 @@ public abstract class Entity {
         setActive(false);
     }
 
+    public void reset(){
+        setActive(true);
+        setHealth(maxHealth);
+
+
+    }
+
     @Override
     public String toString() {
         return getType().toString().toLowerCase();

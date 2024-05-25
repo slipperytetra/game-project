@@ -217,8 +217,6 @@ public class Level {
                 if (entity.getCollisionBox().collidesWith(getManager().getEngine().getCamera().getCollisionBox())) {
                     entity.update(dt);
                 }
-            } else {
-                iter.remove();
             }
         }
 
@@ -246,6 +244,11 @@ public class Level {
     public void reset() {
         getPlayer().setLocation(spawnPoint.getX(), spawnPoint.getY());
         getPlayer().setHealth(getPlayer().getMaxHealth());
+        for(Entity entity: getEntities()){
+            if(!entity.isActive()){
+                entity.reset();
+            }
+        }
     }
 
     public Player getPlayer() {

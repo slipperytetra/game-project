@@ -4,6 +4,7 @@ public enum EntityType {
 
     PLAYER("resources/images/characters/idle.png"),
     DOOR("resources/images/blocks/door.png"),
+    SDOOR("resources/images/blocks/SDoor.png"),
     KEY("resources/images/blocks/key.png"),
     PLANT_MONSTER("resources/images/characters/plant_monster.png"),
     STONE_DOOR("resources/images/blocks/stoneDoor.png"),

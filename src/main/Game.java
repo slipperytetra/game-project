@@ -49,7 +49,7 @@ public class Game extends GameEngine {
 
         this.setWindowSize(1280, 720);
         this.lvlManager = new LevelManager(this);
-        setActiveLevel(lvlManager.FOREST);
+        setActiveLevel(lvlManager.LEVEL_4);
     }
 
     public Level getActiveLevel() {
