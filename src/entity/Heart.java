@@ -25,6 +25,7 @@ public class Heart extends Entity{
     public void processMovement(double dt) {
 
     }
+    @Override
     public void update(double dt) {
         if (getLevel().getPlayer().getCollisionBox().collidesWith(this.getCollisionBox())) {
             if (timer != null && timer.isRunning()) {
@@ -33,18 +34,19 @@ public class Heart extends Entity{
             timer = new Timer(1000, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // Increase player's health by 2
-                    getLevel().getPlayer().setHealth(getLevel().getPlayer().getHealth() + 3);
+                    Player player = getLevel().getPlayer();
+                    int newHealth = player.getHealth() + 10;
 
+                    if (newHealth >= player.getMaxHealth()) {
+                        player.setHealth(player.getMaxHealth());
+                        timer.stop();
+                    } else {
+                        player.setHealth(newHealth);
+                    }
                 }
             });
             getLevel().getManager().getEngine().playAudio(health);
-
             timer.start();
-
-
-
-
             destroy();
         }
     }

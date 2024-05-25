@@ -8,11 +8,15 @@ import main.Camera;
 import main.Game;
 import main.Location;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -32,6 +36,7 @@ public class Player extends EntityLiving {
 
     private double runParticleTimer;
     private double RUN_PARTICLE_FREQUENCY = 0.075;
+    private Clip runningSound;
 
     Image gifImage;
     Image plantAttack;
@@ -46,7 +51,7 @@ public class Player extends EntityLiving {
         setDamage(5);
         setHealth(getMaxHealth());
         setDirectionY(1);
-
+        initRunningSound();
         init();
     }
 
@@ -208,6 +213,17 @@ public class Player extends EntityLiving {
         this.timeJumping = 0;
     }
 
+    private void initRunningSound() {
+        try {
+            File soundFile = new File("resources/sounds/runningSound.wav");
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            runningSound = AudioSystem.getClip();
+            runningSound.open(audioInputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void playerMovement(Set<Integer> keysPressed) {
         if (keysPressed.contains(32)) {//SPACE
             if (!isJumping() && !isAttacking() && (isOnGround() || canClimb())) {
@@ -232,6 +248,18 @@ public class Player extends EntityLiving {
         }
         if (keysPressed.contains(81)){
             attack();
+        }
+
+        // Play running sound only when moving horizontally and on the ground
+        if ((keysPressed.contains(65) || keysPressed.contains(68)) && isOnGround()) {
+            if (!runningSound.isRunning()) {
+                runningSound.loop(Clip.LOOP_CONTINUOUSLY); // Start playing the running sound
+            }
+        } else {
+            // Stop running sound when A or D key is released or player is not on the ground
+            if (runningSound.isRunning()) {
+                runningSound.stop();
+            }
         }
     }
 

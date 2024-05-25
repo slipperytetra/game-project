@@ -2,6 +2,7 @@ package entity;
 
 import level.Level;
 import main.Camera;
+import main.Game;
 import main.Location;
 import javax.imageio.ImageIO;
 import javax.swing.Timer;
@@ -99,7 +100,7 @@ public class Bee extends Enemy {
 
     // Load attack animation frames
     private void loadAttackFrames() {
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 4; i++) { // Adjust the frame count as necessary
             String path = "resources/images/characters/bee/bee_attack_frame" + i + ".png";
             BufferedImage frame = loadImage(path);
             if (frame != null) {
@@ -144,7 +145,7 @@ public class Bee extends Enemy {
         double projectileY = getLocation().getY() + getHeight() - 10; // Adjust 10 as needed to position at the bottom
 
         Location projectileLoc = new Location(projectileX, projectileY);
-        double speedX = -100; // Adjust projectile speed as needed
+        double speedX = -200; // Adjust projectile speed as needed
         double speedY = 0; // Adjust projectile speed as needed
         BeeStinger stinger = new BeeStinger(getLevel(), projectileLoc, speedX, speedY);
         getLevel().addEntity(stinger);
@@ -179,6 +180,12 @@ public class Bee extends Enemy {
         } else {
             currentFrameImage = idleFrames.get(this.currentFrame);
         }
+
+        // Flip the image if the enemy should face right
+        if (!shouldFaceLeft()) {
+            currentFrameImage = (BufferedImage) Game.flipImageHorizontal(currentFrameImage);
+        }
+
         getLevel().getManager().getEngine().drawImage(currentFrameImage, offsetX, offsetY, getWidth(), getHeight());
 
         // Render hitbox if enabled
@@ -195,6 +202,8 @@ public class Bee extends Enemy {
             cam.drawHealthBar(this, offsetX, offsetY - 50);
         }
     }
+
+
 
 
     // Update animation frame

@@ -2,6 +2,7 @@ package entity;
 
 import level.Level;
 import main.Camera;
+import main.Game;
 import main.Location;
 
 import javax.imageio.ImageIO;
@@ -20,11 +21,11 @@ public class SkullHead extends Enemy {
     private List<BufferedImage> frames;
     private int currentFrame;
     private long lastFrameTime, frameDuration, lastAttackTime, attackCooldown = 1500;
-    private double upwardRange = 160, downwardRange = 5, speed = 0.5, startY;
+    private double upwardRange = 150, downwardRange = 1, speed = 0.5, startY;
     private Clip damageSound;
     private Random random;
     private double initialPhase;
-    private long movementStartTime;
+    private double movementTime;
 
     public SkullHead(Level level, Location loc) {
         super(level, EntityType.SKULL_HEAD, loc, 30, 28);
@@ -35,15 +36,12 @@ public class SkullHead extends Enemy {
 
         this.random = new Random();
         this.startY = loc.getY();
-        this.setDamage(30); // Set the damage amount
+        this.setDamage(25); // Set the damage amount
 
         this.lastAttackTime = 0;
 
         // Randomize initial phase for movement
         this.initialPhase = random.nextDouble() * 2 * Math.PI;
-
-        // Record the start time of movement
-        this.movementStartTime = System.currentTimeMillis();
 
         loadFrames(); // Load animation frames
         loadSound(); // Load damage sound
@@ -92,16 +90,14 @@ public class SkullHead extends Enemy {
     // Process enemy movement
     @Override
     public void processMovement(double dt) {
-        long currentTime = System.currentTimeMillis();
-        double elapsedTime = (currentTime - movementStartTime) / 1000.0;
+        // Update movement time
+        movementTime += dt * speed;
 
         // Calculate the Y position based on a sine wave for smooth up and down movement
-        double amplitude = (upwardRange + downwardRange) / 2;
-        double center = startY - upwardRange + amplitude;
-        double moveY = center + amplitude * Math.sin(elapsedTime * speed + initialPhase);
+        double moveY = Math.sin(movementTime + initialPhase) * (upwardRange - downwardRange) / 2 + (upwardRange - downwardRange) / 2;
 
         // Update the Y position
-        setLocation(getLocation().getX(), moveY);
+        setLocation(getLocation().getX(), startY - moveY);
 
         // Check for collision with player and attack if possible
         if (canAttack()) {
@@ -142,7 +138,14 @@ public class SkullHead extends Enemy {
     public void render(Camera cam) {
         double offsetX = getLocation().getX() + cam.centerOffsetX;
         double offsetY = getLocation().getY() + cam.centerOffsetY;
-        getLevel().getManager().getEngine().drawImage(getActiveFrame(), offsetX, offsetY, getWidth(), getHeight());
+        BufferedImage frame = (BufferedImage) getActiveFrame();
+
+        // Flip the image if the enemy should face right
+        if (!shouldFaceLeft()) {
+            frame = (BufferedImage) Game.flipImageHorizontal(frame);
+        }
+
+        getLevel().getManager().getEngine().drawImage(frame, offsetX, offsetY, getWidth(), getHeight());
 
         if (cam.debugMode) {
             double hitBoxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
@@ -152,6 +155,8 @@ public class SkullHead extends Enemy {
             getLevel().getManager().getEngine().drawRectangle(hitBoxOffsetX, hitBoxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
         }
     }
+
+
 
     // Get the current frame image
     @Override

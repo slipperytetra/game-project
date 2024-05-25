@@ -1,14 +1,15 @@
 package main;
 
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 
 public class GameMenu {
     private JFrame frame;
     private JLabel backgroundLabel;
+    private Clip menuMusic; // Clip for the menu music
 
     public GameMenu() {
         frame = new JFrame("Game Menu");
@@ -27,6 +28,7 @@ public class GameMenu {
 
         JButton startGameButton = new JButton("Start Game");
         startGameButton.addActionListener(e -> {
+            stopMenuMusic();
             // Get the reference to the frame containing the button
             JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(startGameButton);
             if (parentFrame != null) {
@@ -34,7 +36,6 @@ public class GameMenu {
             }
             new Game().startGame();
         });
-
 
         JButton infoButton = new JButton("Game Info");
         infoButton.addActionListener(e -> showInfo());
@@ -48,15 +49,34 @@ public class GameMenu {
         Insets insets = buttonConstraints.insets;
         new Insets(10, 10, 10, 10);
 
-
         backgroundLabel.add(titleLabel, buttonConstraints);
         backgroundLabel.add(startGameButton, buttonConstraints);
         backgroundLabel.add(infoButton, buttonConstraints);
         backgroundLabel.add(quitButton, buttonConstraints);
 
+        // Load menu music
+        try {
+            File menuMusicFile = new File("resources/sounds/menuMusic.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(menuMusicFile);
+            menuMusic = AudioSystem.getClip();
+            menuMusic.open(audioIn);
+            menuMusic.loop(Clip.LOOP_CONTINUOUSLY); // Loop the music
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
+
+    private void stopMenuMusic() {
+        if (menuMusic != null) {
+            menuMusic.stop();
+            menuMusic.close();
+        }
+    }
+
+
 
     private void showInfo(){
         if (Desktop.isDesktopSupported()){

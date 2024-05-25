@@ -2,8 +2,10 @@ package entity;
 
 import block.Block;
 import level.Level;
+import main.Game;
 import main.Location;
-import java.awt.*;
+
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -20,16 +22,32 @@ public class BeeStinger extends Entity {
 
     // Constructor
     public BeeStinger(Level level, Location loc, double speedX, double speedY) {
-        super(EntityType.BEE_STINGER, level, loc, 10, 10);
-        this.speedX = speedX;
-        this.speedY = speedY;
+        super(EntityType.BEE_STINGER, level, loc, 5, 5);
+        Player player = level.getPlayer();
+        if (player != null) {
+            double dx = player.getLocation().getX() - loc.getX();
+            double dy = player.getLocation().getY() - loc.getY();
+
+            // Determine direction based on the result of subtraction
+            double directionX = dx > 0 ? -1 : 1;
+
+            double distance = Math.sqrt(dx * dx + dy * dy);
+            this.speedX = speedX * directionX;
+            this.speedY = speedY * (dy / distance);
+
+            // Adjust the image based on the direction
+            if (directionX < 0) {
+                loadImage(true);
+            } else {
+                loadImage(false);
+            }
+        }
         this.damage = 10; // Set default damage value, adjust as needed
-        loadImage();
         loadSound();
     }
 
-    // Load the image file
-    private void loadImage() {
+    // Load the image file and flip it if necessary
+    private void loadImage(boolean flip) {
         try {
             File file = new File("resources/images/characters/bee/bee_stinger.png");
             if (!file.exists()) {
@@ -37,6 +55,9 @@ public class BeeStinger extends Entity {
                 return;
             }
             image = ImageIO.read(file);
+            if (flip) {
+                image = (BufferedImage) Game.flipImageHorizontal(image);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,7 +75,7 @@ public class BeeStinger extends Entity {
         }
     }
 
-    //Play sound if player is hit
+    // Play sound if player is hit
     private void playHitSound() {
         if (hitSound != null) {
             hitSound.setFramePosition(0); // Rewind to the beginning
@@ -85,7 +106,7 @@ public class BeeStinger extends Entity {
             double newX = getLocation().getX() + step * deltaX; // Calculate the new X position after the step
 
             // Check if the new X position is within the grid bounds
-            int gridX = (int) (newX / main.Game.BLOCK_SIZE);
+            int gridX = (int) (newX / Game.BLOCK_SIZE);
             if (gridX < 0 || gridX >= getLevel().getBlockGrid().getWidth()) {
                 System.out.println("Error: trying to move projectile outside of grid bounds");
                 return false;
@@ -115,7 +136,7 @@ public class BeeStinger extends Entity {
             double newY = getLocation().getY() + step * deltaY; // Calculate the new Y position after the step
 
             // Check if the new Y position is within the grid bounds
-            int gridY = (int) (newY / main.Game.BLOCK_SIZE);
+            int gridY = (int) (newY / Game.BLOCK_SIZE);
             if (gridY < 0 || gridY >= getLevel().getBlockGrid().getHeight()) {
                 System.out.println("Error: trying to move projectile outside of grid bounds");
                 return false;
@@ -137,7 +158,7 @@ public class BeeStinger extends Entity {
 
     // Check collision with blocks and player
     private void checkCollision() {
-        Block blockBelow = getLevel().getBlockGrid().getBlockAt((int) (getLocation().getX() / main.Game.BLOCK_SIZE), (int) ((getLocation().getY() + getHeight()) / main.Game.BLOCK_SIZE));
+        Block blockBelow = getLevel().getBlockGrid().getBlockAt((int) (getLocation().getX() / Game.BLOCK_SIZE), (int) ((getLocation().getY() + getHeight()) / Game.BLOCK_SIZE));
         if (blockBelow != null && blockBelow.isCollidable()) {
             System.out.println("Collision with block");
             destroy();

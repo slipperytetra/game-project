@@ -4,7 +4,11 @@ Todo:
 
 Make Demo level more understandable
 
+Add level music
 
+Finish respective levels
+
+Reset enemies(maybe all entities?) if player dies
 
 
 LEVELS
