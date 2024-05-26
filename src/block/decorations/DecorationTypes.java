@@ -11,6 +11,7 @@ public enum DecorationTypes {
     MUSHROOM("resources/images/blocks/decorations/mushroom.png", 1.5),
     MUSHROOM_BLUE("resources/images/blocks/decorations/mushroom_blue.png"),
     TALL_GRASS("resources/images/blocks/decorations/tall_grass.png"),
+    FOG("resources/images/blocks/decorations/fog.png", 1),
     BUSH("resources/images/blocks/decorations/bush.png", 2),
     TREE("resources/images/blocks/decorations/tree.png", 2),
     FIREFLIES("resources/images/characters/fireflies.gif", 0.75, 75, 75, 2, true),

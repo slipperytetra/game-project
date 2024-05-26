@@ -25,6 +25,7 @@ public class Level {
     private String nextLevel;
     private String overlay;
     private String backgroundImgFilePath;
+    private String backgroundmusicFilePath;
     private GameEngine.AudioClip backgroundMusic;
 
     private BlockGrid grid;
@@ -81,7 +82,7 @@ public class Level {
                 String line = fileReader.nextLine();
                 lines.add(line.replaceAll(" ", "").replaceAll(":", "").replaceAll("\\[", "").replaceAll("\\]", ""));
                 if (line.contains("keymap:")) {
-                    sizeHeight = lineNum - 7;
+                    sizeHeight = lineNum - 8;
                 }
                 lineNum++;
             }
@@ -90,23 +91,24 @@ public class Level {
             return;
         }
 
-        for (int i = 7; i < sizeHeight; i++) {
-            sizeWidth = Math.max(sizeWidth, lines.get(i).length());
-        }
 
         name = lines.get(0).substring("name".length());
         backgroundImgFilePath = lines.get(1).substring("background".length());
-        overlay = lines.get(2).substring("overlay".length());
-        nextLevel = lines.get(3).substring("next_level".length());
+        backgroundmusicFilePath = lines.get(2).substring("background_music".length());
+        overlay = lines.get(3).substring("overlay".length());
+        nextLevel = lines.get(4).substring("next_level".length());
 
+        currentLine = 8;
+        for (int i = currentLine; i < sizeHeight; i++) {
+            sizeWidth = Math.max(sizeWidth, lines.get(i).length());
+        }
         this.grid = new BlockGrid(sizeWidth, sizeHeight);
-        currentLine = 7;
     }
 
     public void load() {
         System.out.println("Loading level '" + getName() + "'");
         int relY = 0;
-        for (int y = 8 + sizeHeight; y < lines.size(); y++) { // Assign character codes to types
+        for (int y = currentLine + sizeHeight; y < lines.size(); y++) { // Assign character codes to types
             String line = lines.get(y);
             char key = line.charAt(0);
             String type = line.substring(1);
@@ -191,6 +193,9 @@ public class Level {
         if (!overlay.isEmpty()) {
             getManager().getEngine().imageBank.put("overlay", Toolkit.getDefaultToolkit().createImage(overlay));
         }
+        if (!backgroundmusicFilePath.isEmpty()) {
+            backgroundMusic = getManager().getEngine().loadAudio(backgroundmusicFilePath);
+        }
         if (player == null) {
             System.out.println("Warning: no player location specified.");
             return;
@@ -207,6 +212,10 @@ public class Level {
         System.out.println("Player: " + player.getLocation().toString());
         System.out.println("Key: " + keyLoc.toString());
         System.out.println("Door: " + doorLoc.toString());
+
+        if (getBackgroundMusic() != null) {
+            getManager().getEngine().startAudioLoop(getBackgroundMusic());
+        }
     }
 
 

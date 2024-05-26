@@ -66,10 +66,6 @@ public class Game extends GameEngine {
         this.activeLevel = level;
         level.load();
         this.camera = new Camera(this, level.getPlayer());
-
-        if (getActiveLevel().getBackgroundMusic() != null) {
-            startAudioLoop(getActiveLevel().getBackgroundMusic());
-        }
     }
 
     public void update(double dt) {

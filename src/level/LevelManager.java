@@ -34,7 +34,6 @@ public class LevelManager {
         LEVEL_3 = new Level(this, 2, "resources/levels/level_demo3.txt");
         LEVEL_4 = new Level(this,3,"resources/levels/level4.txt");
         FOREST = new Level(this,4,"resources/levels/level_forest.txt");
-        FOREST.setBackgroundMusic(engine.loadAudio("resources/sounds/jungle_synthetic.wav"));
 
 
         levels.put("level_demo", DEMO);

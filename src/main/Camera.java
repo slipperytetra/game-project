@@ -268,15 +268,15 @@ public class Camera {
         }
     }
     public void renderFX(){
-        if (game.imageBank.get("overlay") != null) {
-            //System.out.println("Draw bg");
-            game.drawImage(game.imageBank.get("overlay"), 0, 0, game.width(), game.height());
-        }
-
         DEBUG_PARTICLES_ON_SCREEN = 0;
         for (Particle particle : game.getActiveLevel().getParticles()){
             particle.render(this);
             DEBUG_PARTICLES_ON_SCREEN++;
+        }
+
+        if (game.imageBank.get("overlay") != null) {
+            //System.out.println("Draw bg");
+            game.drawImage(game.imageBank.get("overlay"), 0, 0, game.width(), game.height());
         }
     }
 
