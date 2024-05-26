@@ -37,6 +37,7 @@ public abstract class Entity {
 
     private boolean isFlipped;
     private boolean canMove;
+    private boolean shouldRespawn;
     private Color hitboxColor;
 
     public Entity(EntityType type, Level level, Location loc, int hitboxWidth, int hitboxHeight) {
@@ -47,6 +48,7 @@ public abstract class Entity {
         this.hitboxWidth = hitboxWidth;
         this.hitboxHeight = hitboxHeight;
 
+        this.shouldRespawn = false;
         this.isActive = true;
         this.maxHealth = 100;
         this.health = 100;
@@ -389,10 +391,18 @@ public abstract class Entity {
     }
 
     public void reset(){
-        setActive(true);
-        setHealth(maxHealth);
+        if (isShouldRespawn()) {
+            setActive(true);
+            setHealth(maxHealth);
+        }
+    }
 
+    public boolean isShouldRespawn() {
+        return shouldRespawn;
+    }
 
+    public void setShouldRespawn(boolean shouldRespawn) {
+        this.shouldRespawn = shouldRespawn;
     }
 
     @Override

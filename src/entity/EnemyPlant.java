@@ -35,9 +35,6 @@ public class EnemyPlant extends Enemy {
     public void render(Camera cam) {
         double offsetX = getLocation().getX() + cam.centerOffsetX;
         double offsetY = getLocation().getY() + cam.centerOffsetY;
-        if(getHealth() < getMaxHealth()){
-            cam.drawHealthBar(this, offsetX, offsetY - 50);
-        }
 
 
 

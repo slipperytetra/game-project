@@ -1,8 +1,7 @@
 name:
 background:
+overlay:
 next_level:
-level_width:
-level_height:
 level_data:
   [...]
   [...]
