@@ -74,14 +74,14 @@ public class Player extends EntityLiving {
         this.runAnimationTimer = new Timer(100, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 runFrameIndex = (runFrameIndex + 1) % 4;
-                //System.out.println("Run " + currentFrameIndex);
             }
         });
 
-        this.jumpAnimationTimer = new Timer(200, new ActionListener() {
+        this.jumpAnimationTimer = new Timer(75, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //System.out.println("Jump: " + jumpFrameIndex);
-                jumpFrameIndex = (jumpFrameIndex + 1) % 4;
+                if (jumpFrameIndex < 3) {
+                    jumpFrameIndex++;
+                }
             }
         });
     }
@@ -89,7 +89,6 @@ public class Player extends EntityLiving {
     public void update(double dt) {
         super.update(dt);
         animateCharacter();
-        //System.out.println("run: " + runParticleTimer);
         if (runParticleTimer < RUN_PARTICLE_FREQUENCY) {
             runParticleTimer += 1 * dt;
         }
@@ -246,7 +245,7 @@ public class Player extends EntityLiving {
         if (keysPressed.contains(68)) {//D
             setDirectionX(calculateHorizontalMovement());
         }
-        if (keysPressed.contains(81)){
+        if (keysPressed.contains(81) && canAttack()){
             attack();
         }
 
@@ -317,17 +316,27 @@ public class Player extends EntityLiving {
 
     public Image getFallFrame() {
         if (!isFlipped()) {
-            return getLevel().getManager().getEngine().flipImageHorizontal(getLevel().getManager().getEngine().getTexture("player_jump_" + runFrameIndex));
+            return getLevel().getManager().getEngine().flipImageHorizontal(getLevel().getManager().getEngine().getTexture("player_jump_3"));
         }
 
-        return getLevel().getManager().getEngine().getTexture("player_jump_" + runFrameIndex);
+        return getLevel().getManager().getEngine().getTexture("player_jump_3");
+    }
+
+    public Image getJumpFrame() {
+        if (!isFlipped()) {
+            return getLevel().getManager().getEngine().flipImageHorizontal(getLevel().getManager().getEngine().getTexture("player_jump_" + jumpFrameIndex));
+        }
+
+        return getLevel().getManager().getEngine().getTexture("player_jump_" + jumpFrameIndex);
     }
 
     @Override
     public Image getActiveFrame() {
         if (isAttacking()) {
             return getAttackFrame();
-        } else if (isMovingVertically()) {
+        } else if (isJumping()) {
+            return getJumpFrame();
+        } else if (isFalling()) {
             return getFallFrame();
         } else if (isMovingHorizontally()) {
             return getRunFrame();
@@ -348,15 +357,16 @@ public class Player extends EntityLiving {
     }
 
 
+    @Override
     public Enemy getTarget() {
-        for (Entity enemy : getLevel().getEntities()){
+        for (Entity enemy : getLevel().getEntities()) {
             if (!enemy.isActive()) {
                 continue;
             }
 
             if (enemy instanceof Enemy) {
-                if (Location.calculateDistance(getLocation().getX(), getLocation().getY(), enemy.getLocation().getX(), enemy.getLocation().getY()) < 64) {
-                    //System.out.println("Close");
+                double midX = getLocation().getX() + (getWidth() / 2);
+                if (Math.abs(Location.calculateDistance(enemy.getLocation().getX() + (enemy.getWidth() / 2), enemy.getLocation().getY(), midX, getLocation().getY())) < 64) {
                     return (Enemy) enemy;
                 }
             }

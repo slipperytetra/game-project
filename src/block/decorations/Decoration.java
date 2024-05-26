@@ -1,9 +1,6 @@
 package block.decorations;
 
-import main.Camera;
-import main.CollisionBox;
-import main.Game;
-import main.Location;
+import main.*;
 
 import java.awt.*;
 
@@ -33,8 +30,7 @@ public class Decoration {
         double decoOffsetX = getLocation().getX() + cam.centerOffsetX;
         double decoOffsetY = getLocation().getY() + cam.centerOffsetY;
 
-        Image texture = cam.game.getTexture(getType().toString());
-        cam.game.drawImage(texture, decoOffsetX, decoOffsetY - getHeight() + Game.BLOCK_SIZE, getWidth(), getHeight());
+        cam.game.drawImage(getImage(cam.game), decoOffsetX, decoOffsetY - getHeight() + Game.BLOCK_SIZE, getWidth(), getHeight());
 
         if (cam.debugMode) {
             double hitboxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
@@ -46,6 +42,10 @@ public class Decoration {
 
     public DecorationTypes getType() {
         return type;
+    }
+
+    public Image getImage(Game game) {
+        return game.getTexture(getType().toString());
     }
 
     public CollisionBox getCollisionBox() {
@@ -75,4 +75,6 @@ public class Decoration {
     public Location getLocation() {
         return loc;
     }
+
+
 }

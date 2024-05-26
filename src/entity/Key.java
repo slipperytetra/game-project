@@ -10,9 +10,8 @@ public class Key extends Entity {
 
     private GameEngine.AudioClip keyObtained;
     public Key(Level level, Location loc) {
-        super(EntityType.KEY, level, loc, 100, 100);
-
-        setScale(0.5);
+        super(EntityType.KEY, level, loc, 50, 50);
+        setScale(1);
         setCanMove(false);
         keyObtained = level.getManager().getEngine().loadAudio("resources/sounds/keyObtained.wav");
     }
@@ -30,11 +29,11 @@ public class Key extends Entity {
     }
 
     public double getWidth() {
-        return 50;
+        return 50 * getScale();
     }
 
     public double getHeight() {
-        return 50;
+        return 50 * getScale();
     }
 
     @Override

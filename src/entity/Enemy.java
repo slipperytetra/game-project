@@ -19,7 +19,7 @@ public abstract class Enemy extends EntityLiving {
     public void update(double dt) {
         super.update(dt);
 
-        if (isTargetInRange()) {
+        if (isTargetInRange() && canAttack()) {
             attack();
         }
     }

@@ -1,6 +1,7 @@
 package entity;
 
 import level.Level;
+import main.Camera;
 import main.GameEngine;
 import main.Location;
 
@@ -19,6 +20,7 @@ public abstract class EntityLiving extends Entity {
     public EntityLiving(EntityType type, Level level, Location loc, int hitboxWidth, int hitboxHeight) {
         super(type, level, loc, hitboxWidth, hitboxHeight);
         setAttackCooldown(0.5); //Default attack cooldown
+        setShouldRespawn(true);
     }
 
     @Override
@@ -84,14 +86,16 @@ public abstract class EntityLiving extends Entity {
         }
         //System.out.println(target.getHealth());
 
-        double direction = getLocation().getX() - getTarget().getLocation().getX();
-        if (direction < 0) {
-            setFlipped(true);
-        } else {
-            setFlipped(false);
+        if (getType() != EntityType.PLAYER) {
+            double direction = getLocation().getX() - target.getLocation().getX();
+            if (direction < 0) {
+                setFlipped(true);
+            } else {
+                setFlipped(false);
+            }
         }
 
-        getTarget().damage(this);
+        target.damage(this);
         //System.out.println(target.getHealth());
         if (target.getHealth() <= 0){
             target.destroy();

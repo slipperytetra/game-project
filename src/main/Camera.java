@@ -5,6 +5,7 @@ import block.BlockTypes;
 import block.decorations.Decoration;
 import block.decorations.FakeLightSpot;
 import entity.Entity;
+import entity.EntityLiving;
 import entity.Player;
 import level.Particle;
 import level.TextMessage;
@@ -56,8 +57,6 @@ public class Camera {
         * */
         Location point1 = new Location(p.getLocation().getX() - (game.width() / 2), p.getLocation().getY() - (game.height() / 2));
 
-        System.out.println("1: " + point1.getX() + ", " + point1.getY());
-        System.out.println("2: " + (point1.getX() + game.width()) + ", " + (point1.getY() + game.height()));
         this.collisionBox = new CollisionBox(point1.getX(), point1.getY(), game.width(), game.height());
     }
 
@@ -83,12 +82,12 @@ public class Camera {
     public void draw() {
         renderBackground();
         renderDecorations();
-        renderSpotLights();
         renderBlocks();
         renderEntities();
         getPlayer().render(this);
         renderTextMessages();
         renderFX();
+        renderSpotLights();
         renderUI();
     }
 
@@ -166,6 +165,13 @@ public class Camera {
 
             if (entity.getCollisionBox().collidesWith(this.getCollisionBox())) {
                 entity.render(this);
+                double offsetX = entity.getLocation().getX() + centerOffsetX;
+                double offsetY = entity.getLocation().getY() + centerOffsetY;
+
+                if(entity.getHealth() < entity.getMaxHealth()){
+                    drawHealthBar(entity, offsetX, offsetY - 50);
+                }
+
                 DEBUG_ENTITIES_ON_SCREEN++;
             }
         }
@@ -262,14 +268,15 @@ public class Camera {
         }
     }
     public void renderFX(){
-        if(game.getActiveLevel().getId() == 3){
-            game.drawImage(game.getTexture("snow_fx"),0,0,game.width(),game.height());
-        }
-
         DEBUG_PARTICLES_ON_SCREEN = 0;
         for (Particle particle : game.getActiveLevel().getParticles()){
             particle.render(this);
             DEBUG_PARTICLES_ON_SCREEN++;
+        }
+
+        if (game.imageBank.get("overlay") != null) {
+            //System.out.println("Draw bg");
+            game.drawImage(game.imageBank.get("overlay"), 0, 0, game.width(), game.height());
         }
     }
 

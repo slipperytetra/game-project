@@ -49,7 +49,7 @@ public class Game extends GameEngine {
 
         this.setWindowSize(1280, 720);
         this.lvlManager = new LevelManager(this);
-        setActiveLevel(lvlManager.LEVEL_4);
+        setActiveLevel(lvlManager.FOREST);
     }
 
     public Level getActiveLevel() {
@@ -57,6 +57,12 @@ public class Game extends GameEngine {
     }
 
     public void setActiveLevel(Level level) {
+        if (activeLevel != null) {
+            if (activeLevel.getBackgroundMusic() != null) {
+                stopAudioLoop(activeLevel.getBackgroundMusic());
+            }
+        }
+
         this.activeLevel = level;
         level.load();
         this.camera = new Camera(this, level.getPlayer());
@@ -125,7 +131,11 @@ public class Game extends GameEngine {
 
     public void loadDecorationImages() {
         for (DecorationTypes type : DecorationTypes.values()) {
-            imageBank.put(type.toString(),  loadImage(type.getFilePath()));
+            if (type == DecorationTypes.FIREFLIES) {
+                imageBank.put(type.toString(), Toolkit.getDefaultToolkit().createImage(type.getFilePath()));
+            } else {
+                imageBank.put(type.toString(), loadImage(type.getFilePath()));
+            }
         }
     }
 
@@ -168,7 +178,6 @@ public class Game extends GameEngine {
         imageBank.put("plant_monsterAttack_flipped", Toolkit.getDefaultToolkit().createImage("resources/images/plantAttack_flipped.gif"));
         imageBank.put("plant_monster", loadImage("resources/images/characters/plant_monster.png"));
         imageBank.put("heart", Toolkit.getDefaultToolkit().createImage("resources/images/heart.gif"));
-        imageBank.put("snow_fx", Toolkit.getDefaultToolkit().createImage("resources/images/idea.gif"));
         imageBank.put("skull_head", loadImage("resources/images/characters/skull_head_frame0.png"));
         imageBank.put("gold_coin", loadImage(EntityType.GOLD_COIN.getFilePath() + "_frame0.png"));
         imageBank.put("bee", loadImage("resources/images/characters/bee/bee_idle_frame0.png"));
