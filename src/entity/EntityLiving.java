@@ -1,26 +1,35 @@
 package entity;
 
 import level.Level;
-import main.Camera;
-import main.GameEngine;
-import main.Location;
+import main.*;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public abstract class EntityLiving extends Entity {
 
     private int hitDamage;
     private EntityLiving target;
-    Player player;
 
     private GameEngine.AudioClip soundHit;
     private GameEngine.AudioClip soundAttack;
 
+    private AttackTimer attackTimer;
+
     private double attackCounter;
     private double attackCooldown;
 
-    public EntityLiving(EntityType type, Level level, Location loc, int hitboxWidth, int hitboxHeight) {
-        super(type, level, loc, hitboxWidth, hitboxHeight);
-        setAttackCooldown(0.5); //Default attack cooldown
+    public double attackSearchTicks;
+    public final double ATTACK_SEARCH_COOLDOWN = 1.0;
+
+    public EntityLiving(EntityType type, Level level, Location loc) {
+        super(type, level, loc);
+        setAttackCooldown(1.0); //Default attack cooldown
         setShouldRespawn(true);
+
+        System.out.println("New attack timer for " + type.toString());
+        setAttackTimer(new AttackTimer(this));
     }
 
     @Override
@@ -35,6 +44,17 @@ public abstract class EntityLiving extends Entity {
     @Override
     public void processMovement(double dt) {
         super.processMovement(dt);
+    }
+
+    @Override
+    public void kill() {
+        super.kill();
+
+        System.out.println("Killed");
+        if (attackTimer.isRunning()) {
+            System.out.println("stopped");
+            attackTimer.stop();
+        }
     }
 
     public int getDamage() {
@@ -69,22 +89,24 @@ public abstract class EntityLiving extends Entity {
         this.soundAttack = sound;
     }
 
+    public TextureAnimated getAttackFrame() {
+        return (TextureAnimated) getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase() + "_attack");
+    }
+
+    public void findTarget() {
+        //System.out.println("Looking for target " + System.currentTimeMillis());
+        if (getDistanceTo(getLevel().getPlayer()) < 64) {
+            setTarget(getLevel().getPlayer());
+            return;
+        }
+
+        setTarget(null);
+    }
+
     public void attack() {
-        if (!canAttack()) {
+        if (getTarget() == null) {
             return;
         }
-
-        if (getAttackSound() != null) {
-            getLevel().getManager().getEngine().playAudio(getAttackSound());
-        }
-
-        setAttackTicks(0);
-
-        EntityLiving target = getTarget();
-        if (target == null) {
-            return;
-        }
-        //System.out.println(target.getHealth());
 
         if (getType() != EntityType.PLAYER) {
             double direction = getLocation().getX() - target.getLocation().getX();
@@ -96,12 +118,6 @@ public abstract class EntityLiving extends Entity {
         }
 
         target.damage(this);
-        //System.out.println(target.getHealth());
-        if (target.getHealth() <= 0){
-            target.destroy();
-            player.score = player.score + 20;
-
-        }
     }
 
     public double getAttackCooldown() {
@@ -121,7 +137,7 @@ public abstract class EntityLiving extends Entity {
     }
 
     public boolean canAttack() {
-        return getAttackTicks() >= getAttackCooldown();
+        return getAttackTicks() >= getAttackCooldown() && getTarget() != null;
     }
 
     public void damage(EntityLiving attacker) {
@@ -134,5 +150,22 @@ public abstract class EntityLiving extends Entity {
     public void setAttackCooldown(double cooldown) {
         this.attackCooldown = cooldown;
         setAttackTicks(getAttackCooldown() - 0.01);
+    }
+
+
+    public boolean isInRange(Entity entity) {
+        if (entity == null) {
+            return false;
+        }
+
+        return getLocation().calculateDistance(entity.getLocation()) < 64;
+    }
+
+    public AttackTimer getAttackTimer() {
+        return attackTimer;
+    }
+
+    public void setAttackTimer(AttackTimer timer) {
+        this.attackTimer = timer;
     }
 }

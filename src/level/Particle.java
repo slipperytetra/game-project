@@ -3,6 +3,7 @@ package level;
 
 import main.Camera;
 import main.Location;
+import main.Texture;
 
 import java.awt.image.BufferedImage;
 import java.util.Random;
@@ -13,7 +14,7 @@ public class Particle {
     double timeAlive, ticksAlive;
     boolean isActive;
     Level level;
-    BufferedImage image;
+    Texture image;
     ParticleTypes type;
 
     double opacity;
@@ -25,7 +26,7 @@ public class Particle {
         this.loc = spawnLoc;
         this.timeAlive = type.getTimeAlive();
         this.type = type;
-        this.image = (BufferedImage) level.getManager().getEngine().getTexture(type.toString().toLowerCase());
+        this.image = level.getManager().getEngine().getTexture(type.toString().toLowerCase());
         this.level =  level;
 
         this.isActive = true;
@@ -49,7 +50,7 @@ public class Particle {
         }
     }
 
-  public void  update(double dt){
+  public void update(double dt){
         if (!isActive) {
             return;
         }
@@ -74,13 +75,13 @@ public class Particle {
     }
 
     public void render(Camera cam){
-        double hitboxOffsetX = loc.getX() + offsetX + cam.centerOffsetX;
-        double hitboxOffsetY = loc.getY() + offsetY + cam.centerOffsetY;
+        double camLocX = cam.toScreenX(loc.getX() + offsetX);
+        double camLocY = cam.toScreenY(loc.getY() + offsetY);
 
         if (type.isFadeOut()) {
-            cam.game.drawImage(image, hitboxOffsetX, hitboxOffsetY, size, size, (float) opacity);
+            cam.game.drawImage(image.getImage(), camLocX, camLocY, size * cam.getZoom(), size * cam.getZoom(), (float) opacity);
         } else {
-            cam.game.drawImage(image, hitboxOffsetX, hitboxOffsetY, size, size);
+            cam.game.drawImage(image.getImage(), camLocX, camLocY, size * cam.getZoom(), size * cam.getZoom());
         }
     }
 

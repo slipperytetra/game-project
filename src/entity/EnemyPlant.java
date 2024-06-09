@@ -3,6 +3,7 @@ package entity;
 import level.Level;
 import main.Camera;
 import main.Location;
+import main.Texture;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,10 +11,11 @@ import java.awt.image.BufferedImage;
 public class EnemyPlant extends Enemy {
 
     public EnemyPlant(Level level, Location loc) {
-        super(level, EntityType.PLANT_MONSTER, loc, 58, 79);
+        super(EntityType.PLANT_MONSTER, level, loc);
 
         setDamage(5);
         setMaxHealth(20);
+        setHealth(20);
         setScale(1);
         setAttackCooldown(1.0);
 
@@ -24,19 +26,12 @@ public class EnemyPlant extends Enemy {
     @Override
     public void update(double dt) {
         super.update(dt);
-        if(!isActive()){
-            return;
-        }
-
-        setTarget(getLevel().getPlayer());
     }
 
     @Override
     public void render(Camera cam) {
-        double offsetX = getLocation().getX() + cam.centerOffsetX;
-        double offsetY = getLocation().getY() + cam.centerOffsetY;
-
-
+        double offsetX = cam.toScreenX(getLocation().getX());
+        double offsetY = cam.toScreenY(getLocation().getY());
 
         if (isAttacking()) {
             int diffX = -70;
@@ -49,49 +44,24 @@ public class EnemyPlant extends Enemy {
             offsetY = offsetY + diffY;
         }
 
-        getLevel().getManager().getEngine().drawImage(getActiveFrame(), offsetX, offsetY, getWidth(), getHeight());
+        getLevel().getManager().getEngine().drawImage(getActiveFrame().getImage(), offsetX * cam.getZoom(), offsetY * cam.getZoom(), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
 
         if (cam.debugMode) {
-            double hitBoxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
-            double hitBoxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
-
             getLevel().getManager().getEngine().changeColor(getHitboxColor());
-            getLevel().getManager().getEngine().drawRectangle(hitBoxOffsetX, hitBoxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            getLevel().getManager().getEngine().drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
         }
     }
 
     @Override
-    public Image getActiveFrame() {
-        if (isAttacking()){
-            if (isFlipped()) {
-                return getLevel().getManager().getEngine().getTexture("plant_monsterAttack_flipped");
-            }
+    public Texture getActiveFrame() {
+        Texture texture = getIdleFrame();
 
-            return getLevel().getManager().getEngine().getTexture("plant_monsterAttack");
-        }
-
-        if (isFlipped()) {
-            return getLevel().getManager().getEngine().flipImageHorizontal(getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase()));
-        }
-
-        return getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase());
-    }
-
-    @Override
-    public double getWidth() {
         if (isAttacking()) {
-            return 128 * getScale();
+            texture = getAttackFrame();
         }
 
-        return ((BufferedImage) getIdleFrame()).getWidth() * getScale();
-    }
+        texture.setFlipped(isFlipped());
 
-    @Override
-    public double getHeight() {
-        if (isAttacking()) {
-            return 96 * getScale();
-        }
-
-        return ((BufferedImage) getIdleFrame()).getHeight() * getScale();
+        return texture;
     }
 }

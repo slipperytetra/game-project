@@ -9,8 +9,9 @@ import java.awt.image.BufferedImage;
 
 public abstract class Enemy extends EntityLiving {
 
-    public Enemy(Level level, EntityType type, Location loc, int hitboxWidth, int hitboxHeight) {
-        super(type, level, loc, hitboxWidth, hitboxHeight);
+
+    public Enemy(EntityType type, Level level, Location loc) {
+        super(type, level, loc);
         setDamage(1);
 
         setHitboxColor(Color.red);
@@ -19,23 +20,22 @@ public abstract class Enemy extends EntityLiving {
     public void update(double dt) {
         super.update(dt);
 
-        if (isTargetInRange() && canAttack()) {
-            attack();
-        }
-    }
-
-
-    public boolean isTargetInRange() {
-        if (getTarget() == null) {
-            return false;
+        if (!isActive()) {
+            return;
         }
 
-        return getTarget().getCollisionBox().collidesWith(getCollisionBox());
-    }
+        if (attackSearchTicks < ATTACK_SEARCH_COOLDOWN) {
+            attackSearchTicks += 1 * dt;
+        }
 
-    // Determine if the enemy should face left based on the player's position
-    protected boolean shouldFaceLeft() {
-        Player player = getLevel().getPlayer();
-        return player != null && player.getLocation().getX() < getLocation().getX();
+        if (attackSearchTicks >= ATTACK_SEARCH_COOLDOWN) { //Check if target is in range
+            findTarget();
+
+            if (getTarget() != null) { //If found
+                getAttackTimer().start();
+            }
+
+            attackSearchTicks = 0;
+        }
     }
 }

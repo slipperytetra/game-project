@@ -14,7 +14,7 @@ public enum DecorationTypes {
     FOG("resources/images/blocks/decorations/fog.png", 1),
     BUSH("resources/images/blocks/decorations/bush.png", 2),
     TREE("resources/images/blocks/decorations/tree.png", 2),
-    FIREFLIES("resources/images/characters/fireflies.gif", 0.75, 75, 75, 2, true),
+    FIREFLIES("resources/images/blocks/decorations/fireflies/fireflies_", 0.75, 75, 75, 2, true, 90, 12),
     OLD_BRICK_WALL("resources/images/blocks/decorations/old_brick_wall.png", 2),
     FOREST_PLANT_0("resources/images/blocks/decorations/forest_plant_0.png", 0.5),
     FOREST_PLANT_1("resources/images/blocks/decorations/forest_plant_1.png", 0.5),
@@ -35,6 +35,7 @@ public enum DecorationTypes {
 
     private double spotLightOffsetX, spotLightOffsetY, spotLightIntensity;
     private boolean spotLightFlicker;
+    private int frames, frameRate;
 
     DecorationTypes(String getFilePath) {
         this.getFilePath = getFilePath;
@@ -55,6 +56,17 @@ public enum DecorationTypes {
         this.spotLightOffsetY = spotLightOffsetY;
         this.spotLightIntensity = spotLightIntensity;
         this.spotLightFlicker = spotLightFlicker;
+    }
+
+    DecorationTypes(String getFilePath, double scale, double spotLightOffsetX, double spotLightOffsetY, double spotLightIntensity, boolean spotLightFlicker, int frames, int frameRate) {
+        this.getFilePath = getFilePath;
+        this.scale = scale;
+        this.spotLightOffsetX = spotLightOffsetX;
+        this.spotLightOffsetY = spotLightOffsetY;
+        this.spotLightIntensity = spotLightIntensity;
+        this.spotLightFlicker = spotLightFlicker;
+        this.frames = frames;
+        this.frameRate = frameRate;
     }
 
     public String getFilePath() {
@@ -88,5 +100,13 @@ public enum DecorationTypes {
     public boolean hasFallingLeaves() {
         return this == DecorationTypes.TREE || this == DecorationTypes.TREE_WILLOW_0 || this == DecorationTypes.TREE_WILLOW_1
                 || this == DecorationTypes.TREE_WILLOW_2;
+    }
+
+    public int getFrames() {
+        return frames;
+    }
+
+    public int getFrameRate() {
+        return frameRate;
     }
 }

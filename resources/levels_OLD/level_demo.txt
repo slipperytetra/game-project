@@ -1,0 +1,51 @@
+name: DEMO
+background: resources/images/bgidea.gif
+midground:
+foreground:
+background_music:
+overlay:
+next_level: level4
+level_data:
+  [BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB]
+  [B............................B]
+  [B............................B]
+  [B............................B]
+  [B............................B]
+  [B............................B]
+  [B............................B]
+  [B.............B.B............B]
+  [B............................B]
+  [B............................B]
+  [B............................B]
+  [B...............L............B]
+  [B........GGGGGGGL............B]
+  [B........XXXXXXXL............B]
+  [B...............L............B]
+  [B...............L............B]
+  [B...............L............B]
+  [B...............L............B]
+  [B...............L............B]
+  [B...............L............B]
+  [B...............L............B]
+  [B...............L............B]
+  [B.........L.E...L............B]
+  [B.........LGGGGGG............B]
+  [B.........LXXXXXX............B]
+  [B.........LXXXXXX............B]
+  [B.........LXXXXXX............B]
+  [B..^.P..E.LXXXXXX.....K...D..B]
+  [GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG]
+  [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
+keymap:
+  P: PLAYER
+  D: DOOR
+  K: KEY
+  E: PLANT_MONSTER
+  H: HEART
+  B: BARRIER
+  L: LADDER
+  l: LAVA
+  W: WATER_TOP
+  G: STONE_FLOOR
+  X: STONE_FILLER
+  ^: ROCK

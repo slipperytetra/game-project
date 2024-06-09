@@ -15,6 +15,7 @@ public class FakeLightSpot {
     private double flicker;
     private boolean shouldFlicker;
     private double flickerCooldown;
+    private boolean isActive;
 
     private final double SPOT_LIGHT_SIZE = 75;
     private final double FLICKER_FREQUENCY = 0.1; //seconds
@@ -26,6 +27,7 @@ public class FakeLightSpot {
         this.intensity = parent.getType().getSpotLightIntensity();
         this.flicker = 1.0;
         this.shouldFlicker = parent.getType().shouldSpotLightFlicker();
+        this.isActive = true;
 
         this.width = SPOT_LIGHT_SIZE * (getIntensity() * getFlicker());
         this.height = SPOT_LIGHT_SIZE * (getIntensity() * getFlicker());
@@ -44,12 +46,11 @@ public class FakeLightSpot {
     }
 
     public void render(Camera cam) {
-        double decoOffsetX = getParent().getLocation().getX() + cam.centerOffsetX;
-        double decoOffsetY = getParent().getLocation().getY() + cam.centerOffsetY;
+        double decoOffsetX = cam.toScreenX(getParent().getLocation().getX() + getOffsetX());
+        double decoOffsetY = cam.toScreenY(getParent().getLocation().getY() - getParent().getHeight() + Game.BLOCK_SIZE + getOffsetY());
 
-        cam.game.drawImage(cam.game.getTexture("spot_light"),
-                decoOffsetX + getOffsetX(), decoOffsetY - getParent().getHeight() + Game.BLOCK_SIZE + getOffsetY(),
-                getWidth(), getHeight());
+        cam.game.drawImage(cam.game.getTexture("spot_light").getImage(),
+                decoOffsetX, decoOffsetY,getWidth(), getHeight());
     }
 
     public Decoration getParent() {
@@ -90,5 +91,13 @@ public class FakeLightSpot {
 
     public double getHeight() {
         return height * getIntensity() * getFlicker();
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
 }

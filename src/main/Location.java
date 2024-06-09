@@ -7,6 +7,10 @@ public class Location {
         this.locX = locX;
         this.locY = locY;
     }
+    public Location(Location loc) {
+        this.locX = loc.getX();
+        this.locY = loc.getY();
+    }
 
     public double getX() {
         return this.locX;
@@ -47,5 +51,42 @@ public class Location {
         double deltaX = x2 - x1;
         double deltaY = y2 - y1;
         return Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
+    }
+
+    public double calculateDistance(Location otherLoc) {
+        double deltaX = otherLoc.getX() - getX();
+        double deltaY = otherLoc.getY() - getY();
+        return Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
+    }
+
+    public double distanceTo(Location loc) {
+        return Math.sqrt(Math.pow(loc.getX() - getX(), 2) + Math.pow(loc.getY() - getY(), 2));
+    }
+
+    public boolean equals(Location loc) {
+        return getX() == loc.getX() && getY() == loc.getY();
+    }
+
+    public int getTileX() {
+        return (int) (getX() / Game.BLOCK_SIZE);
+    }
+
+    public int getTileY() {
+        return (int) (getY() / Game.BLOCK_SIZE);
+    }
+
+    @Override
+    public Location clone() {
+        return new Location(getX(), getY());
+    }
+
+    public void setLocation(Location loc) {
+        if (loc == null) {
+            System.out.println("Error: trying to set location to a null location");
+            return;
+        }
+
+        this.locX = loc.getX();
+        this.locY = loc.getY();
     }
 }

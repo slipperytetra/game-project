@@ -1,10 +1,11 @@
 package block;
 
+import level.Level;
 import main.Location;
 
 public class BlockInteractable extends Block {
-    public BlockInteractable(BlockTypes type, Location loc) {
-        super(type, loc);
+    public BlockInteractable(Level level, Location loc, BlockTypes type) {
+        super(level, loc, type);
     }
 
     @Override

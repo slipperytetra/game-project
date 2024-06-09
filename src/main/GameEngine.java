@@ -159,8 +159,14 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
             public void run() {
                 // Create the window
                 setupWindow(width, height);
+
+                setupMenu();
             }
         });
+    }
+
+    public void setupMenu() {
+
     }
 
     // Create main.Game Function
@@ -456,6 +462,14 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     public void drawBoldText(double x, double y, String s) {
         // Draw text on the screen
         mGraphics.setFont(new Font("Arial", Font.BOLD, 40));
+        mGraphics.drawString(s, (int)x, (int)y);
+    }
+
+
+    // This function draws bold text on the screen at (x,y)
+    public void drawBoldText(double x, double y, String s, int size) {
+        // Draw text on the screen
+        mGraphics.setFont(new Font("Arial", Font.BOLD, size));
         mGraphics.drawString(s, (int)x, (int)y);
     }
 

@@ -4,21 +4,13 @@ import java.awt.*;
 
 public enum BlockTypes {
 
-    VOID(""),
+    VOID("resources/images/blocks/dirt.png", false),
+    BARRIER("resources/images/blocks/dirt.png"),
     DIRT("resources/images/blocks/dirt.png"),
     GRASS("resources/images/blocks/ground.png"),
-    FOREST_GROUND_0("resources/images/blocks/forest_ground_0.png"),
-    FOREST_GROUND_1("resources/images/blocks/forest_ground_1.png"),
-    FOREST_GROUND_2("resources/images/blocks/forest_ground_2.png"),
-    FOREST_GROUND_3("resources/images/blocks/forest_ground_3.png"),
-    FOREST_GROUND_4("resources/images/blocks/forest_ground_4.png"),
-    FOREST_GROUND_5("resources/images/blocks/forest_ground_5.png"),
-    FOREST_GROUND_6("resources/images/blocks/forest_ground_6.png"),
-    FOREST_GROUND_7("resources/images/blocks/forest_ground_7.png"),
-    FOREST_GROUND_8("resources/images/blocks/forest_ground_8.png"),
-    LADDER("resources/images/blocks/ladder.png"),
-    ROPE("resources/images/blocks/rope.png"),
-    BARRIER(""),
+    FOREST_GROUND("resources/images/blocks/forest_ground/forest_ground", true, 16),
+    LADDER("resources/images/blocks/ladder.png", false),
+    ROPE("resources/images/blocks/rope.png", false),
     WATER_TOP("resources/images/blocks/waterTop.png"),
     WATER_BOTTOM("resources/images/blocks/waterBottom.png"),
     STONE_FLOOR("resources/images/blocks/STONE.png"),
@@ -34,18 +26,50 @@ public enum BlockTypes {
     STONERCORNER("resources/images/blocks/STONERCORNER.png"),
     STONERMIDDLE("resources/images/blocks/STONERIGHTMIDDLE.png"),
     STONELCORNER("resources/images/blocks/STONELCORNER.png"),
-    STONELMIDDLE("resources/images/blocks/STONELMIDDLE.png");
+    STONELMIDDLE("resources/images/blocks/STONELMIDDLE.png"),
+    LOG_START("resources/images/blocks/log_left.png"),
+    LOG_MID("resources/images/blocks/log_mid.png"),
+    LOG_END("resources/images/blocks/log_end.png"),
+    PLAYER_SPAWN("resources/images/blocks/player_spawn.png", false);
 
 
 
 
     private final String getFilePath;
+    private final boolean isCollidable;
+    private final int blockSetAmount;
 
     BlockTypes(String getFilePath) {
         this.getFilePath = getFilePath;
+        this.isCollidable = true;
+        this.blockSetAmount = 0;
+    }
+
+    BlockTypes(String getFilePath, boolean isCollidable) {
+        this.getFilePath = getFilePath;
+        this.isCollidable = isCollidable;
+        this.blockSetAmount = 0;
+    }
+
+    BlockTypes(String getFilePath, boolean isCollidable, int blockSetAmount) {
+        this.getFilePath = getFilePath;
+        this.isCollidable = isCollidable;
+        this.blockSetAmount = blockSetAmount;
     }
 
     public String getFilePath() {
         return getFilePath;
+    }
+
+    public boolean isCollidable() {
+        return isCollidable;
+    }
+
+    public int getBlockSetAmount() {
+        return blockSetAmount;
+    }
+
+    public boolean isBlockSet() {
+        return blockSetAmount > 0;
     }
 }

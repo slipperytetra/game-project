@@ -1,65 +1,49 @@
 package block;
 
-import main.Camera;
-import main.CollisionBox;
-import main.Game;
-import main.Location;
+import level.Level;
+import main.*;
 
 import java.awt.*;
 
-public abstract class Block {
+public class Block extends GameObject {
 
-    BlockTypes type;
-    Location loc;
-    //Rectangle collisionBox;
-    CollisionBox collisionBox;
+    private BlockTypes type;
 
-    public Block(BlockTypes type, Location loc) {
+    public Block(Level level, Location loc, BlockTypes type) {
+        super(level, loc);
+
         this.type = type;
-        this.loc = loc;
-        setCollisionBox(new CollisionBox((int)loc.getX(), (int)loc.getY(), Game.BLOCK_SIZE, Game.BLOCK_SIZE));
-    }
-
-    public abstract boolean isCollidable();
-
-
-    public CollisionBox getCollisionBox() {
-        return collisionBox;
-    }
-
-    public void setCollisionBox(CollisionBox newBox) {
-        this.collisionBox = newBox;
+        setCollidable(type.isCollidable());
     }
 
     public BlockTypes getType() {
         return type;
     }
 
-    public Location getLocation() {
-        return loc;
+    public void setType(BlockTypes type) {
+        this.type = type;
     }
 
-    public void setLocation(double x, double y) {
-        this.loc.setX(x);
-        this.loc.setY(y);
-    }
-
-    public void drawBlock(Camera cam, double xOffset, double yOffset) {
-        if(getType().equals(BlockTypes.BARRIER)){
+    public void render(Camera cam) {
+        if(getType() == BlockTypes.BARRIER || getType() == BlockTypes.VOID){
             return;
         }
-        Image texture = cam.game.getTexture(getType().toString());
 
-        if (texture == null) {
-            System.out.println("Null image: " + getType().getFilePath());
+
+        if (getTexture() == null) {
+            System.out.println("Null block image: " + getType().getFilePath());
+            return;
         }
 
-        cam.game.drawImage(texture, xOffset, yOffset, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+        cam.game.drawImage(getTexture().getImage(), cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
 
         if (cam.debugMode) {
             cam.game.changeColor(Color.GREEN);
-            cam.game.drawRectangle(xOffset, yOffset, getCollisionBox().getWidth(), getCollisionBox().getHeight());
-            //cam.game.drawRectangle(cam.zoom * xOffset, cam.zoom *yOffset, cam.zoom *Game.BLOCK_SIZE, cam.zoom *Game.BLOCK_SIZE);
+            cam.game.drawRectangle(cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
         }
+    }
+
+    public Texture getTexture() {
+        return getLevel().getManager().getEngine().getTexture(getType().toString());
     }
 }

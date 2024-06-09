@@ -11,6 +11,8 @@ import level.Particle;
 import level.TextMessage;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.nio.Buffer;
 
 /*
 *   This class handles the rendering of all objects on the screen.
@@ -24,27 +26,40 @@ public class Camera {
     public Location loc, centerPoint;
     public Game game;
     public Player player;
-    private boolean hasPlayedKeyAudio = false;
 
     public boolean debugMode;
     private int DEBUG_ENTITIES_ON_SCREEN;
     private int DEBUG_BLOCKS_ON_SCREEN;
     private int DEBUG_DECORATIONS_ON_SCREEN;
     private int DEBUG_PARTICLES_ON_SCREEN;
+    private double zoom;
+
+    double camWidth;
+    double camHeight;
+    double boundsX;
+    double boundsY;
+    double tempLocX;
+    double tempLocY;
 
     private long lastFpsCheck = 0;
     private int currentFps = 0;
     private int totalFrames = 0;
     private CollisionBox collisionBox;
+    private Location focusPoint;
+    private GameObject focusObj;
 
     public double centerOffsetX, centerOffsetY;
 
     public Camera(Game game, Player p) {
         this.game = game;
         this.player = p;
-        this.loc = new Location(p.getLocation().getX(), p.getLocation().getY());
+        this.loc = new Location(0, 0);
+        this.zoom = 1;
 
-
+        this.camWidth = 1280;
+        this.camHeight = 720;
+        System.out.println(camWidth);
+        System.out.println(camHeight);
         /*
         *   'point1' is the top left location of the screen.
         *   'point2' is the bottom right location of the screen.
@@ -55,9 +70,11 @@ public class Camera {
         *   By having these two points, we can see if world objects are between these two points, and if so then draw them. If they
         *   aren't then we can just ignore them.
         * */
-        Location point1 = new Location(p.getLocation().getX() - (game.width() / 2), p.getLocation().getY() - (game.height() / 2));
 
-        this.collisionBox = new CollisionBox(point1.getX(), point1.getY(), game.width(), game.height());
+        this.collisionBox = new CollisionBox(0, 0, camWidth, camHeight);
+        setFocusPoint(getPlayer().getLocation());
+        //this.centerPoint = new Location(camWidth, camHeight);
+        //this.focusPoint = new Location(getPlayer().getLocation().getX(), getPlayer().getLocation().getY());
     }
 
     /*
@@ -65,19 +82,30 @@ public class Camera {
     * */
     public void update() {
         calculateFPS();
+        setFocusPoint(getPlayer().getLocation());
 
-        this.loc.setX(player.getLocation().getX());
-        this.loc.setY(player.getLocation().getY());
+        boundsX = game.getActiveLevel().getActualWidth() - camWidth;
+        boundsY = game.getActiveLevel().getActualHeight() - camHeight;
 
-        centerPoint = new Location(game.width() / 2, game.height() / 2);
-        centerOffsetX = centerPoint.getX() - player.getLocation().getX();
-        centerOffsetY = centerPoint.getY() - player.getLocation().getY();
+        tempLocX = getFocusPoint().getX() - camWidth / 2;
+        if (tempLocX < 0) {
+            tempLocX = 0;
+        } else if (tempLocX > boundsX) {
+            tempLocX = boundsX;
+        }
 
-        collisionBox.setLocation(player.getLocation().getX() - (double) game.width() / 2, player.getLocation().getY() - (double) game.height() / 2);
-        collisionBox.setSize(game.width(), game.height());
+        tempLocY = getFocusPoint().getY() - camHeight / 2;
+        if (tempLocY < 0) {
+            tempLocY = 0;
+        } else if (tempLocY > boundsY) {
+            tempLocY = boundsY;
+        }
+
+        loc.setX(tempLocX);
+        loc.setY(tempLocY);
+
+        collisionBox.setLocation(loc.getX(), loc.getY());
     }
-
-
 
     public void draw() {
         renderBackground();
@@ -130,8 +158,8 @@ public class Camera {
         for (int x = 0; x < game.getActiveLevel().getBlockGrid().getWidth(); x++) {
             for (int y = 0; y < game.getActiveLevel().getBlockGrid().getHeight(); y++) { //Iterating over all the blocks
                 Block b = game.getActiveLevel().getBlockGrid().getBlocks()[x][y]; //Getting the block from the grid based on the coordinates
-                if (b.getType() == BlockTypes.VOID || b.getType() == BlockTypes.BARRIER) {
-                    continue; //Skip void because its an empty block.
+                if (b.getType() == BlockTypes.VOID) {
+                    continue;
                 }
 
                 if (b.getLocation().isBlockBetween(getPoint1(), getPoint2())) {
@@ -142,10 +170,8 @@ public class Camera {
                     *
                     *   Then in here, we get the block's location and add the centerOffset to it.
                     * */
-                    double blockOffsetX = b.getLocation().getX() + centerOffsetX;
-                    double blockOffsetY = b.getLocation().getY() + centerOffsetY;
 
-                    b.drawBlock(this, blockOffsetX, blockOffsetY);
+                    b.render(this);
                     DEBUG_BLOCKS_ON_SCREEN++;
                 }
             }
@@ -165,11 +191,11 @@ public class Camera {
 
             if (entity.getCollisionBox().collidesWith(this.getCollisionBox())) {
                 entity.render(this);
-                double offsetX = entity.getLocation().getX() + centerOffsetX;
-                double offsetY = entity.getLocation().getY() + centerOffsetY;
+                double offsetX = toScreenX(entity.getLocation().getX());
+                double offsetY = toScreenY(entity.getLocation().getY());
 
                 if(entity.getHealth() < entity.getMaxHealth()){
-                    drawHealthBar(entity, offsetX, offsetY - 50);
+                    drawHealthBar(entity, offsetX, offsetY - 20);
                 }
 
                 DEBUG_ENTITIES_ON_SCREEN++;
@@ -194,8 +220,8 @@ public class Camera {
             double localXDiff = txtMsg.getLocation().getX();
             double localYDiff = txtMsg.getLocation().getY();
             if (!txtMsg.isStatic()) {
-                localXDiff += centerOffsetX;
-                localYDiff += centerOffsetY;
+                localXDiff = toScreenX(localXDiff);
+                localYDiff = toScreenY(localYDiff);
             }
 
             game.changeColor(txtMsg.getColor());
@@ -222,49 +248,43 @@ public class Camera {
             return;
         }
 
-        Location healthBarLoc = new Location(50, 35);
-
-        double localXDiff = healthBarLoc.getX();
-        double localYDiff = healthBarLoc.getY();
-
-        game.changeColor(Color.white);
-        game.drawText(50,35,"Health:",15);
-        game.drawText(1180,50,"Key : ", 20);
-        game.drawText(150,35,"Score : " + player.getScore(), 20);
-
-        //game.drawText(1180,80,"Score : " + player.score, 20);
         if (game.getActiveLevel().getPlayer().hasKey()) {
-            game.drawImage(game.imageBank.get("key"), 1230, 20, 50, 50);
+            game.drawImage(game.imageBank.get("key").getImage(), game.width() - 50, 20, 30, 30);
         }
 
-        drawHealthBar(player, localXDiff, localYDiff);
-        game.changeColor(Color.red);
-        //game.drawSolidRectangle(localXDiff,localYDiff, player.getHealth(), 15);
-        game.drawText(localXDiff+50,localYDiff, String.valueOf(player.getHealth()), 20);
+        double localXDiff = 50;
+        double localYDiff = 50;
+        drawHealthBar(player, localXDiff + 20, localYDiff - 7);
+        game.drawImage(game.getTexture("ui_heart").getImage(), localXDiff - 19, localYDiff - 19, 38, 38);
+        game.drawImage(game.getTexture("gold_coin").getImage(), localXDiff - 19, localYDiff + 25, 35, 35);
+        game.changeColor(Color.ORANGE);
+        game.drawBoldText(localXDiff + 20, localYDiff + 55, "" + getPlayer().getCoins(), 35);
 
 
         if (debugMode) { //Press 'H' to enable
-            game.changeColor(Color.yellow);
-            game.drawText(25, 100, "fps: " + currentFps, "Serif", 20);
-            game.drawText(25, 120, "entities on screen: " + DEBUG_ENTITIES_ON_SCREEN, "Serif", 20);
-            game.drawText(25, 140, "blocks on screen: " + DEBUG_BLOCKS_ON_SCREEN, "Serif", 20);
-            game.drawText(25, 160, "decorations on screen: " + DEBUG_DECORATIONS_ON_SCREEN, "Serif", 20);
-            game.drawText(25, 180, "particles on screen: " + DEBUG_PARTICLES_ON_SCREEN, "Serif", 20);
-            game.drawText(25, 220, "player:", "Serif", 20);
-            game.drawText(35, 240, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
+            game.changeColor(Color.cyan);
+            game.drawText(25, 120, "fps: " + currentFps, "Serif", 20);
+            game.drawText(25, 140, "entities on screen: " + DEBUG_ENTITIES_ON_SCREEN, "Serif", 20);
+            game.drawText(25, 160, "blocks on screen: " + DEBUG_BLOCKS_ON_SCREEN, "Serif", 20);
+            game.drawText(25, 180, "decorations on screen: " + DEBUG_DECORATIONS_ON_SCREEN, "Serif", 20);
+            game.drawText(25, 220, "particles on screen: " + DEBUG_PARTICLES_ON_SCREEN, "Serif", 20);
+            game.drawText(25, 240, "player:", "Serif", 20);
+            game.drawText(35, 260, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
             game.drawText(35, 260, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
             if (getPlayer().getTarget() != null) {
-                game.drawText(35, 280, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
+                game.drawText(35, 300, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
             } else {
-                game.drawText(35, 280, "target: null", "Serif", 20);
+                game.drawText(35, 300, "target: null", "Serif", 20);
             }
-            game.drawText(35, 300, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
-            game.drawText(35, 320, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
+            game.drawText(35, 320, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
+            game.drawText(35, 340, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
 
-            double hitboxOffsetX = getCollisionBox().getLocation().getX() + centerOffsetX;
-            double hitboxOffsetY = getCollisionBox().getLocation().getY() + centerOffsetY;
             game.changeColor(Color.RED);
-            game.drawRectangle(hitboxOffsetX, hitboxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            game.drawRectangle(toScreenX(getCollisionBox().getLocation().getX()), toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth(), getCollisionBox().getHeight());
+        }
+
+        if (game.getActiveLevel().isEditMode()) {
+            game.getEditor().render(this);
         }
     }
     public void renderFX(){
@@ -276,15 +296,91 @@ public class Camera {
 
         if (game.imageBank.get("overlay") != null) {
             //System.out.println("Draw bg");
-            game.drawImage(game.imageBank.get("overlay"), 0, 0, game.width(), game.height());
+            game.drawImage(game.imageBank.get("overlay").getImage(), 0, 0, game.width(), game.height());
         }
     }
 
     private void renderBackground() {
         if (game.imageBank.get("background") != null) {
             //System.out.println("Draw bg");
-            game.drawImage(game.imageBank.get("background"), 0, 0, game.width(), game.height());
+            Texture bg = game.imageBank.get("background");
+            game.drawImage(bg.getImage(), 0, 0, game.width(), game.height());
         }
+
+        drawParallaxImage(game.imageBank.get("midground"), 0.5);
+        drawParallaxImage(game.imageBank.get("foreground"), 0.85);
+    }
+
+    private void drawParallaxImage(Texture bg, double paraZoom) {
+        if (bg != null) {
+            //System.out.println("Draw bg");
+            double scaleX = game.getActiveLevel().getActualWidth() / bg.getWidth(); //remember to do this only once somewhere else
+            double scaleY = game.getActiveLevel().getActualHeight() / bg.getHeight();
+            System.out.println("Level Width: " + game.getActiveLevel().getActualWidth());
+            System.out.println("Level Height: " + game.getActiveLevel().getActualHeight());
+            System.out.println("Background Width: " + bg.getWidth());
+            System.out.println("Background Height: " + bg.getHeight());
+            System.out.println("\nScale X: " + scaleX);
+            System.out.println("Scale Y: " + scaleY);
+
+            double camBotLeftX = getCollisionBox().getLocation().getX();
+            double camBotLeftY = getCollisionBox().getLocation().getY();
+            double camTopRightX = getCollisionBox().getCorner().getX();
+            double camTopRightY = getCollisionBox().getCorner().getY();
+
+
+            System.out.println("X (bot left): " + camBotLeftX + " / " + scaleX + " = " + ((int) (camBotLeftX / scaleX)));
+            System.out.println("Y (bot left): " + camBotLeftY + " / " + scaleY + " = " + ((int) (camBotLeftY / scaleY)));
+            System.out.println("X (top right): " + camTopRightX + " / " + scaleX + " = " + ((int) (camTopRightX / scaleX)));
+            System.out.println("Y (top right): " + camTopRightY + " / " + scaleY + " = " + ((int) (camTopRightY / scaleY)));
+
+            camBotLeftX = (0 + ((0 + camBotLeftX) * paraZoom)) / scaleX;
+            camBotLeftY = (0 + ((0 + camBotLeftY) * paraZoom)) / scaleY;
+            camTopRightX = (game.getActiveLevel().getActualWidth() - ((game.getActiveLevel().getActualWidth() - camTopRightX) * paraZoom)) / scaleX;
+            camTopRightY = (game.getActiveLevel().getActualHeight() - ((game.getActiveLevel().getActualHeight() - camTopRightY) * paraZoom)) / scaleY;
+
+            int width = (int) ((camTopRightX - camBotLeftX));
+            int height = (int) ((camTopRightY - camBotLeftY));
+
+            game.drawImage(bg.getImage().getSubimage((int) camBotLeftX, (int) camBotLeftY, width, height), 0, 0, game.width(), game.height());
+        }
+
+        /*
+        if (texture != null) {
+            //System.out.println("Draw bg");
+
+            double scaleX = game.getActiveLevel().getActualWidth() / (texture.getWidth());
+            double scaleY = game.getActiveLevel().getActualHeight() / (texture.getHeight());
+
+            Location bgPoint1 = new Location(getPoint1().getX() / scaleX, getPoint1().getY() / scaleY);
+            Location bgPoint2 = new Location(getPoint2().getX() / scaleX, getPoint2().getY() / scaleY);
+            double xDiff = bgPoint2.getX() - bgPoint1.getX();
+            double yDiff = bgPoint2.getY() - bgPoint1.getY();
+
+            double bgPosX = bgPoint1.getX() / zoom;
+            double bgPosY = bgPoint1.getY() / zoom;
+            bgPosX /= zoom;
+            bgPosY /= zoom;
+            xDiff *= zoom;
+            yDiff *= zoom;
+
+            if (bgPosX < 0 || bgPosX > texture.getWidth()) {
+                bgPosX = 0;
+            }
+            if (bgPosY < 0 || bgPosY > texture.getHeight()) {
+                bgPosY = 0;
+            }
+
+            if (xDiff < 0 || xDiff > texture.getWidth()) {
+                xDiff = texture.getWidth();
+            }
+
+            if (yDiff < 0 || yDiff > texture.getHeight()) {
+                yDiff = texture.getHeight();
+            }
+
+            game.drawImage(texture.getImage().getSubimage((int) bgPosX, (int) bgPosY, (int) xDiff, (int) yDiff), 0, 0, game.width(), game.height());
+        }*/
     }
 
     public Player getPlayer() {
@@ -320,5 +416,38 @@ public class Camera {
         game.drawSolidRectangle(xPos,yPos, barSize, 15);
         game.changeColor(Color.darkGray);
         game.drawSolidRectangle(xPos + barSize,yPos, 100 - barSize, 15);
+    }
+
+    public Location getFocusPoint() {
+        return focusPoint;
+    }
+
+    public void setFocusPoint(Location loc) {
+        if (focusPoint == null) {
+            focusPoint = new Location(0, 0);
+        }
+
+        this.focusPoint.setX(loc.getX());
+        this.focusPoint.setY(loc.getY());
+    }
+
+    public GameObject getFocusObject() {
+        return focusObj;
+    }
+
+    public void setFocusObject(GameObject object) {
+        this.focusObj = object;
+    }
+
+    public double getZoom() {
+        return zoom;
+    }
+
+    public double toScreenX(double worldX) {
+        return worldX - loc.getX();
+    }
+
+    public double toScreenY(double worldY) {
+        return worldY - loc.getY();
     }
 }

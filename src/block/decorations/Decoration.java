@@ -1,80 +1,65 @@
 package block.decorations;
 
+import level.Level;
 import main.*;
 
 import java.awt.*;
 
-public class Decoration {
+public class Decoration extends GameObject {
 
     private DecorationTypes type;
-    private double scale;
-    private double width, height;
-    private CollisionBox collisionBox;
-    private Location loc;
 
-    public Decoration(DecorationTypes type, Location loc, double width, double height) {
+    public Decoration(Level level, Location loc, DecorationTypes type) {
+        super(level, loc);
         this.type = type;
-        this.loc = loc;
         setScale(type.getScale());
-        this.width = width;
-        this.height = height;
 
-        this.collisionBox = new CollisionBox(getLocation().getX(), getLocation().getY() - getHeight() + Game.BLOCK_SIZE, getWidth(), getHeight());
-    }
-
-    public void update(double dt) {
-        //
+        setCollisionBox(new CollisionBox(getLocation().getX(), getLocation().getY() - getHeight() + Game.BLOCK_SIZE, getWidth(), getHeight()));
     }
 
     public void render(Camera cam) {
-        double decoOffsetX = getLocation().getX() + cam.centerOffsetX;
-        double decoOffsetY = getLocation().getY() + cam.centerOffsetY;
-
-        cam.game.drawImage(getImage(cam.game), decoOffsetX, decoOffsetY - getHeight() + Game.BLOCK_SIZE, getWidth(), getHeight());
+        cam.game.drawImage(getFrame().getImage(), cam.toScreenX(getLocation().getX()), (cam.toScreenY(getLocation().getY()) - getHeight() + Game.BLOCK_SIZE) * cam.getZoom(), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
 
         if (cam.debugMode) {
-            double hitboxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
-            double hitboxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
             cam.game.changeColor(Color.GREEN);
-            cam.game.drawRectangle(hitboxOffsetX, hitboxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            cam.game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
         }
+    }
+
+    public Texture getFrame() {
+        return getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase());
     }
 
     public DecorationTypes getType() {
         return type;
     }
 
-    public Image getImage(Game game) {
-        return game.getTexture(getType().toString());
-    }
-
-    public CollisionBox getCollisionBox() {
-        return collisionBox;
-    }
-
-    public void setCollisionBox(CollisionBox box) {
-        this.collisionBox = box;
-    }
-
-    public double getScale() {
-        return scale;
-    }
-
-    public void setScale(double scale) {
-        this.scale = scale;
-    }
-
+    @Override
     public double getWidth() {
-        return width * getScale();
+        return getFrame().getWidth() * getScale();
     }
 
+    @Override
     public double getHeight() {
-        return height * getScale();
+        return getFrame().getHeight() * getScale();
     }
 
-    public Location getLocation() {
-        return loc;
+    @Override
+    public void updateCollisionBox() {
+        this.getCollisionBox().setLocation(getLocation().getX(), getLocation().getY() - getHeight() + Game.BLOCK_SIZE);
+        this.getCollisionBox().setSize(getWidth(), getHeight());
     }
 
+    @Override
+    public void setActive(boolean isActive) {
+        super.setActive(isActive);
 
+        if (!isActive()) {
+            for (FakeLightSpot light : getLevel().getSpotLights()) {
+                if (light.getParent().equals(this)) {
+                    light.setActive(false);
+                }
+            }
+        }
+    }
 }

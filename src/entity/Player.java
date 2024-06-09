@@ -4,9 +4,7 @@ import block.BlockClimbable;
 import block.BlockTypes;
 import level.Level;
 import level.ParticleTypes;
-import main.Camera;
-import main.Game;
-import main.Location;
+import main.*;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -25,43 +23,29 @@ public class Player extends EntityLiving {
     private boolean isJumping;
     private boolean hasKey;
 
-    private Timer runAnimationTimer;
-    private int runFrameIndex;
+    private double keyPressTimer;
+    private double KEY_PRESS_COOLDOWN = 0.05;
 
-    public Timer jumpAnimationTimer;
-    private int jumpFrameIndex;
     private double timeJumping;
-    private double maxJumpTime = 0.20;
-    public static int score;//seconds
+    private double maxJumpTime = 0.25;
 
     private double runParticleTimer;
     private double RUN_PARTICLE_FREQUENCY = 0.075;
-    private Clip runningSound;
-
-    Image gifImage;
-    Image plantAttack;
-    Image gifImage2;
-    Image level1;
+    private int coins;
 
     public Player(Level level, Location loc) {
-        super(EntityType.PLAYER, level, loc, 19, 29);
+        super(EntityType.PLAYER, level, loc);
 
         setHitboxColor(Color.cyan);
+        setAttackCooldown(0.5);
         setMaxHealth(100);
         setDamage(5);
         setHealth(getMaxHealth());
         setDirectionY(1);
-        initRunningSound();
         init();
     }
 
     public void init() {
-        gifImage = Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif");
-        plantAttack = Toolkit.getDefaultToolkit().createImage("resources/images/plantAttack.gif");
-
-        gifImage2 = Toolkit.getDefaultToolkit().createImage("resources/images/keyy.gif");
-        level1 = Toolkit.getDefaultToolkit().createImage("resources/images/level1.gif");
-
         setHitSound(getLevel().getManager().getEngine().loadAudio("resources/sounds/hitSound.wav"));
         setAttackSound(getLevel().getManager().getEngine().loadAudio("resources/sounds/attackSound.wav"));
 
@@ -70,25 +54,17 @@ public class Player extends EntityLiving {
         this.healthBar.setForeground(Color.RED); // Set the color
         this.healthBar.setValue(getMaxHealth()); // Set initial health
         this.healthBar.setStringPainted(true); // Show health value
-
-        this.runAnimationTimer = new Timer(100, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                runFrameIndex = (runFrameIndex + 1) % 4;
-            }
-        });
-
-        this.jumpAnimationTimer = new Timer(75, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (jumpFrameIndex < 3) {
-                    jumpFrameIndex++;
-                }
-            }
-        });
     }
 
     public void update(double dt) {
         super.update(dt);
-        animateCharacter();
+        if (keyPressTimer < KEY_PRESS_COOLDOWN) {
+            keyPressTimer += 1 * dt;
+        } else {
+            //System.out.println("Test");
+            keyPressTimer = 0;
+        }
+
         if (runParticleTimer < RUN_PARTICLE_FREQUENCY) {
             runParticleTimer += 1 * dt;
         }
@@ -103,25 +79,6 @@ public class Player extends EntityLiving {
 
                 getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY() + 48, partVelX, partVelY);
                 runParticleTimer = 0;
-            }
-        }
-        checkGoldCoinCollisions(getLevel().getManager().getEngine());
-    }
-
-    public void incrementScore(){
-        //score += 10;
-    }
-
-    // New method to check for collisions with gold coins
-    public void checkGoldCoinCollisions(Game game) {
-        ArrayList<Entity> entities = getLevel().getEntities();
-        for (Entity entity : entities) {
-            if (entity instanceof goldCoin) {
-                goldCoin coin = (goldCoin) entity;
-                if (!coin.isCollected() && getCollisionBox().collidesWith(coin.getCollisionBox())) {
-                    coin.collect();
-                    incrementScore(); // Increment score by 1 for each coin collected
-                }
             }
         }
     }
@@ -155,14 +112,16 @@ public class Player extends EntityLiving {
             return;
         }
 
-        if (isFalling() && !canClimb()) {
-            if (fallAccel > 0) {
-                fallAccel *= fallSpeedMultiplier;
-                setDirectionY(1 * fallAccel);
+        if (!getLevel().isEditMode()) {
+            if (isFalling() && !canClimb()) {
+                if (fallAccel > 0) {
+                    fallAccel *= fallSpeedMultiplier;
+                    setDirectionY(1 * fallAccel);
+                }
+            } else {
+                fallAccel = 1;
+                setDirectionY(0);
             }
-        } else {
-            fallAccel = 1;
-            setDirectionY(0);
         }
     }
 
@@ -176,8 +135,8 @@ public class Player extends EntityLiving {
 
     @Override
     public void render(Camera cam) {
-        double playerOffsetX = getLocation().getX() + cam.centerOffsetX;
-        double playerOffsetY = getLocation().getY() + cam.centerOffsetY;
+        double playerOffsetX = cam.toScreenX(getLocation().getX());
+        double playerOffsetY = cam.toScreenY(getLocation().getY());
         Game game = getLevel().getManager().getEngine();
 
         if (isAttacking()) {
@@ -185,81 +144,88 @@ public class Player extends EntityLiving {
             playerOffsetY = playerOffsetY - 8;
         }
 
-        game.drawImage(getActiveFrame(), playerOffsetX, playerOffsetY, getWidth(), getHeight());
+        game.drawImage(getActiveFrame().getImage(), playerOffsetX * cam.getZoom(), playerOffsetY * cam.getZoom(), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
 
         if (cam.debugMode) {
             game.changeColor(Color.magenta);
 
             if (getBlockBelowEntityLeft() != null) {
-                game.drawRectangle(getBlockBelowEntityLeft().getLocation().getX() + cam.centerOffsetX, getBlockBelowEntityLeft().getLocation().getY() + cam.centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+                game.drawRectangle((getBlockBelowEntityLeft().getLocation().getX() + cam.centerOffsetX) * cam.getZoom(), (getBlockBelowEntityLeft().getLocation().getY() + cam.centerOffsetY) * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom());
             }
 
             if (getBlockBelowEntityRight() != null) {
-                game.drawRectangle(getBlockBelowEntityRight().getLocation().getX() + cam.centerOffsetX, getBlockBelowEntityRight().getLocation().getY() + cam.centerOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+                game.drawRectangle((getBlockBelowEntityRight().getLocation().getX() + cam.centerOffsetX) * cam.getZoom(), (getBlockBelowEntityRight().getLocation().getY() + cam.centerOffsetY) * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom());
             }
 
-            double hitBoxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
-            double hitBoxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
             game.changeColor(getHitboxColor());
-            game.drawRectangle(hitBoxOffsetX, hitBoxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
         }
     }
 
     public void jump() {
         this.isJumping = true;
-        this.jumpFrameIndex = 0;
-        this.jumpAnimationTimer.start();
+        this.getJumpFrame().setFrameIndex(0);
         this.timeJumping = 0;
     }
 
-    private void initRunningSound() {
-        try {
-            File soundFile = new File("resources/sounds/runningSound.wav");
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
-            runningSound = AudioSystem.getClip();
-            runningSound.open(audioInputStream);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void playerMovement(Set<Integer> keysPressed) {
+        if (keyPressTimer >= KEY_PRESS_COOLDOWN) {
+            if (keysPressed.contains(32)) {//SPACE
+                if (!isJumping() && !isAttacking() && (isOnGround() || canClimb() || getLevel().isEditMode())) {
+                    jump();
+                }
+            }
+            if (keysPressed.contains(87)) {//W
+                if (canClimb() && getBlockAtLocation(0, -1).getType() != BlockTypes.VOID) {
+                    setDirectionY(-1);
+                }
+            }
+            if (keysPressed.contains(65)) {//A
+                setDirectionX(-calculateHorizontalMovement());
+            }
+            if (keysPressed.contains(83)) {//S
+                if (canClimb() || getLevel().isEditMode()) {
+                    setDirectionY(1);
+                }
+            }
+            if (keysPressed.contains(68)) {//D
+                setDirectionX(calculateHorizontalMovement());
+            }
+            if (keysPressed.contains(81)) {
+                if (getAttackTicks() >= getAttackCooldown()) {
+                    if (getAttackSound() != null) {
+                        getLevel().getManager().getEngine().playAudio(getAttackSound());
+                    }
+                    getAttackFrame().setFrameIndex(0);
+                    setAttackTicks(0);
+
+                    findTarget();
+
+                    if (getTarget() != null) {
+                        attack();
+                    }
+                }
+            }
+            keyPressTimer = 0;
         }
     }
 
-    public void playerMovement(Set<Integer> keysPressed) {
-        if (keysPressed.contains(32)) {//SPACE
-            if (!isJumping() && !isAttacking() && (isOnGround() || canClimb())) {
-                jump();
+    @Override
+    public void findTarget() {
+        for (Entity entity : getLevel().getEntities()) {
+            if (!entity.isActive()) {
+                continue;
             }
-        }
-        if (keysPressed.contains(87)) {//W
-            if (canClimb() && getBlockAtLocation(0, -1).getType() != BlockTypes.VOID) {
-                setDirectionY(-1);
+
+            if (entity instanceof EntityLiving && entity.getType() != this.getType()) {
+                if (getCollisionBox().collidesWith(entity.getCollisionBox())) {
+                    setTarget((EntityLiving) entity);
+                    return;
+                }
             }
-        }
-        if (keysPressed.contains(65)) {//A
-            setDirectionX(-calculateHorizontalMovement());
-        }
-        if (keysPressed.contains(83)) {//S
-            if (canClimb()) {
-                setDirectionY(1);
-            }
-        }
-        if (keysPressed.contains(68)) {//D
-            setDirectionX(calculateHorizontalMovement());
-        }
-        if (keysPressed.contains(81) && canAttack()){
-            attack();
         }
 
-        // Play running sound only when moving horizontally and on the ground
-        if ((keysPressed.contains(65) || keysPressed.contains(68)) && isOnGround()) {
-            if (!runningSound.isRunning()) {
-                runningSound.loop(Clip.LOOP_CONTINUOUSLY); // Start playing the running sound
-            }
-        } else {
-            // Stop running sound when A or D key is released or player is not on the ground
-            if (runningSound.isRunning()) {
-                runningSound.stop();
-            }
-        }
+        setTarget(null);
     }
 
     public JProgressBar getHealthBar() {
@@ -272,7 +238,7 @@ public class Player extends EntityLiving {
             return 50 * getScale();
         }
 
-        return ((BufferedImage) getIdleFrame()).getWidth() * getScale();
+        return getIdleFrame().getWidth() * getScale();
     }
 
     @Override
@@ -281,7 +247,12 @@ public class Player extends EntityLiving {
             return 37 * getScale();
         }
 
-        return ((BufferedImage) getIdleFrame()).getHeight() * getScale();
+        return getIdleFrame().getHeight() * getScale();
+    }
+
+    @Override
+    public void kill() {
+        getLevel().reset();
     }
 
     public double calculateHorizontalMovement() {
@@ -296,90 +267,60 @@ public class Player extends EntityLiving {
         return 1;
     }
 
-    private void animateCharacter() {
-        if (isMovingHorizontally() && !isMovingVertically()) {
-            if (!this.runAnimationTimer.isRunning()) {
-                this.runAnimationTimer.start();
-            }
-        } else {
-            this.runAnimationTimer.stop();
-        }
+    public Texture getRunFrame() {
+        return getLevel().getManager().getEngine().getTexture("player_run");
     }
 
-    public Image getRunFrame() {
-        if (!isFlipped()) {
-            return getLevel().getManager().getEngine().flipImageHorizontal(getLevel().getManager().getEngine().getTexture("player_run_" + runFrameIndex));
-        }
-
-        return getLevel().getManager().getEngine().getTexture("player_run_" + runFrameIndex);
+    public Texture getFallFrame() {
+        return getLevel().getManager().getEngine().getTexture("player_fall");
     }
 
-    public Image getFallFrame() {
-        if (!isFlipped()) {
-            return getLevel().getManager().getEngine().flipImageHorizontal(getLevel().getManager().getEngine().getTexture("player_jump_3"));
-        }
-
-        return getLevel().getManager().getEngine().getTexture("player_jump_3");
-    }
-
-    public Image getJumpFrame() {
-        if (!isFlipped()) {
-            return getLevel().getManager().getEngine().flipImageHorizontal(getLevel().getManager().getEngine().getTexture("player_jump_" + jumpFrameIndex));
-        }
-
-        return getLevel().getManager().getEngine().getTexture("player_jump_" + jumpFrameIndex);
+    public TextureAnimated getJumpFrame() {
+        return (TextureAnimated) getLevel().getManager().getEngine().getTexture("player_jump");
     }
 
     @Override
-    public Image getActiveFrame() {
+    public Texture getActiveFrame() {
+        Texture texture = getIdleFrame();
+
         if (isAttacking()) {
-            return getAttackFrame();
+            texture = getAttackFrame();
         } else if (isJumping()) {
-            return getJumpFrame();
+            texture = getJumpFrame();
         } else if (isFalling()) {
-            return getFallFrame();
+            texture = getFallFrame();
         } else if (isMovingHorizontally()) {
-            return getRunFrame();
+            texture = getRunFrame();
         }
 
-        return getIdleFrame();
-    }
+        texture.setFlipped(!isFlipped());
 
-    public Image getAttackFrame(){
-        return getLevel().getManager().getEngine().getTexture("player_attack");
-     }
-
-    public void handleDeath() {
-        score /= 2;
-        if(score < 0){
-            score = 0;
-        }
-    }
-
-
-    @Override
-    public Enemy getTarget() {
-        for (Entity enemy : getLevel().getEntities()) {
-            if (!enemy.isActive()) {
-                continue;
-            }
-
-            if (enemy instanceof Enemy) {
-                double midX = getLocation().getX() + (getWidth() / 2);
-                if (Math.abs(Location.calculateDistance(enemy.getLocation().getX() + (enemy.getWidth() / 2), enemy.getLocation().getY(), midX, getLocation().getY())) < 64) {
-                    return (Enemy) enemy;
-                }
-            }
-        }
-
-        return null;
+        return texture;
     }
 
     public boolean canClimb() {
         return getBlockAtLocation() instanceof BlockClimbable;
     }
 
-    public int getScore() {
-        return score;
+    public int getCoins() {
+        return coins;
     }
+
+    public void setCoins(int coins) {
+        this.coins = coins;
+    }
+
+    public void incrementCoins(int amount) {
+        this.coins += amount;
+    }
+
+    @Override
+    public int getHealth() {
+        if (getLevel().isEditMode()) {
+            return getMaxHealth();
+        }
+
+        return health;
+    }
+
 }

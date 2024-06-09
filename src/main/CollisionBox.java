@@ -26,6 +26,8 @@ public class CollisionBox {
     public void setLocation(double locX, double locY) {
         this.getLocation().setX(locX);
         this.getLocation().setY(locY);
+        this.corner.setX(getLocation().getX() + getWidth());
+        this.corner.setY(getLocation().getY() + getHeight());
     }
 
     public Location getCorner() {

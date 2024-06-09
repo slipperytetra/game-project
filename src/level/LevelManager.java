@@ -19,6 +19,10 @@ public class LevelManager {
     public Level LEVEL_3;
     public Level LEVEL_4;
     public Level FOREST;
+    public Level FOREST_2;
+    public Level NAP;
+    public Level CAMERA;
+    public Level SMALL;
 
     public LevelManager(Game engine) {
         this.engine = engine;
@@ -34,6 +38,10 @@ public class LevelManager {
         LEVEL_3 = new Level(this, 2, "resources/levels/level_demo3.txt");
         LEVEL_4 = new Level(this,3,"resources/levels/level4.txt");
         FOREST = new Level(this,4,"resources/levels/level_forest.txt");
+        FOREST_2 = new Level(this,4,"resources/levels/level_forest_2.txt");
+        NAP = new Level(this,4,"resources/levels/nap_level.txt");
+        CAMERA = new Level(this,4,"resources/levels/level_camera.txt");
+        SMALL = new Level(this,4,"resources/levels/level_small.txt");
 
 
         levels.put("level_demo", DEMO);
@@ -41,6 +49,10 @@ public class LevelManager {
         levels.put("level_demo3", LEVEL_3);
         levels.put("level4", LEVEL_4);
         levels.put("forest", FOREST);
+        levels.put("forest_2", FOREST_2);
+        levels.put("nap", NAP);
+        levels.put("camera", CAMERA);
+        levels.put("small", SMALL);
 
         /*
          *  This is for adding text to the level. You set the x and y coordinates where it should show.

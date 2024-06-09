@@ -5,7 +5,6 @@ import block.decorations.*;
 import entity.*;
 import main.*;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,31 +19,37 @@ public class Level {
     private int textCounter;
     private final String levelDoc;
     private int currentLine;
+    public int maxLines;
+    public int loadCompletion;
+    public boolean isEditMode;
 
     private String name;
     private String nextLevel;
     private String overlay;
     private String backgroundImgFilePath;
+    private String midgroundImgFilePath;
+    private String foregroundImgFilePath;
     private String backgroundmusicFilePath;
     private GameEngine.AudioClip backgroundMusic;
 
-    private BlockGrid grid;
+    public BlockGrid grid;
     private LevelManager manager;
 
     private Location spawnPoint;
     private Location keyLoc;
     private Location doorLoc;
 
-    private ArrayList<Decoration> decorations;
-    private ArrayList<FakeLightSpot> spotLights;
-    private ArrayList<Entity> entities;
-    private ArrayList<Particle> particles;
+    private HashSet<Decoration> decorations;
+    private HashSet<FakeLightSpot> spotLights;
+    private HashSet<Entity> entities;
+    private HashSet<Particle> particles;
     private ArrayList<String> lines;
+    private ArrayList<String> levelData;
 
     private HashMap<Integer, TextMessage> textMessages;
-    private HashMap<Character, BlockTypes> blockKeyMap;
-    private HashMap<Character, EntityType> entityKeyMap;
-    private HashMap<Character, DecorationTypes> decorationKeyMap;
+    public HashMap<Character, BlockTypes> blockKeyMap;
+    public HashMap<Character, EntityType> entityKeyMap;
+    public HashMap<Character, DecorationTypes> decorationKeyMap;
 
     /*
     *   The purpose of the level class is to extract and store data from level.txt files.
@@ -60,31 +65,29 @@ public class Level {
         this.id = id;
         this.levelDoc = levelDoc;
         this.lines = new ArrayList<>();
-        this.entities = new ArrayList<>();
-        this.decorations = new ArrayList<>();
-        this.spotLights = new ArrayList<>();
-        this.particles = new ArrayList<>();
+
+        this.entities = new HashSet<>();
+        this.decorations = new HashSet<>();
+        this.spotLights = new HashSet<>();
+        this.particles = new HashSet<>();
+
+        this.levelData = new ArrayList<>();
         this.textMessages = new HashMap<>();
 
         this.blockKeyMap = new HashMap<>();
+        blockKeyMap.put('.', BlockTypes.VOID);
+
         this.entityKeyMap = new HashMap<>();
         this.decorationKeyMap = new HashMap<>();
-
-        init();
     }
 
     public void init() {
         File file = new File(levelDoc);
         try {
             Scanner fileReader = new Scanner(file);
-            int lineNum = 0;
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine();
                 lines.add(line.replaceAll(" ", "").replaceAll(":", "").replaceAll("\\[", "").replaceAll("\\]", ""));
-                if (line.contains("keymap:")) {
-                    sizeHeight = lineNum - 8;
-                }
-                lineNum++;
             }
         } catch (FileNotFoundException e) {
             System.out.println("Couldn't locate file!");
@@ -94,85 +97,98 @@ public class Level {
 
         name = lines.get(0).substring("name".length());
         backgroundImgFilePath = lines.get(1).substring("background".length());
-        backgroundmusicFilePath = lines.get(2).substring("background_music".length());
-        overlay = lines.get(3).substring("overlay".length());
-        nextLevel = lines.get(4).substring("next_level".length());
+        midgroundImgFilePath = lines.get(2).substring("midground".length());
+        foregroundImgFilePath = lines.get(3).substring("foreground".length());
+        backgroundmusicFilePath = lines.get(4).substring("background_music".length());
+        overlay = lines.get(5).substring("overlay".length());
+        nextLevel = lines.get(6).substring("next_level".length());
+        //+2 to skip over level_data
 
         currentLine = 8;
+        sizeHeight = 0;
+        while (!lines.get(sizeHeight + currentLine).contains("keymap")) {
+            String line = lines.get(sizeHeight + currentLine);
+            levelData.add(line);
+            sizeHeight++;
+        }
+
         for (int i = currentLine; i < sizeHeight; i++) {
             sizeWidth = Math.max(sizeWidth, lines.get(i).length());
         }
-        this.grid = new BlockGrid(sizeWidth, sizeHeight);
+
+        //System.out.println("W/L: " + sizeWidth + ", " + sizeHeight);
+        this.grid = new BlockGrid(this, sizeWidth, sizeHeight);
+        this.maxLines = lines.size();
     }
 
     public void load() {
+        loadCompletion = 0;
         System.out.println("Loading level '" + getName() + "'");
-        int relY = 0;
-        for (int y = currentLine + sizeHeight; y < lines.size(); y++) { // Assign character codes to types
+        for (int y = currentLine + 1 + sizeHeight; y < lines.size(); y++) { // Assign character codes to types
             String line = lines.get(y);
             char key = line.charAt(0);
             String type = line.substring(1);
             assignKeyToMap(key, type);
+            loadCompletion++;
         }
 
-        for (int y = currentLine; y < sizeHeight + currentLine; y++) { // Place objects into the world via BlockGrid and lists
-            String line = lines.get(y);
+        int y = 0;
+        for (String line : levelData) { // Place objects into the world via BlockGrid and lists
+            //System.out.println(line);
             for (int x = 0; x < line.length(); x++) {
                 char key = line.charAt(x);
                 double spawnX = x * Game.BLOCK_SIZE;
-                double spawnY = relY * Game.BLOCK_SIZE;
+                double spawnY = y * Game.BLOCK_SIZE;
                 Location spawnLoc = new Location(spawnX, spawnY);
 
                 if (blockKeyMap.containsKey(key)) {
                     BlockTypes type = blockKeyMap.get(key);
-                    Block block = new BlockSolid(blockKeyMap.get(key), spawnLoc);
-                    if (type == BlockTypes.VOID) {
-                        block = new BlockVoid(spawnLoc);
+                    Block block = new Block(this, spawnLoc, blockKeyMap.get(key));
+                    if (type == BlockTypes.FOREST_GROUND) {
+                        block = new BlockSet(this, spawnLoc, BlockTypes.FOREST_GROUND);
                     } else if (type == BlockTypes.LADDER) {
-                        block = new BlockClimbable(type, spawnLoc);
-                    }else if (type == BlockTypes.ROPE) {
-                        block = new BlockClimbable(type, spawnLoc);
+                        block = new BlockClimbable(this, spawnLoc, type);
+                    } else if (type == BlockTypes.ROPE) {
+                        block = new BlockClimbable(this, spawnLoc, type);
                     } else if (type == BlockTypes.WATER_TOP) {
-                        block = new BlockLiquid(type, spawnLoc);
+                        block = new BlockLiquid(this, spawnLoc, type);
                     } else if (type == BlockTypes.WATER_BOTTOM) {
-                        block = new BlockLiquid(type, spawnLoc);
+                        block = new BlockLiquid(this, spawnLoc, type);
                     } else if (type == BlockTypes.LAVA) {
-                        block = new BlockLiquid(type, spawnLoc);
+                        block = new BlockLiquid(this, spawnLoc, type);
+                    } else if (type == BlockTypes.PLAYER_SPAWN) {
+                        block = new BlockSpawnPoint(this, spawnLoc);
+                        spawnPoint = new Location(block.getLocation());
                     }
 
-                    grid.setBlock(x, relY, block);
+                    //System.out.println("Set block at " + x + ", " + y + " to " + block.getType().toString());
+                    grid.setBlock(x, y, block);
                 }
 
                 if (entityKeyMap.containsKey(key)) {
                     EntityType type = entityKeyMap.get(key);
                     Entity entity = null;
-                    if (type == EntityType.PLAYER) {
-                        player = new Player(this, spawnLoc);
-                        double heightDiff = player.getLocation().getY() - (player.getHeight() - Game.BLOCK_SIZE);
-                        spawnPoint = new Location(player.getLocation().getX(), heightDiff);
-                        player.setLocation(player.getLocation().getX(), heightDiff);
-                    } else if (type == EntityType.DOOR) {
+                    //System.out.println("Checking for '" + type.toString() + "'");
+                    if (type == EntityType.DOOR) {
+                        System.out.println("Found");
                         doorLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
-                        entity = new Door(this, spawnLoc);
+                        System.out.println("Loc");
+                        Door door = new Door(this, spawnLoc);
+                        entity = door;
+                        System.out.println("Assigned");
                     } else if (type == EntityType.HEART) {
-                        entity = new Heart(this, spawnLoc);
+                        entity = new ItemHeart(this, spawnLoc);
+                    } else if (type == EntityType.GOLD_COIN) {
+                        entity = new ItemGoldCoin(this, spawnLoc);
                     } else if (type == EntityType.PLANT_MONSTER) {
                         entity = new EnemyPlant(this, spawnLoc);
                     } else if (type == EntityType.KEY) {
                         keyLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
-                        entity = new Key(this, spawnLoc);
-                    } else if (type == EntityType.SKULL_HEAD) {
-                        SkullHead skullHead = new SkullHead(this, spawnLoc);
-                        addEntity(skullHead);
-                    } else if (type == EntityType.GOLD_COIN) {
-                        goldCoin coin = new goldCoin(this, spawnLoc);
-                        addEntity(coin);
-                    } else if (type == EntityType.BEE) {
-                        Bee bee = new Bee(this, spawnLoc);
-                        addEntity(bee);
+                        entity = new ItemKey(this, spawnLoc);
                     }
 
                     if (entity != null) {
+                        //System.out.println("Spawning '" + type.toString() + "'");
                         double heightDiff = entity.getLocation().getY() - (entity.getCollisionBox().getHeight() - Game.BLOCK_SIZE);
                         entity.setLocation(entity.getLocation().getX(), heightDiff);
                         addEntity(entity);
@@ -183,15 +199,32 @@ public class Level {
                     DecorationTypes type = decorationKeyMap.get(key);
                     addDecoration(type, spawnLoc);
                 }
+
             }
 
-            relY++;
+            y++;
+            loadCompletion++;
         }
+
+        player = new Player(this, getSpawnPoint().clone());
+        double heightDiff = getSpawnPoint().getY() - (player.getHeight() - Game.BLOCK_SIZE);
+        getSpawnPoint().setY(heightDiff);
+        player.setLocation(getSpawnPoint().getX(), getSpawnPoint().getY());
+
+        grid.applySets();
+        grid.applySets();
+
         if (!backgroundImgFilePath.isEmpty()) {
-            getManager().getEngine().imageBank.put("background", Toolkit.getDefaultToolkit().createImage(backgroundImgFilePath));
+            getManager().getEngine().imageBank.put("background", new Texture((BufferedImage) getManager().getEngine().loadImage(backgroundImgFilePath)));
+        }
+        if (!midgroundImgFilePath.isEmpty()) {
+            getManager().getEngine().imageBank.put("midground", new Texture((BufferedImage) getManager().getEngine().loadImage(midgroundImgFilePath)));
+        }
+        if (!foregroundImgFilePath.isEmpty()) {
+            getManager().getEngine().imageBank.put("foreground", new Texture((BufferedImage) getManager().getEngine().loadImage(foregroundImgFilePath)));
         }
         if (!overlay.isEmpty()) {
-            getManager().getEngine().imageBank.put("overlay", Toolkit.getDefaultToolkit().createImage(overlay));
+            getManager().getEngine().imageBank.put("overlay", new Texture((BufferedImage) getManager().getEngine().loadImage(overlay)));
         }
         if (!backgroundmusicFilePath.isEmpty()) {
             backgroundMusic = getManager().getEngine().loadAudio(backgroundmusicFilePath);
@@ -202,16 +235,10 @@ public class Level {
         }
         if (keyLoc == null) {
             System.out.println("Warning: no key location specified.");
-            return;
         }
         if (doorLoc == null) {
             System.out.println("Warning: no door location specified.");
-            return;
         }
-
-        System.out.println("Player: " + player.getLocation().toString());
-        System.out.println("Key: " + keyLoc.toString());
-        System.out.println("Door: " + doorLoc.toString());
 
         if (getBackgroundMusic() != null) {
             getManager().getEngine().startAudioLoop(getBackgroundMusic());
@@ -229,6 +256,7 @@ public class Level {
             Entity entity = iter.next();
             if (entity.isActive()) {
                 if (entity.getCollisionBox().collidesWith(getManager().getEngine().getCamera().getCollisionBox())) {
+                    //System.out.println("Running " + entity.getType().toString() + " update(dt)");
                     entity.update(dt);
                 }
             }
@@ -244,19 +272,31 @@ public class Level {
             }
         }
 
-        for (Decoration deco : getDecorations()) {
-            if (deco.getCollisionBox().collidesWith(getManager().getEngine().getCamera().getCollisionBox())) {
+        Iterator<Decoration> iterDeco = getDecorations().iterator();
+        while (iterDeco.hasNext()) {
+            Decoration deco = iterDeco.next();
+            if (deco.getCollisionBox().collidesWith(getManager().getEngine().getCamera().getCollisionBox()) && deco.isActive()) {
                 deco.update(dt);
+            }
+
+            if (!deco.isActive()) {
+                iterDeco.remove();
             }
         }
 
-        for (FakeLightSpot spotLight : getSpotLights()) {
-            spotLight.update(dt);
+        Iterator<FakeLightSpot> iterLight = getSpotLights().iterator();
+        while (iterLight.hasNext()) {
+            FakeLightSpot spotLight = iterLight.next();
+            if (spotLight.isActive()) {
+                spotLight.update(dt);
+            } else {
+                iterLight.remove();
+            }
         }
     }
 
     public void reset() {
-        getPlayer().setLocation(spawnPoint.getX(), spawnPoint.getY());
+        getPlayer().setLocation(getSpawnPoint().getX(), getSpawnPoint().getY());
         getPlayer().setHealth(getPlayer().getMaxHealth());
         for(Entity entity: getEntities()){
             if(!entity.isActive()){
@@ -280,15 +320,25 @@ public class Level {
     public Location getSpawnPoint() {
         return spawnPoint;
     }
+
+    public void setSpawnPoint(double spawnX, double spawnY) {
+        if (spawnPoint == null) {
+            spawnPoint = new Location(spawnX, spawnY);
+            return;
+        }
+
+        spawnPoint.setX(spawnX);
+        spawnPoint.setY(spawnY);
+    }
     public int getId(){
         return id;
     }
 
-    public ArrayList<Entity> getEntities() {
+    public HashSet<Entity> getEntities() {
         return entities;
     }
 
-    public ArrayList<Particle> getParticles(){
+    public HashSet<Particle> getParticles(){
         return particles;
     }
 
@@ -312,7 +362,7 @@ public class Level {
         return grid;
     }
 
-    public ArrayList<FakeLightSpot> getSpotLights() {
+    public HashSet<FakeLightSpot> getSpotLights() {
         return spotLights;
     }
 
@@ -329,23 +379,18 @@ public class Level {
         textMessages.clear();
     }
 
-    public ArrayList<Decoration> getDecorations() {
+    public HashSet<Decoration> getDecorations() {
         return decorations;
     }
 
-    private void addDecoration(DecorationTypes type, Location loc) {
+    public void addDecoration(DecorationTypes type, Location loc) {
         Decoration deco = null;
         loc.setY(loc.getY() + 1);
-         if (type == DecorationTypes.FIREFLIES){
-            deco = new DecorationGIF(type, loc,200, 200);
+        if (type.hasFallingLeaves()) {
+            deco = new DecorationTree(this, loc, type);
         } else {
-             BufferedImage texture = (BufferedImage) getManager().getEngine().getTexture(type.toString());
-             if (type.hasFallingLeaves()) {
-                 deco = new DecorationTree(type, loc, texture.getWidth(), texture.getHeight(), this);
-             } else {
-                 deco = new Decoration(type, loc, texture.getWidth(), texture.getHeight());
-             }
-         }
+            deco = new Decoration(this, loc, type);
+        }
 
         if (type == DecorationTypes.TALL_GRASS || type == DecorationTypes.FOREST_PLANT_0 || type == DecorationTypes.FOREST_PLANT_1) {
             Random rand = new Random();
@@ -403,5 +448,43 @@ public class Level {
 
     public void setBackgroundMusic(GameEngine.AudioClip backgroundMusic) {
         this.backgroundMusic = backgroundMusic;
+    }
+
+    public double getActualWidth() {
+        return getWidth() * Game.BLOCK_SIZE;
+    }
+
+    public double getActualHeight() {
+        return getHeight() * Game.BLOCK_SIZE;
+    }
+
+    public void setEditMode(boolean isEditMode) {
+        this.isEditMode = isEditMode;
+
+        getManager().getEngine().editingPanel.setVisible(isEditMode());
+    }
+
+    public boolean isEditMode() {
+        return isEditMode;
+    }
+
+    public String getBackgroundImgFilePath() {
+        return backgroundImgFilePath;
+    }
+
+    public String getBackgroundmusicFilePath() {
+        return backgroundmusicFilePath;
+    }
+
+    public String getOverlay() {
+        return overlay;
+    }
+
+    public String getForegroundImgFilePath() {
+        return foregroundImgFilePath;
+    }
+
+    public String getMidgroundImgFilePath() {
+        return midgroundImgFilePath;
     }
 }

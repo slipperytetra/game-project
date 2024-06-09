@@ -21,6 +21,7 @@ public class GameMenu {
         titleLabel.setForeground(Color.BLACK);
         titleLabel.setOpaque(false);
 
+        //TextureAnimated bgTextture = new TextureAnimated();
         ImageIcon backgroundIcon = new ImageIcon("resources/images/bgidea.gif");
         backgroundLabel = new JLabel(backgroundIcon);
         frame.setContentPane(backgroundLabel);

@@ -1,0 +1,101 @@
+name: NAP
+background: resources/images/backgrounds/forest_background.png
+midground: resources/images/backgrounds/forest_midground.png
+foreground: resources/images/backgrounds/forest_foreground.png
+background_music: resources/sounds/jungle_synthetic.wav
+overlay: resources/images/night_filter.png
+next_level: level4
+level_data:
+  [5GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG.............................................................................G.B]
+  [GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG.............................................................).................G.B]
+  [GGGGGGGGGGGGGGGGGGGGGGGGGGG....................................................................CC5G................R.B]
+  [GGGGGGGGGGGGGGGGGGGGGGGGGR.............................................................#$E.E.H.CCGGCCQ.............R.B]
+  [GGGGGGGGGGGGGGGGGGGG.....R............................................................5GGGGGGGGGGGGCC.jjj....E$#$..R.B]
+  [GGGGGGGGGGGGGG...........R.....C...C...C...C...C...C..................................R..GGGGGGGGGGGGGGGGG..5GGGGG.R.B]
+  [GGGGGGGGGGGG.............R...a...#$#.##.$##$..#$$$..$$#.....G.....5G.............a....R..........GGGGGGGGGWWGGGGG..R.B]
+  [GGGGGGGGGG...............R...5GGGGGGGGGGGGGGGGGGGGGGGGGG..........G.....5GG.....5GGG..R..........GG......GGGG..R...R.B]
+  [GGGGGGG..................R......GGGGGGGGGGGGGGGGGGGGGGGG................GGG......GG...R........Q.GG.Q..........R.C.R.B]
+  [B.R......................R............................GGWWWWWWWWWWWWWW...........RC...R..........GG............R.C.R.B]
+  [B.R......................R............................GGGGGGGGGGGGGGGGWWWWWWW....R............5GGGG............R.....B]
+  [B.R......................R...........................................GGGGGGGG....RC...........GGGGGWWWW........R.....B]
+  [B.R......................R..................................................GWW..R.............R.GGGGGG..............B]
+  [B.R......................R..................................................GGG......#$$$##$...R.GG..R..........$.j..B]
+  [B.R......................R..................................................GGGWWWWGGGGGGGGGG..R.....R....jj...5GGGWWG]
+  [B.R...jjjjj.a....)...............S......S......S......S...........Q.....Q...CCGGGGGGGGGGGGGGG..R.....R...GGGGWWGGGGGGG]
+  [B.R.5GGGGGGGG....5G.....8....(.....$$.$$....7.....#%#...E.E.5G)$....$$....H.CCGG...............R.....R....GGGGG......B]
+  [B.R.GGGGGGGGG....G......5GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG...........Q...R.5G..R.......R.....Q.B]
+  [B.R.GGGGGGG..............GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG.R......jjjjjj.......GG..R...L...R.......B]
+  [B.R.GGGGGGGWWWWWWWWWWWWWWWWWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG......R....R....R.....5GGGGGGGGGG.E.GG..R...L...R.......B]
+  [B.R.GGGGGGGwwwwwwwwwwwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGG...............R....R....R....5GGGGGGGGGGGGGGGG..R...L...R....WWWB]
+  [B.R....GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG...................R....R....R...5GGGGG.......GGGGG.Q....L...R....GGGB]
+  [B.R..........R.................GGGGGGGGGGGGGGGG....................R....R....R................GGGGG..........R..L..R.B]
+  [B.R..........R.................GGGGGGGGGGGGGGGG....................R....R....R................GGGGG..........R..L..R.B]
+  [B.R..........R..L..............GGGGGGGGGGGG...R.........J..........R....R....R................GGGGGWWW..........L..R.B]
+  [B.Rh.........R..LL.............GGGGGGGGGG.....R............M.......R.............................GGGGG.............R.B]
+  [B.R..........R..LLL..L.....h...GGGGGGGGGG.....R.....M.....5GGG...................................GGG...............R.B]
+  [B.R..........R.......LLL.......GGGGGGGGGG.....R....5GGG....GG......................................................R.B]
+  [B.....S......R........L........GGGGGGGGGG.H.........GG..........................S..................................Q.B]
+  [B#.$$...jj..............jjj....GGGGGGGGGGGGG............Q.........Q......S........P.Q...........a...G...E.##.E.###...B]
+  [5GGGGGGGGGG............5GGGG...GGGGGGGGGGGGGG.jjjj..............G...9(.....jjj..5G#......##.a..L5GGGGGGGGGGGGGGGGGGGGB]
+  [GGGGGG..................GGG.C..GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG..LGGGGGGGGGGGGGGGGGGGGGB]
+  [GGGGGGWWWWWWWWWWWWWWWWWWGGG..C.GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGR..L.GGGG........GG..GGG.B]
+  [GGGGwwwwwwwwwwwwwwwwwwwwwGG.C..GGGGGGGGG........R......R...R.......R...R.....R...R.......GG.R.....................G..B]
+  [B..GGGGGGGGGGGGGGGGGGGGGGGG..C.GGGGGGGGG........R......R...R.......R...R.....R...R..........R........................B]
+  [B...........................C..GGGGGGGGG........R......R...R.......R...R.....R...R..........R........................B]
+  [B..............................GGGGGGGGG........R.J....Rh..R..J....Rh..R.J...Rh..R..J.......R............J....h......B]
+  [B......C.......E.#.E.$.E...#$$.GGGGGGGGG........R......R...R.......R...R.....R...R..........R.......................CB]
+  [B.Ljj..C.jj.5GGGGGGGGGGGGGGGGGGGGGGGGGGGCCCC........................................................j...............CB]
+  [B.L5GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG.....5GG.........5GG........G............5GG.jj......L5GG..5G..G..G..5GGB]
+  [B.LGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGWWWWWGGGWWWWWWWWWGGGWWWWWWWWGWWWWWWWWWWWWGGGGGGGGG...L.G................B]
+  [B.LGGGGGGGGGG.........................GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG...L..................B]
+  [B.L.GGGGGGGG..............................................................................R.......L.................CB]
+  [B.L...............jjj.#$.j.$#$.M...K..H......................C............................R.......L.................CB]
+  [B...........Q..5GGGGGGGGGGGGGGGGGGGGGGGGG..........C.........L............................R..............E..E..E..E.CB]
+  [B..jj...jjj....GGGGGGGGGGGGGGGGGGGGGGGCC....J......LL....C...L............................R.............5GGGGGGGGGGGGG]
+  [5GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGCL....C......LL....L.......J..................J.....R.............GGGGGGGGGGGGGG]
+  [GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLL....L.......L....L..........S.....S....Q..........R......jj...............Q.CB]
+  [GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLL....L...C........L............###...$#....G...E...R.....5GGG..#..E...j$j....CB]
+  [B...........................................L...L........L......5GGGGGGGGGGGGGGGGGGGGGGGGGR.5GL.GGGGGGGGGGGGGGGGGGGGGG]
+  [B...............................................L...............GGGGGGGGGGGGGGGGGGGGGGGGGGR.GGL........GGGGGGGGGGGGGGG]
+  [B.........................................................................................RCGGL....C......GGGGGGGGGGGG]
+  [B.........................................................................................RCGGL.....C................B]
+  [B.........................................................................................RCGGL....C.................B]
+  [B.........................................................................................RCGGL..J..C.........Qh.....B]
+  [B.a..jjjjj.......$E....................S..................S................h..............RCGG.....C...............aDB]
+  [5GGGGGGGGGGGG...5GGG#$......................#$.....................Q............Q..)......CCGG...5GGGG..G.G..5GG..5GGG]
+  [GGGGGGGGGGGGGWWWGGGGGGG...9(.......jj.5GG...5GG.....j#j.5GGG7..j#j....5G.#$...$....5G.E...H.GGWWWGGGGGWWGWGWWGGGWWGGGG]
+  [GGGGGGGGGGGGGwwwGGGGGGG...5GGGG...5GGGGGGWWWGGG...5GGGGGGGGGGGGGGGGG..GGGGGGGGGGG..GGGGG..5GGGwwwwwwwwwwwwwwwGGGwwGGGG]
+  [GGGGGGGGGGGGGwwwwwGGGGGwwwGGGGGWWWGGGGGwwwwwGGGWWWGGGGGGGGGGGGGGGGGGWWGGGGGGGGGGGWWGGGGGWWGGGGwwwwwwwwwwwwwwwwwwwwGGGG]
+  [GGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwGGGGGGGGGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwGGGG]
+  [GGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGGGGGGGGG]
+  [GGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGwwwwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG]
+  [GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG]
+  [GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG]
+  [GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG]
+keymap:
+  (: MUSHROOM
+  ): MUSHROOM_BLUE
+  #: FOREST_PLANT_0
+  $: FOREST_PLANT_1
+  9: TREE_WILLOW_1
+  8: TREE_WILLOW_2
+  7: TREE_WILLOW_0
+  a: LAMP_POST
+  h: HANGING_VINE
+  J: HANGING_VINE_FLOWERS
+  M: ROCK_LARGE
+  j: BUSH
+  P: PLAYER_SPAWN
+  D: DOOR
+  K: KEY
+  E: PLANT_MONSTER
+  H: HEART
+  B: BARRIER
+  L: LADDER
+  W: WATER_TOP
+  w  WATER_BOTTOM
+  G: FOREST_GROUND
+  C: GOLD_COIN
+  S: SKULL_HEAD
+  Q: BEE
+  R: ROPE

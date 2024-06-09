@@ -13,8 +13,8 @@ public class DecorationTree extends Decoration {
     private double particleFrequency = 5;
     private Random rand;
 
-    public DecorationTree(DecorationTypes type, Location loc, double width, double height, Level level) {
-        super(type, loc, width, height);
+    public DecorationTree(Level level, Location loc, DecorationTypes type) {
+        super(level, loc, type);
 
         this.level = level;
         this.rand = new Random();

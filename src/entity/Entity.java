@@ -4,26 +4,17 @@ import block.Block;
 import block.BlockClimbable;
 import block.BlockLiquid;
 import level.Level;
-import main.Camera;
-import main.CollisionBox;
-import main.Game;
-import main.Location;
+import main.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public abstract class Entity {
+public abstract class Entity extends GameObject {
 
-    private final Level level;
     private EntityType type;
-    private Location loc;
-    private CollisionBox collisionBox;
 
-    private int hitboxWidth, hitboxHeight;
-    private int health;
+    protected int health;
     private int maxHealth;
-    private double scale;
-    private boolean isActive;
     private Block blockBelowEntityLeft;
     private Block blockBelowEntityRight;
 
@@ -38,53 +29,53 @@ public abstract class Entity {
     private boolean isFlipped;
     private boolean canMove;
     private boolean shouldRespawn;
-    private Color hitboxColor;
 
-    public Entity(EntityType type, Level level, Location loc, int hitboxWidth, int hitboxHeight) {
+    public Entity(EntityType type, Level level, Location loc) {
+        super(level, loc);
         this.type = type;
-        this.level = level;
-        this.loc = loc;
-        this.scale = 2;
-        this.hitboxWidth = hitboxWidth;
-        this.hitboxHeight = hitboxHeight;
+        this.setScale(2);
 
         this.shouldRespawn = false;
-        this.isActive = true;
-        this.maxHealth = 100;
-        this.health = 100;
+        this.health = 10;
+        setMaxHealth(10);
         this.canMove = true;
-        this.hitboxColor = Color.YELLOW;
-        this.collisionBox = new CollisionBox((int)loc.getX(), (int)loc.getY(), hitboxWidth * scale, hitboxHeight * scale);
+
+        setHitboxWidth(getIdleFrame().getWidth());
+        setHitboxHeight(getIdleFrame().getHeight());
     }
 
     public void render(Camera cam) {
-        double offsetX = getLocation().getX() + cam.centerOffsetX;
-        double offsetY = getLocation().getY() + cam.centerOffsetY;
-
-        getLevel().getManager().getEngine().drawImage(getActiveFrame(), offsetX, offsetY, getWidth(), getHeight());
-
+        super.render(cam);
+        getLevel().getManager().getEngine().drawImage(getActiveFrame().getImage(), cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY()), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
 
         if (cam.debugMode) {
-            double hitBoxOffsetX = getCollisionBox().getLocation().getX() + cam.centerOffsetX;
-            double hitBoxOffsetY = getCollisionBox().getLocation().getY() + cam.centerOffsetY;
-
             getLevel().getManager().getEngine().changeColor(getHitboxColor());
-            getLevel().getManager().getEngine().drawRectangle(hitBoxOffsetX, hitBoxOffsetY, getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            getLevel().getManager().getEngine().drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
         }
     }
 
     public void update(double dt) {
+        super.update(dt);
+
+        if (!isActive()) {
+            return;
+        }
+        //System.out.println(getType().toString() + " called update(dt)");
         if (canMove()) {
             processMovement(dt);
         }
+
+        if (getHealth() <= 0) {
+            kill();
+        }
     }
 
-    public boolean isActive() {
-        return isActive;
-    }
+    public void kill() {
+        this.setActive(false);
 
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
+        if (this instanceof EntityLiving) {
+            ((EntityLiving) this).getAttackTimer().stop();
+        }
     }
 
     public boolean canMove() {
@@ -281,37 +272,14 @@ public abstract class Entity {
         this.type = type;
     }
 
-    public Level getLevel() {
-        return level;
-    }
-
-    public Location getLocation() {
-        return loc;
-    }
-
-    public void setLocation(double x, double y) {
-        getLocation().setX(x);
-        getLocation().setY(y);
-
-        updateCollisionBox();
-    }
-
-    public double getScale() {
-        return scale;
-    }
-
-    public void setScale(double scale) {
-        this.scale = scale;
-
-        updateCollisionBox();
-    }
-
+    @Override
     public double getWidth() {
-        return ((BufferedImage) getIdleFrame()).getWidth() * scale;
+        return getActiveFrame().getWidth() * getScale();
     }
 
+    @Override
     public double getHeight() {
-        return ((BufferedImage) getIdleFrame()).getHeight() * scale;
+        return getActiveFrame().getHeight() * getScale();
     }
 
     public int getHealth() {
@@ -335,22 +303,10 @@ public abstract class Entity {
 
     public void setMaxHealth(int maxHealth) {
         if(getHealth() > maxHealth) {
-         setHealth(maxHealth);
+            setHealth(maxHealth);
         }
+
         this.maxHealth = maxHealth;
-    }
-
-    public boolean isCollidable() {
-        return collisionBox != null;
-    }
-
-    public CollisionBox getCollisionBox() {
-        return collisionBox;
-    }
-
-    public void setCollisionBox(CollisionBox cBox) {
-        this.collisionBox = cBox;
-        updateCollisionBox();
     }
 
     public boolean isFlipped() {
@@ -361,33 +317,12 @@ public abstract class Entity {
         this.isFlipped = isFlipped;
     }
 
-    public Image getActiveFrame() {
+    public Texture getActiveFrame() {
         return getIdleFrame();
     }
 
-    public Image getIdleFrame() {
-        if (!isFlipped()) {
-            return getLevel().getManager().getEngine().flipImageHorizontal(level.getManager().getEngine().getTexture(getType().toString().toLowerCase()));
-        }
-
+    public Texture getIdleFrame() {
         return getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase());
-    }
-
-    public Color getHitboxColor() {
-        return hitboxColor;
-    }
-
-    public void setHitboxColor(Color color) {
-        this.hitboxColor = color;
-    }
-
-    public void updateCollisionBox() {
-        getCollisionBox().setLocation(getLocation().getX(), getLocation().getY());
-        getCollisionBox().setSize(hitboxWidth * getScale(), hitboxHeight * getScale());
-    }
-
-    public void destroy() {
-        setActive(false);
     }
 
     public void reset(){
@@ -405,8 +340,25 @@ public abstract class Entity {
         this.shouldRespawn = shouldRespawn;
     }
 
-    @Override
-    public String toString() {
-        return getType().toString().toLowerCase();
+    public double getDistanceTo(Entity entity) {
+        double x1 = getLocation().getX() + (getHitboxWidth() / 2);
+        double y1 = getLocation().getY() + (getHitboxHeight() / 2);
+
+        double x2 = entity.getLocation().getX() + (entity.getHitboxWidth() / 2);
+        double y2 = entity.getLocation().getY() + (entity.getHitboxHeight() / 2);
+
+        double deltaX = x2 - x1;
+        double deltaY = y2 - y1;
+        return Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
+    }
+    public double getDistanceToX(Entity entity) {
+        double x1 = getLocation().getX() + (getHitboxWidth() / 2);
+        double x2 = entity.getLocation().getX() + (entity.getHitboxWidth() / 2);
+        return Math.abs(x1 - x2);
+    }
+    public double getDistanceToY(Entity entity) {
+        double y1 = getLocation().getY() + (getHitboxHeight() / 2);
+        double y2 = entity.getLocation().getY() + (entity.getHitboxHeight() / 2);
+        return Math.abs(y1 - y2);
     }
 }
