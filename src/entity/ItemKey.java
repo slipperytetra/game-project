@@ -11,13 +11,9 @@ public class ItemKey extends EntityItem {
         setPickupSound(level.getManager().getEngine().loadAudio("resources/sounds/keyObtained.wav"));
     }
 
-    @Override
-    public boolean canPickup() {
-        return !getLevel().getPlayer().hasKey();
-    }
-
     public void onPickup() {
         super.onPickup();
+
         getLevel().getPlayer().setHasKey(true);
     }
 }

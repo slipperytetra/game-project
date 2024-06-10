@@ -118,7 +118,7 @@ public class Player extends EntityLiving {
                     fallAccel *= fallSpeedMultiplier;
                     setDirectionY(1 * fallAccel);
                 }
-            } else {
+            } else if (!isFalling()) {
                 fallAccel = 1;
                 setDirectionY(0);
             }

@@ -28,7 +28,7 @@ public class EntityItem extends Entity {
     }
 
     public boolean canPickup() {
-        return true;
+        return !getLevel().isEditMode();
     }
 
     public void onPickup() {

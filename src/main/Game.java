@@ -45,7 +45,8 @@ public class Game extends GameEngine {
     Camera camera;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(GameMenu::new);
+        createGame(new GameMenuNew(),  60);
+        //SwingUtilities.invokeLater(GameMenuNew::new);
     }
 
     public void startGame(){

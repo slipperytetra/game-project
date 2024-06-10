@@ -3,8 +3,11 @@ package level.editor;
 import block.Block;
 import block.BlockSet;
 import block.BlockTypes;
+import block.decorations.DecorationTypes;
 import level.Level;
 import main.Camera;
+import main.Game;
+import main.Texture;
 
 import java.awt.event.MouseEvent;
 
@@ -19,6 +22,18 @@ public class LevelEditorBlocks extends LevelItem {
         Block block = getSelectedBlock();
         cam.game.drawText(cam.game.width() - 150, 30, "Block: " + block.getType().toString(), 15);
         cam.game.drawText(cam.game.width() - 150, 45, "Pos: (" + getTileX() + ", " + getTileY() + ")", 15);
+
+        if (getSelectedItem() instanceof BlockTypes type) {
+            Texture texture = cam.game.getTexture(type.toString());
+            if (type.getBlockSetAmount() > 0) {
+                texture = cam.game.getTexture(type.toString() + "_0");
+            }
+
+            if (texture != null) {
+                cam.game.drawImage(texture.getImage(), mouseOffsetX, mouseOffsetY,
+                        32, 32, 0.65f);
+            }
+        }
     }
 
     @Override

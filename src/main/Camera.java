@@ -48,6 +48,10 @@ public class Camera {
     private Location focusPoint;
     private GameObject focusObj;
 
+    private Texture textBg;
+    private Texture textMg;
+    private Texture textFg;
+
     public double centerOffsetX, centerOffsetY;
 
     public Camera(Game game, Player p) {
@@ -58,8 +62,10 @@ public class Camera {
 
         this.camWidth = 1280;
         this.camHeight = 720;
-        System.out.println(camWidth);
-        System.out.println(camHeight);
+
+        this.textBg = game.imageBank.get("background");
+        this.textMg = game.imageBank.get("midground");
+        this.textFg = game.imageBank.get("foreground");
         /*
         *   'point1' is the top left location of the screen.
         *   'point2' is the bottom right location of the screen.
@@ -295,92 +301,34 @@ public class Camera {
         }
 
         if (game.imageBank.get("overlay") != null) {
-            //System.out.println("Draw bg");
             game.drawImage(game.imageBank.get("overlay").getImage(), 0, 0, game.width(), game.height());
         }
     }
 
     private void renderBackground() {
-        if (game.imageBank.get("background") != null) {
-            //System.out.println("Draw bg");
-            Texture bg = game.imageBank.get("background");
-            game.drawImage(bg.getImage(), 0, 0, game.width(), game.height());
+        if (textBg != null) {
+            game.drawImage(textBg.getImage(), 0, 0, game.width(), game.height());
         }
 
-        drawParallaxImage(game.imageBank.get("midground"), 0.5);
-        drawParallaxImage(game.imageBank.get("foreground"), 0.85);
+        drawParallaxImage(textMg, 0.5);
+        drawParallaxImage(textFg, 0.85);
     }
 
     private void drawParallaxImage(Texture bg, double paraZoom) {
         if (bg != null) {
-            //System.out.println("Draw bg");
             double scaleX = game.getActiveLevel().getActualWidth() / bg.getWidth(); //remember to do this only once somewhere else
             double scaleY = game.getActiveLevel().getActualHeight() / bg.getHeight();
-            System.out.println("Level Width: " + game.getActiveLevel().getActualWidth());
-            System.out.println("Level Height: " + game.getActiveLevel().getActualHeight());
-            System.out.println("Background Width: " + bg.getWidth());
-            System.out.println("Background Height: " + bg.getHeight());
-            System.out.println("\nScale X: " + scaleX);
-            System.out.println("Scale Y: " + scaleY);
 
-            double camBotLeftX = getCollisionBox().getLocation().getX();
-            double camBotLeftY = getCollisionBox().getLocation().getY();
-            double camTopRightX = getCollisionBox().getCorner().getX();
-            double camTopRightY = getCollisionBox().getCorner().getY();
-
-
-            System.out.println("X (bot left): " + camBotLeftX + " / " + scaleX + " = " + ((int) (camBotLeftX / scaleX)));
-            System.out.println("Y (bot left): " + camBotLeftY + " / " + scaleY + " = " + ((int) (camBotLeftY / scaleY)));
-            System.out.println("X (top right): " + camTopRightX + " / " + scaleX + " = " + ((int) (camTopRightX / scaleX)));
-            System.out.println("Y (top right): " + camTopRightY + " / " + scaleY + " = " + ((int) (camTopRightY / scaleY)));
-
-            camBotLeftX = (0 + ((0 + camBotLeftX) * paraZoom)) / scaleX;
-            camBotLeftY = (0 + ((0 + camBotLeftY) * paraZoom)) / scaleY;
-            camTopRightX = (game.getActiveLevel().getActualWidth() - ((game.getActiveLevel().getActualWidth() - camTopRightX) * paraZoom)) / scaleX;
-            camTopRightY = (game.getActiveLevel().getActualHeight() - ((game.getActiveLevel().getActualHeight() - camTopRightY) * paraZoom)) / scaleY;
+            double camBotLeftX = (0 + ((0 + getCollisionBox().getLocation().getX()) * paraZoom)) / scaleX;
+            double camBotLeftY = (0 + ((0 + getCollisionBox().getLocation().getY()) * paraZoom)) / scaleY;
+            double camTopRightX = (game.getActiveLevel().getActualWidth() - ((game.getActiveLevel().getActualWidth() - getCollisionBox().getCorner().getX()) * paraZoom)) / scaleX;
+            double camTopRightY = (game.getActiveLevel().getActualHeight() - ((game.getActiveLevel().getActualHeight() - getCollisionBox().getCorner().getY()) * paraZoom)) / scaleY;
 
             int width = (int) ((camTopRightX - camBotLeftX));
             int height = (int) ((camTopRightY - camBotLeftY));
 
             game.drawImage(bg.getImage().getSubimage((int) camBotLeftX, (int) camBotLeftY, width, height), 0, 0, game.width(), game.height());
         }
-
-        /*
-        if (texture != null) {
-            //System.out.println("Draw bg");
-
-            double scaleX = game.getActiveLevel().getActualWidth() / (texture.getWidth());
-            double scaleY = game.getActiveLevel().getActualHeight() / (texture.getHeight());
-
-            Location bgPoint1 = new Location(getPoint1().getX() / scaleX, getPoint1().getY() / scaleY);
-            Location bgPoint2 = new Location(getPoint2().getX() / scaleX, getPoint2().getY() / scaleY);
-            double xDiff = bgPoint2.getX() - bgPoint1.getX();
-            double yDiff = bgPoint2.getY() - bgPoint1.getY();
-
-            double bgPosX = bgPoint1.getX() / zoom;
-            double bgPosY = bgPoint1.getY() / zoom;
-            bgPosX /= zoom;
-            bgPosY /= zoom;
-            xDiff *= zoom;
-            yDiff *= zoom;
-
-            if (bgPosX < 0 || bgPosX > texture.getWidth()) {
-                bgPosX = 0;
-            }
-            if (bgPosY < 0 || bgPosY > texture.getHeight()) {
-                bgPosY = 0;
-            }
-
-            if (xDiff < 0 || xDiff > texture.getWidth()) {
-                xDiff = texture.getWidth();
-            }
-
-            if (yDiff < 0 || yDiff > texture.getHeight()) {
-                yDiff = texture.getHeight();
-            }
-
-            game.drawImage(texture.getImage().getSubimage((int) bgPosX, (int) bgPosY, (int) xDiff, (int) yDiff), 0, 0, game.width(), game.height());
-        }*/
     }
 
     public Player getPlayer() {
@@ -449,5 +397,13 @@ public class Camera {
 
     public double toScreenY(double worldY) {
         return worldY - loc.getY();
+    }
+
+    public double toWorldX(double screenX) {
+        return loc.getX() + screenX;
+    }
+
+    public double toWorldY(double screenY) {
+        return loc.getY() + screenY;
     }
 }

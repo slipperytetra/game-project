@@ -24,8 +24,8 @@ public abstract class LevelItem {
 
     public void render(Camera cam) {
         Block b = getSelectedBlock();
-        mouseOffsetX = b.getLocation().getX() + cam.centerOffsetX;
-        mouseOffsetY = b.getLocation().getY() + cam.centerOffsetY;
+        mouseOffsetX = cam.toScreenX(b.getLocation().getX());
+        mouseOffsetY = cam.toScreenY(b.getLocation().getY());
 
         game.changeColor(Color.GREEN);
         game.drawRectangle(mouseOffsetX, mouseOffsetY, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
@@ -33,25 +33,25 @@ public abstract class LevelItem {
     }
 
     public void mouseMoved(MouseEvent event) {
-        game.mouseX = event.getX() - game.getCamera().centerOffsetX;
-        game.mouseY = event.getY() - game.getCamera().centerOffsetY;
+        game.mouseX = game.getCamera().toWorldX(event.getX());
+        game.mouseY = game.getCamera().toWorldY(event.getY());
     }
 
     public void mousePressed(MouseEvent event) {
-        game.mouseX = event.getX() - game.getCamera().centerOffsetX;
-        game.mouseY = event.getY() - game.getCamera().centerOffsetY;
+        game.mouseX = game.getCamera().toWorldX(event.getX());
+        game.mouseY = game.getCamera().toWorldY(event.getY());
         editObject(event);
     }
 
     public void mouseReleased(MouseEvent event) {
-        game.mouseX = event.getX() - game.getCamera().centerOffsetX;
-        game.mouseY = event.getY() - game.getCamera().centerOffsetY;
+        game.mouseX = game.getCamera().toWorldX(event.getX());
+        game.mouseY = game.getCamera().toWorldY(event.getY());
         //editObject(event);
     }
 
     public void mouseDragged(MouseEvent event) {
-        game.mouseX = event.getX() - game.getCamera().centerOffsetX;
-        game.mouseY = event.getY() - game.getCamera().centerOffsetY;
+        game.mouseX = game.getCamera().toWorldX(event.getX());
+        game.mouseY = game.getCamera().toWorldY(event.getY());
         editObject(event);
     }
 
