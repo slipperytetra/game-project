@@ -6,9 +6,11 @@ import java.awt.event.ActionListener;
 
 public class AttackTimer extends Timer {
 
+    private EntityLiving entity;
+
     public AttackTimer(EntityLiving entity) {
         super((int) (entity.getAttackCooldown() * 1000), null);
-
+        this.entity = entity;
         this.setInitialDelay(0);
 
         addActionListener(new ActionListener() {
@@ -17,7 +19,7 @@ public class AttackTimer extends Timer {
                 //System.out.println(entity.getType().toString() + " running attackTimer");
                 if (entity.getType() != EntityType.PLAYER) {
                     if (entity.getAttackSound() != null) {
-                        entity.getLevel().getManager().getEngine().playAudio(entity.getAttackSound());
+                        entity.getLevel().getManager().getEngine().getAudioBank().playSound(entity.getAttackSound());
                     }
                     entity.getAttackFrame().setFrameIndex(0);
                     entity.setAttackTicks(0);
@@ -34,5 +36,11 @@ public class AttackTimer extends Timer {
                 entity.attack();
             }
         });
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        System.out.println("Stopping for " + entity.getType());
     }
 }

@@ -2,10 +2,9 @@ package level;
 
 
 import main.Camera;
-import main.Location;
-import main.Texture;
+import utils.Location;
+import utils.Texture;
 
-import java.awt.image.BufferedImage;
 import java.util.Random;
 
 
@@ -22,11 +21,13 @@ public class Particle {
     double offsetX, offsetY;
     double velX, velY;
     final double speed = 32; //pixels per second
+    double initialSize;
+    double scale;
     public Particle(ParticleTypes type, Location spawnLoc, Level level){
         this.loc = spawnLoc;
         this.timeAlive = type.getTimeAlive();
         this.type = type;
-        this.image = level.getManager().getEngine().getTexture(type.toString().toLowerCase());
+        this.image = level.getManager().getEngine().getTextureBank().getTexture(type.toString().toLowerCase());
         this.level =  level;
 
         this.isActive = true;
@@ -34,11 +35,16 @@ public class Particle {
         this.opacity = 1.0;
         this.velX = getType().getVelX();
         this.velY = getType().getVelY();
-
+        this.scale = 1.0;
         this.size = 32;
         if (type.getMinSize() > -1 && type.getMaxSize() > -1) {
-            Random rand = new Random();
-            this.size *= rand.nextDouble(type.getMinSize(), type.getMaxSize());
+            if (type.getMinSize() == type.getMaxSize()) {
+                scale = type.getMaxSize();
+            } else {
+                Random rand = new Random();
+                scale = rand.nextDouble(type.getMinSize(), type.getMaxSize());
+            }
+            this.size *= scale;
         }
 
         this.offsetX = 0;
@@ -48,6 +54,10 @@ public class Particle {
             this.offsetX += rand.nextDouble(-type.getOffset(), type.getOffset());
             this.offsetY += rand.nextDouble(-type.getOffset(), type.getOffset());
         }
+
+        this.initialSize = size;
+        this.loc.setX(loc.getX() - ((image.getWidth() * scale) / 2));
+        this.loc.setY(loc.getY() - ((image.getHeight() * scale) / 2));
     }
 
   public void update(double dt){
@@ -55,23 +65,27 @@ public class Particle {
             return;
         }
 
-      opacity = opacity - ((1 / timeAlive) * dt);
+        opacity = opacity - ((1 / timeAlive) * dt);
+        if (getType().isShrink()) {
+            //System.out.println(size + " - " + (((initialSize / timeAlive) * dt)));
+            size = size - ((initialSize / timeAlive) * dt);
+        }
 
-      if (ticksAlive < timeAlive) {
-          ticksAlive += 1 * dt;
-      }
+        if (ticksAlive < timeAlive) {
+            ticksAlive += 1 * dt;
+        }
 
-      if  (ticksAlive >= timeAlive) {
-          setActive(false);
-      }
+        if  (ticksAlive >= timeAlive) {
+            setActive(false);
+        }
 
-      if (getVelX() != 0) {
-          this.loc.setX(loc.getX() + ((getVelX() * speed) * dt));
-      }
+        if (getVelX() != 0) {
+            this.loc.setX(loc.getX() + ((getVelX() * speed) * dt));
+        }
 
-      if (getVelY() != 0) {
-          this.loc.setY(loc.getY() + ((getVelY() * speed) * dt));
-      }
+        if (getVelY() != 0) {
+            this.loc.setY(loc.getY() + ((getVelY() * speed) * dt));
+        }
     }
 
     public void render(Camera cam){

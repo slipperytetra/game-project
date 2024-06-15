@@ -2,16 +2,16 @@ package main;
 
 import block.BlockTypes;
 import block.decorations.DecorationTypes;
-import entity.EntityType;
 import level.*;
 import level.editor.*;
+import utils.ComboBoxItem;
+import utils.ComboBoxRenderer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,11 +20,12 @@ public class Game extends GameEngine {
     public static int BLOCK_SIZE = 32;
     private boolean gameOver;
     public boolean isPaused;
+    private AudioBank audioBank;
+    private TextureBank textureBank;
 
     public long timeSinceLastFrame;
     public long lastTime;
     public long currentTime;
-    public HashMap<String, Texture> imageBank;
     public Set<Integer> keysPressed = new HashSet();
     public double mouseX, mouseY;
 
@@ -33,10 +34,7 @@ public class Game extends GameEngine {
     public JComboBox<ComboBoxItem> cBoxEntities;
     public JComboBox<ComboBoxItem> cBoxDecorations;
 
-    public LevelJFileChooserSave levelSaver;
-    public LevelJFileChooserLoad levelLoader;
-
-    private LevelItem levelEditor;
+    private LevelEditor levelEditor;
     int objectCounter;
     int maxObjects;
 
@@ -59,11 +57,8 @@ public class Game extends GameEngine {
     }
 
     public void init() {
-        this.imageBank = new HashMap<>();
-        loadDecorationImages();
-        loadBlockImages();
-        loadCharacterImages();
-
+        this.textureBank = new TextureBank(this);
+        this.audioBank = new AudioBank(this);
         this.setWindowSize(1280, 720);
 
         this.lvlManager = new LevelManager(this);
@@ -122,10 +117,8 @@ public class Game extends GameEngine {
             getActiveLevel().update(dt);
         }
 
-        for (Texture texture : imageBank.values()) {
-            if (texture instanceof TextureAnimated) {
-                ((TextureAnimated) texture).update(dt);
-            }
+        if (textureBank != null) {
+            textureBank.update(dt);
         }
     }
 
@@ -196,7 +189,7 @@ public class Game extends GameEngine {
         levelEditor.mousePressed(event);
     }
 
-    public void loadDecorationImages() {
+    /*public void loadDecorationImages() {
         for (DecorationTypes type : DecorationTypes.values()) {
             if (type.getFrames() > 0 && type.getFrameRate() > 0) {
                 BufferedImage[] frames = new BufferedImage[type.getFrames()];
@@ -212,8 +205,9 @@ public class Game extends GameEngine {
         for (ParticleTypes particleType : ParticleTypes.values()) {
             imageBank.put(particleType.toString().toLowerCase(), new Texture((BufferedImage) loadImage(particleType.getFilePath())));
         }
-    }
+    }*/
 
+    /*
     public void loadBlockImages() {
         for (BlockTypes type : BlockTypes.values()) {
             if (type.getBlockSetAmount() > 0) {
@@ -225,7 +219,7 @@ public class Game extends GameEngine {
                 imageBank.put(type.toString(),  new Texture((BufferedImage) loadImage(type.getFilePath())));
             }
         }
-    }
+    }*/
 
     /*
     *   This is where the image bank is loaded. Basically how it works is it uses a HashMap<String, Image> and it assigns
@@ -233,7 +227,7 @@ public class Game extends GameEngine {
     *
     *   By doing it
     * */
-    public void  loadCharacterImages() {
+    /*public void  loadCharacterImages() {
         imageBank.put("player_fall", new Texture((BufferedImage) loadImage("resources/images/characters/jump3.png")));
 
         imageBank.put("player_jump",  new TextureAnimated(new BufferedImage[]{
@@ -272,22 +266,18 @@ public class Game extends GameEngine {
 
         imageBank.put("spot_light",  new Texture((BufferedImage) loadImage("resources/images/blocks/decorations/spot_light.png")));
 
-            for (EntityType type : EntityType.values()) {
-                if (type.getFrames() > 0 && type.getFrameRate() > 0) {
-                    BufferedImage[] frames = new BufferedImage[type.getFrames()];
-                    for (int i = 0; i < type.getFrames(); i++) {
-                        frames[i] = (BufferedImage) loadImage(type.getFilePath() + i + ".png");
-                    }
-                    imageBank.put(type.toString().toLowerCase(), new TextureAnimated(frames, type.getFrameRate(), true));
-                } else {
-                    imageBank.put(type.toString().toLowerCase(), new Texture((BufferedImage) loadImage(type.getFilePath())));
+        for (EntityType type : EntityType.values()) {
+            if (type.getFrames() > 0 && type.getFrameRate() > 0) {
+                BufferedImage[] frames = new BufferedImage[type.getFrames()];
+                for (int i = 0; i < type.getFrames(); i++) {
+                    frames[i] = (BufferedImage) loadImage(type.getFilePath() + i + ".png");
                 }
+                imageBank.put(type.toString().toLowerCase(), new TextureAnimated(frames, type.getFrameRate(), true));
+            } else {
+                imageBank.put(type.toString().toLowerCase(), new Texture((BufferedImage) loadImage(type.getFilePath())));
             }
-    }
-
-    public Texture getTexture(String textureName) {
-        return imageBank.get(textureName);
-    }
+        }
+    }*/
 
     public Camera getCamera() {
         return camera;
@@ -301,7 +291,7 @@ public class Game extends GameEngine {
         return getActiveLevel().loadCompletion < 100;
     }
 
-    public LevelItem getEditor() {
+    public LevelEditor getEditor() {
         return levelEditor;
     }
 
@@ -314,7 +304,7 @@ public class Game extends GameEngine {
                 type += "_0";
             }
 
-            ImageIcon icon = new ImageIcon(getTexture(type).getImage().getScaledInstance(32, 32, BufferedImage.SCALE_SMOOTH));
+            ImageIcon icon = new ImageIcon(getTextureBank().getTexture(type).getImage().getScaledInstance(32, 32, BufferedImage.SCALE_SMOOTH));
             choicesBlocks[i] = new ComboBoxItem(valBlocks[i].toString(), icon);
 
         }
@@ -322,7 +312,7 @@ public class Game extends GameEngine {
         ComboBoxItem[] choicesDecorations = new ComboBoxItem[DecorationTypes.values().length];
         DecorationTypes[] valDecos = DecorationTypes.values();
         for (int i = 0; i < valDecos.length; i++) {
-            ImageIcon icon = new ImageIcon(getTexture(DecorationTypes.values()[i].toString().toLowerCase()).getImage().getScaledInstance(32, 32, BufferedImage.SCALE_SMOOTH));
+            ImageIcon icon = new ImageIcon(getTextureBank().getTexture(DecorationTypes.values()[i].toString().toLowerCase()).getImage().getScaledInstance(32, 32, BufferedImage.SCALE_SMOOTH));
             choicesDecorations[i] = new ComboBoxItem(valDecos[i].toString(), icon);
 
         }
@@ -417,5 +407,12 @@ public class Game extends GameEngine {
 
         //mPanel.add(editingPanel);
         //mPanel.add(cBoxEntities);
+    }
+
+    public TextureBank getTextureBank() {
+        return textureBank;
+    }
+    public AudioBank getAudioBank() {
+        return audioBank;
     }
 }

@@ -1,11 +1,9 @@
 package entity;
 
 import level.Level;
-import main.Game;
-import main.Location;
+import utils.Location;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 public abstract class Enemy extends EntityLiving {
 
@@ -15,6 +13,7 @@ public abstract class Enemy extends EntityLiving {
         setDamage(1);
 
         setHitboxColor(Color.red);
+        setCollidable(true);
     }
 
     public void update(double dt) {
@@ -25,10 +24,12 @@ public abstract class Enemy extends EntityLiving {
         }
 
         if (attackSearchTicks < ATTACK_SEARCH_COOLDOWN) {
+            //System.out.println("search ticks: " + attackSearchTicks + "/" + ATTACK_SEARCH_COOLDOWN);
             attackSearchTicks += 1 * dt;
         }
 
-        if (attackSearchTicks >= ATTACK_SEARCH_COOLDOWN) { //Check if target is in range
+        if (attackSearchTicks >= ATTACK_SEARCH_COOLDOWN && !getAttackTimer().isRunning()) { //Check if target is in range
+            //System.out.println(getType() + " is searching...");
             findTarget();
 
             if (getTarget() != null) { //If found

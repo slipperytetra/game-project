@@ -2,6 +2,9 @@ package block.decorations;
 
 import level.Level;
 import main.*;
+import utils.CollisionBox;
+import utils.Location;
+import utils.Texture;
 
 import java.awt.*;
 
@@ -27,7 +30,7 @@ public class Decoration extends GameObject {
     }
 
     public Texture getFrame() {
-        return getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase());
+        return getLevel().getManager().getEngine().getTextureBank().getTexture(getType().toString().toLowerCase());
     }
 
     public DecorationTypes getType() {

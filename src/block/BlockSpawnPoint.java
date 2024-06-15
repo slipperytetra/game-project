@@ -2,7 +2,7 @@ package block;
 
 import level.Level;
 import main.Camera;
-import main.Location;
+import utils.Location;
 
 import java.awt.*;
 

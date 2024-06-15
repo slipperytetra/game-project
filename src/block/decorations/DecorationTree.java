@@ -2,7 +2,7 @@ package block.decorations;
 
 import level.Level;
 import level.ParticleTypes;
-import main.Location;
+import utils.Location;
 
 import java.util.Random;
 

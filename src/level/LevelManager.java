@@ -1,8 +1,7 @@
 package level;
 
 import main.Game;
-import main.GameEngine;
-import main.Location;
+import utils.Location;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -38,7 +37,7 @@ public class LevelManager {
         LEVEL_3 = new Level(this, 2, "resources/levels/level_demo3.txt");
         LEVEL_4 = new Level(this,3,"resources/levels/level4.txt");
         FOREST = new Level(this,4,"resources/levels/level_forest.txt");
-        FOREST_2 = new Level(this,4,"resources/levels/level_forest_2.txt");
+        FOREST_2 = new Level(this,4,"resources/levels/new.txt");
         NAP = new Level(this,4,"resources/levels/nap_level.txt");
         CAMERA = new Level(this,4,"resources/levels/level_camera.txt");
         SMALL = new Level(this,4,"resources/levels/level_small.txt");

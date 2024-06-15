@@ -3,15 +3,14 @@ package level.editor;
 import block.Block;
 import block.BlockSet;
 import block.BlockTypes;
-import block.decorations.DecorationTypes;
 import level.Level;
 import main.Camera;
-import main.Game;
-import main.Texture;
+import main.SoundType;
+import utils.Texture;
 
 import java.awt.event.MouseEvent;
 
-public class LevelEditorBlocks extends LevelItem {
+public class LevelEditorBlocks extends LevelEditor {
     public LevelEditorBlocks(Level level) {
         super(level);
     }
@@ -24,9 +23,9 @@ public class LevelEditorBlocks extends LevelItem {
         cam.game.drawText(cam.game.width() - 150, 45, "Pos: (" + getTileX() + ", " + getTileY() + ")", 15);
 
         if (getSelectedItem() instanceof BlockTypes type) {
-            Texture texture = cam.game.getTexture(type.toString());
+            Texture texture = cam.game.getTextureBank().getTexture(type.toString());
             if (type.getBlockSetAmount() > 0) {
-                texture = cam.game.getTexture(type.toString() + "_0");
+                texture = cam.game.getTextureBank().getTexture(type.toString() + "_0");
             }
 
             if (texture != null) {
@@ -55,6 +54,7 @@ public class LevelEditorBlocks extends LevelItem {
             return;
         }
 
+
         if (getLevel()!= null && getLevel().isEditMode()) {
             if (type.toString().contains("FOREST_GROUND")) {
                 BlockSet b = new BlockSet(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
@@ -63,6 +63,12 @@ public class LevelEditorBlocks extends LevelItem {
                 Block b = new Block(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
                 getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
             }
+
+            SoundType placeSound = SoundType.BLOCK_PLACE;
+            if (type == BlockTypes.VOID) {
+                placeSound = SoundType.BLOCK_BREAK;
+            }
+            getLevel().getManager().getEngine().getAudioBank().playSound(placeSound);
         }
     }
 
@@ -75,6 +81,7 @@ public class LevelEditorBlocks extends LevelItem {
             //System.out.println("Pos: " + game.mouseX + ", " + game.mouseY);
             //System.out.println("Tile: " + getTileX() + ", " + getTileY());
             //System.out.println(game.getActiveLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getType());
+            getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.BLOCK_BREAK);
             Block b = new Block(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), BlockTypes.VOID);
             getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
         }

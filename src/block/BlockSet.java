@@ -3,8 +3,8 @@ package block;
 import block.decorations.BlockDirection;
 import level.Level;
 import main.Game;
-import main.Location;
-import main.Texture;
+import utils.Location;
+import utils.Texture;
 
 public class BlockSet extends Block {
 
@@ -42,7 +42,7 @@ public class BlockSet extends Block {
 
     @Override
     public Texture getTexture() {
-        return getLevel().getManager().getEngine().getTexture(getType().toString() + "_" + getState());
+        return getLevel().getManager().getEngine().getTextureBank().getTexture(getType().toString() + "_" + getState());
     }
 
     @Override

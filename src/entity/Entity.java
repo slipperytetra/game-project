@@ -5,14 +5,19 @@ import block.BlockClimbable;
 import block.BlockLiquid;
 import level.Level;
 import main.*;
+import utils.CollisionBox;
+import utils.Location;
+import utils.Texture;
+import utils.Vector;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.util.List;
 
 public abstract class Entity extends GameObject {
 
     private EntityType type;
 
+    private final double GRAVITY = 9.8 * Game.BLOCK_SIZE;
+    private final double FRICTION = 10;
     protected int health;
     private int maxHealth;
     private Block blockBelowEntityLeft;
@@ -20,8 +25,9 @@ public abstract class Entity extends GameObject {
 
     private double directionX, directionY;
     public double moveX, moveY;
+    public Vector velocity;
 
-    double speed = 384; // pixels per second
+    double speed = 384; // pixels per second / 12 blocks per second
     double fallSpeedMultiplier = 1.009; // pixels per second
 
     double fallAccel;
@@ -34,7 +40,7 @@ public abstract class Entity extends GameObject {
         super(level, loc);
         this.type = type;
         this.setScale(2);
-
+        this.velocity = new Vector(0, 0);
         this.shouldRespawn = false;
         this.health = 10;
         setMaxHealth(10);
@@ -87,6 +93,34 @@ public abstract class Entity extends GameObject {
     }
 
     public void processMovement(double dt) {
+        getLocation().setX((getLocation().getX()) + getVelocity().getX() * dt);
+        getLocation().setY((getLocation().getY()) + getVelocity().getY() * dt);
+
+        //getVelocity().setY(getVelocity().getY() + (GRAVITY * dt));
+
+        if (getVelocity().getX() > 0) {
+            getVelocity().setX(getVelocity().getX() - FRICTION);
+            if (getVelocity().getX() < 0) getVelocity().setX(0);
+        } else if (getVelocity().getX() < 0) {
+            getVelocity().setX(getVelocity().getX() + FRICTION);
+            if (getVelocity().getX() > 0)  getVelocity().setX(0);
+        }
+
+        /*
+        // Apply friction to velocityY
+        if (getVelocity().getY() > 0) {
+            getVelocity().setY(getVelocity().getY() - FRICTION);
+            if (getVelocity().getY() < 0) getVelocity().setY(0);
+        } else if (getVelocity().getY() < 0) {
+            getVelocity().setY(getVelocity().getY() + FRICTION);
+            if (getVelocity().getY() > 0) getVelocity().setY(0);
+        }*/
+
+        if (isOnGround()) {
+            System.out.println(getType() + " is on ground");
+            getVelocity().setY(0);
+        }
+        /*
         moveX = getDirectionX() * (speed * dt);
         moveY = getDirectionY() * (speed * dt);
 
@@ -101,7 +135,7 @@ public abstract class Entity extends GameObject {
         } else {
             fallAccel = 1;
             setDirectionY(0);
-        }
+        }*/
     }
 
     public double getDirectionX() {
@@ -181,7 +215,9 @@ public abstract class Entity extends GameObject {
             }
 
             for (int i = 0; i < y; i++) {
-                if (isFalling()) {
+                if (isFalling() && !(this instanceof Projectile)) {
+                    this.setLocation(getLocation().getX(), getLocation().getY() + 1);
+                } else {
                     this.setLocation(getLocation().getX(), getLocation().getY() + 1);
                 }
             }
@@ -218,6 +254,18 @@ public abstract class Entity extends GameObject {
         return moveY != 0;
     }
     public boolean isOnGround() {
+        CollisionBox cBox = getCollisionBox();
+        List<GameObject> collisions = getLevel().getQuadTree().query(this);
+        for (GameObject gameObject : collisions) {
+            if (gameObject.isCollidable() && getCollisionBox().collidesWith(gameObject.getCollisionBox())) {
+                System.out.println(getType() + " collided with " + gameObject.toString());
+                return true;
+            }
+        }
+
+        return false;
+
+        /*
         int tileX = (int)((getCollisionBox().getLocation().getX()) / Game.BLOCK_SIZE);
         int tileY = (int)((getCollisionBox().getLocation().getY()) / Game.BLOCK_SIZE);
 
@@ -250,7 +298,7 @@ public abstract class Entity extends GameObject {
             }
         }
 
-        return false;
+        return false;*/
     }
 
     public boolean isClimbing() {
@@ -322,7 +370,7 @@ public abstract class Entity extends GameObject {
     }
 
     public Texture getIdleFrame() {
-        return getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase());
+        return getLevel().getManager().getEngine().getTextureBank().getTexture(getType().toString().toLowerCase());
     }
 
     public void reset(){
@@ -360,5 +408,18 @@ public abstract class Entity extends GameObject {
         double y1 = getLocation().getY() + (getHitboxHeight() / 2);
         double y2 = entity.getLocation().getY() + (entity.getHitboxHeight() / 2);
         return Math.abs(y1 - y2);
+    }
+
+    public Vector getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(Vector vector) {
+        this.velocity = vector;
+    }
+
+    public void setVelocity(double velX, double velY) {
+        getVelocity().setX(velX);
+        getVelocity().setY(velY);
     }
 }

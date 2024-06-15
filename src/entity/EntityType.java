@@ -2,6 +2,9 @@ package entity;
 
 public enum EntityType {
 
+    ARROW("resources/images/objects/arrow.png"),
+    BEE("resources/images/characters/bee/bee_idle_frame_", 4, 8),
+    STINGER("resources/images/objects/stinger.png"),
     PLAYER("resources/images/characters/idle.png"),
     DOOR("resources/images/blocks/door.png"),
     SDOOR("resources/images/blocks/sDoor.png"),

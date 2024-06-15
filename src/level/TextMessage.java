@@ -1,6 +1,6 @@
 package level;
 
-import main.Location;
+import utils.Location;
 
 import java.awt.*;
 

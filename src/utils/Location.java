@@ -1,4 +1,7 @@
-package main;
+package utils;
+
+import main.Game;
+
 public class Location {
     double locX;
     double locY;

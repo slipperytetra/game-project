@@ -1,14 +1,15 @@
 package entity;
 
 import level.Level;
-import main.Location;
+import utils.Location;
+import main.SoundType;
 
 public class ItemKey extends EntityItem {
 
     public ItemKey(Level level, Location loc) {
         super(EntityType.KEY, level, loc);
 
-        setPickupSound(level.getManager().getEngine().loadAudio("resources/sounds/keyObtained.wav"));
+        setPickupSound(SoundType.COLLECT_KEY);
     }
 
     public void onPickup() {

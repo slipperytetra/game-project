@@ -1,13 +1,12 @@
 package entity;
 
 import level.Level;
-import main.GameEngine;
-import main.Location;
-import main.Texture;
+import utils.Location;
+import main.SoundType;
 
 public class EntityItem extends Entity {
 
-    private GameEngine.AudioClip pickupSound;
+    private SoundType pickupSound;
 
     public EntityItem(EntityType type, Level level, Location loc) {
         super(type, level, loc);
@@ -33,18 +32,18 @@ public class EntityItem extends Entity {
 
     public void onPickup() {
         if (hasPickupSound()) {
-            getLevel().getManager().getEngine().playAudio(getPickupSound());
+            getLevel().getManager().getEngine().getAudioBank().playSound(getPickupSound());
         }
 
         kill();
     }
 
-    public GameEngine.AudioClip getPickupSound() {
+    public SoundType getPickupSound() {
         return pickupSound;
     }
 
-    public void setPickupSound(GameEngine.AudioClip pickupSound) {
-        this.pickupSound = pickupSound;
+    public void setPickupSound(SoundType type) {
+        this.pickupSound = type;
     }
 
     public boolean hasPickupSound() {

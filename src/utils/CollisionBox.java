@@ -1,4 +1,6 @@
-package main;
+package utils;
+
+import main.GameObject;
 
 public class CollisionBox {
 
@@ -65,11 +67,20 @@ public class CollisionBox {
         double RectBY1 = box.getLocation().getY();
         double RectBY2 = box.getCorner().getY();
 
-        if (RectAX1 <= RectBX2 && RectAX2 >= RectBX1 &&
-                RectAY1 <= RectBY2 && RectAY2 >= RectBY1) {
+        if (RectAX1 < RectBX2 && RectAX2 > RectBX1 &&
+                RectAY1 < RectBY2 && RectAY2 > RectBY1) {
             return true;
         }
 
         return false;
+    }
+
+
+    public boolean collidesWith(GameObject gObj) {
+        if (!gObj.isActive()) {
+            return false;
+        }
+
+        return collidesWith(gObj.getCollisionBox());
     }
 }

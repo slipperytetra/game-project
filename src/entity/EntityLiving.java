@@ -2,31 +2,31 @@ package entity;
 
 import level.Level;
 import main.*;
-
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import utils.Location;
+import utils.TextureAnimated;
 
 public abstract class EntityLiving extends Entity {
 
     private int hitDamage;
     private EntityLiving target;
 
-    private GameEngine.AudioClip soundHit;
-    private GameEngine.AudioClip soundAttack;
+    private SoundType soundHit;
+    private SoundType soundAttack;
 
     private AttackTimer attackTimer;
 
     private double attackCounter;
     private double attackCooldown;
+    private double attackRange;
 
     public double attackSearchTicks;
-    public final double ATTACK_SEARCH_COOLDOWN = 1.0;
+    public double ATTACK_SEARCH_COOLDOWN = 1.0;
 
     public EntityLiving(EntityType type, Level level, Location loc) {
         super(type, level, loc);
         setAttackCooldown(1.0); //Default attack cooldown
         setShouldRespawn(true);
+        this.attackRange = Game.BLOCK_SIZE * 2.5;
 
         System.out.println("New attack timer for " + type.toString());
         setAttackTimer(new AttackTimer(this));
@@ -73,29 +73,29 @@ public abstract class EntityLiving extends Entity {
         this.target = target;
     }
 
-    public GameEngine.AudioClip getHitSound() {
+    public SoundType getHitSound() {
         return soundHit;
     }
 
-    public void setHitSound(GameEngine.AudioClip sound) {
+    public void setHitSound(SoundType sound) {
         this.soundHit = sound;
     }
 
-    public GameEngine.AudioClip getAttackSound() {
+    public SoundType getAttackSound() {
         return soundAttack;
     }
 
-    public void setAttackSound(GameEngine.AudioClip sound) {
+    public void setAttackSound(SoundType sound) {
         this.soundAttack = sound;
     }
 
     public TextureAnimated getAttackFrame() {
-        return (TextureAnimated) getLevel().getManager().getEngine().getTexture(getType().toString().toLowerCase() + "_attack");
+        return (TextureAnimated) getLevel().getManager().getEngine().getTextureBank().getTexture(getType().toString().toLowerCase() + "_attack");
     }
 
     public void findTarget() {
         //System.out.println("Looking for target " + System.currentTimeMillis());
-        if (getDistanceTo(getLevel().getPlayer()) < 64) {
+        if (getDistanceTo(getLevel().getPlayer()) < getAttackRange()) {
             setTarget(getLevel().getPlayer());
             return;
         }
@@ -115,6 +115,8 @@ public abstract class EntityLiving extends Entity {
             } else {
                 setFlipped(false);
             }
+        } else {
+            getLevel().getManager().getEngine().getCamera().shake(10);
         }
 
         target.damage(this);
@@ -125,7 +127,7 @@ public abstract class EntityLiving extends Entity {
     }
 
     public boolean isAttacking() {
-        return attackCounter < getAttackCooldown();
+        return attackCounter > 0 && attackCounter < getAttackCooldown();
     }
 
     public double getAttackTicks() {
@@ -143,13 +145,24 @@ public abstract class EntityLiving extends Entity {
     public void damage(EntityLiving attacker) {
         setHealth(getHealth() - attacker.getDamage());
         if (getHitSound() != null) {
-            getLevel().getManager().getEngine().playAudio(getHitSound());
+            getLevel().getManager().getEngine().getAudioBank().playSound(getHitSound());
+        }
+    }
+
+    public void damage(int damage) {
+        setHealth(getHealth() - damage);
+        if (getHitSound() != null) {
+            getLevel().getManager().getEngine().getAudioBank().playSound(getHitSound());
         }
     }
 
     public void setAttackCooldown(double cooldown) {
         this.attackCooldown = cooldown;
+        this.ATTACK_SEARCH_COOLDOWN = cooldown;
         setAttackTicks(getAttackCooldown() - 0.01);
+        if (attackTimer != null) {
+            attackTimer.setDelay((int) getAttackCooldown() * 1000);
+        }
     }
 
 
@@ -167,5 +180,13 @@ public abstract class EntityLiving extends Entity {
 
     public void setAttackTimer(AttackTimer timer) {
         this.attackTimer = timer;
+    }
+
+    public double getAttackRange() {
+        return attackRange;
+    }
+
+    public void setAttackRange(double range) {
+        this.attackRange = range;
     }
 }

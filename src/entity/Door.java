@@ -1,12 +1,10 @@
 package entity;
 
 import level.Level;
-import main.GameEngine;
-import main.Location;
+import utils.Location;
+import main.SoundType;
 
 public class Door extends Entity {
-    private GameEngine.AudioClip newLevel;
-    private boolean audioPlayed;
 
     public Door(Level level, Location loc) {
         super(EntityType.DOOR, level, loc);
@@ -21,20 +19,10 @@ public class Door extends Entity {
 
         // Check if the player can enter the next level
         if (canEnter(getLevel().getPlayer())) {
-            // Load the audio if it hasn't been loaded yet
-            if (newLevel == null) {
-                newLevel = getLevel().getManager().getEngine().loadAudio("resources/sounds/newLevel.wav");
-            }
-
-            // Play the audio if it hasn't been played yet
-
 
             // Check if the specified key is pressed to switch to the next level
             if (getLevel().getManager().getEngine().keysPressed.contains(69)) {
-                if (!audioPlayed) {
-                    getLevel().getManager().getEngine().playAudio(newLevel);
-                    audioPlayed = true; // Set the flag to true to indicate that the audio has been played
-                }
+                getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.DOOR_OPOEN);
                 getLevel().getManager().getEngine().setActiveLevel(getLevel().getManager().getLevels().get(getLevel().getNextLevel()));
             }
         }

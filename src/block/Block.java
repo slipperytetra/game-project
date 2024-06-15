@@ -2,6 +2,8 @@ package block;
 
 import level.Level;
 import main.*;
+import utils.Location;
+import utils.Texture;
 
 import java.awt.*;
 
@@ -44,6 +46,6 @@ public class Block extends GameObject {
     }
 
     public Texture getTexture() {
-        return getLevel().getManager().getEngine().getTexture(getType().toString());
+        return getLevel().getManager().getEngine().getTextureBank().getTexture(getType().toString());
     }
 }

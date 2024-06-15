@@ -1,4 +1,4 @@
-package main;
+package utils;
 
 import com.google.gson.GsonBuilder;
 

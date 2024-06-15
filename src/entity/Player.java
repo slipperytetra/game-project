@@ -1,21 +1,18 @@
 package entity;
 
+import block.Block;
 import block.BlockClimbable;
 import block.BlockTypes;
 import level.Level;
 import level.ParticleTypes;
 import main.*;
+import utils.Location;
+import utils.Texture;
+import utils.TextureAnimated;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class Player extends EntityLiving {
@@ -31,7 +28,9 @@ public class Player extends EntityLiving {
 
     private double runParticleTimer;
     private double RUN_PARTICLE_FREQUENCY = 0.075;
+
     private int coins;
+    private int arrows;
 
     public Player(Level level, Location loc) {
         super(EntityType.PLAYER, level, loc);
@@ -42,18 +41,23 @@ public class Player extends EntityLiving {
         setDamage(5);
         setHealth(getMaxHealth());
         setDirectionY(1);
+        setAttackRange(Game.BLOCK_SIZE * 2.5);
+        setCollidable(true);
+        setHitboxWidth(14);
+        setHitboxOffsetX(4);
         init();
     }
 
     public void init() {
-        setHitSound(getLevel().getManager().getEngine().loadAudio("resources/sounds/hitSound.wav"));
-        setAttackSound(getLevel().getManager().getEngine().loadAudio("resources/sounds/attackSound.wav"));
+        setHitSound(SoundType.PLAYER_HIT);
+        setAttackSound(SoundType.PLAYER_ATTACK);
 
         this.healthBar = new JProgressBar(0, getMaxHealth());
         this.healthBar.setBounds(100, 25, 100, 10); // Adjust position and size as needed
         this.healthBar.setForeground(Color.RED); // Set the color
         this.healthBar.setValue(getMaxHealth()); // Set initial health
         this.healthBar.setStringPainted(true); // Show health value
+        this.arrows = 25;
     }
 
     public void update(double dt) {
@@ -77,8 +81,19 @@ public class Player extends EntityLiving {
                     partVelX *= -1;
                 }
 
-                getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY() + 48, partVelX, partVelY);
+                //getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.PLAYER_RUN);
+                getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY() + getHeight(), partVelX, partVelY);
                 runParticleTimer = 0;
+            }
+        }
+
+
+        List<GameObject> collisions = getLevel().getQuadTree().query(this);
+        for (GameObject gameObject : collisions) {
+            if (gameObject instanceof Block block) {
+                if (this.getCollisionBox().getCorner().getY() >= block.getCollisionBox().getLocation().getY()) {
+                    break;
+                }
             }
         }
     }
@@ -94,7 +109,8 @@ public class Player extends EntityLiving {
 
     @Override
     public void processMovement(double dt) {
-        moveX = getDirectionX() * (speed * dt);
+        super.processMovement(dt);
+        /*moveX = getDirectionX() * (speed * dt);
         moveY = getDirectionY() * (speed * dt);
 
         moveX(moveX);
@@ -122,7 +138,7 @@ public class Player extends EntityLiving {
                 fallAccel = 1;
                 setDirectionY(0);
             }
-        }
+        }*/
     }
 
     public boolean isJumping() {
@@ -150,11 +166,11 @@ public class Player extends EntityLiving {
             game.changeColor(Color.magenta);
 
             if (getBlockBelowEntityLeft() != null) {
-                game.drawRectangle((getBlockBelowEntityLeft().getLocation().getX() + cam.centerOffsetX) * cam.getZoom(), (getBlockBelowEntityLeft().getLocation().getY() + cam.centerOffsetY) * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom());
+                game.drawRectangle((cam.toScreenX(getBlockBelowEntityLeft().getLocation().getX())), cam.toScreenY(getBlockBelowEntityLeft().getLocation().getY()), Game.BLOCK_SIZE * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom());
             }
 
             if (getBlockBelowEntityRight() != null) {
-                game.drawRectangle((getBlockBelowEntityRight().getLocation().getX() + cam.centerOffsetX) * cam.getZoom(), (getBlockBelowEntityRight().getLocation().getY() + cam.centerOffsetY) * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom());
+                game.drawRectangle((cam.toScreenX(getBlockBelowEntityRight().getLocation().getX())), cam.toScreenY(getBlockBelowEntityRight().getLocation().getY()), Game.BLOCK_SIZE * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom());
             }
 
             game.changeColor(getHitboxColor());
@@ -181,7 +197,8 @@ public class Player extends EntityLiving {
                 }
             }
             if (keysPressed.contains(65)) {//A
-                setDirectionX(-calculateHorizontalMovement());
+                getVelocity().setX(Game.BLOCK_SIZE * -7);
+                //setDirectionX(-calculateHorizontalMovement());
             }
             if (keysPressed.contains(83)) {//S
                 if (canClimb() || getLevel().isEditMode()) {
@@ -189,24 +206,47 @@ public class Player extends EntityLiving {
                 }
             }
             if (keysPressed.contains(68)) {//D
-                setDirectionX(calculateHorizontalMovement());
+                getVelocity().setX(Game.BLOCK_SIZE * 7);
+                //setDirectionX(calculateHorizontalMovement());
+            }
+            if (keysPressed.contains(90)) {//Z
+                attemptAttack(true);
             }
             if (keysPressed.contains(81)) {
-                if (getAttackTicks() >= getAttackCooldown()) {
-                    if (getAttackSound() != null) {
-                        getLevel().getManager().getEngine().playAudio(getAttackSound());
-                    }
-                    getAttackFrame().setFrameIndex(0);
-                    setAttackTicks(0);
-
-                    findTarget();
-
-                    if (getTarget() != null) {
-                        attack();
-                    }
-                }
+                attemptAttack(false);
             }
             keyPressTimer = 0;
+        }
+    }
+
+    public void attemptAttack(boolean shoot) {
+        if (getAttackTicks() >= getAttackCooldown()) {
+            if (!shoot) {
+                if (getAttackSound() != null) {
+                    getLevel().getManager().getEngine().getAudioBank().playSound(getAttackSound());
+                }
+                getAttackFrame().setFrameIndex(0);
+                setAttackTicks(0);
+
+                findTarget();
+
+                if (getTarget() != null) {
+                    attack();
+                }
+            } else {
+                if (getArrows() <= 0) {
+                    return;
+                }
+
+                Location spawnLoc = new Location(getLocation().getX(), getLocation().getY());
+                ProjectileArrow proj = new ProjectileArrow(this, getLevel(), spawnLoc, getLevel().getManager().getEngine().mouseX, getLevel().getManager().getEngine().mouseY);
+                proj.setLocation(getLocation().getX() + (getHitboxWidth() / 2) - (proj.getWidth() / 2), getLocation().getY());
+                proj.offsetTrajectory(32);
+                getLevel().addEntity(proj);
+                getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.STINGER_SHOOT);
+                setAttackTicks(0);
+                incrementArrows(-1);
+            }
         }
     }
 
@@ -217,9 +257,9 @@ public class Player extends EntityLiving {
                 continue;
             }
 
-            if (entity instanceof EntityLiving && entity.getType() != this.getType()) {
-                if (getCollisionBox().collidesWith(entity.getCollisionBox())) {
-                    setTarget((EntityLiving) entity);
+            if (entity instanceof EntityLiving lEntity && entity.getType() != this.getType()) {
+                if (getDistanceTo(lEntity) < getAttackRange()) {
+                    setTarget(lEntity);
                     return;
                 }
             }
@@ -268,15 +308,15 @@ public class Player extends EntityLiving {
     }
 
     public Texture getRunFrame() {
-        return getLevel().getManager().getEngine().getTexture("player_run");
+        return getLevel().getManager().getEngine().getTextureBank().getTexture("player_run");
     }
 
     public Texture getFallFrame() {
-        return getLevel().getManager().getEngine().getTexture("player_fall");
+        return getLevel().getManager().getEngine().getTextureBank().getTexture("player_fall");
     }
 
     public TextureAnimated getJumpFrame() {
-        return (TextureAnimated) getLevel().getManager().getEngine().getTexture("player_jump");
+        return (TextureAnimated) getLevel().getManager().getEngine().getTextureBank().getTexture("player_jump");
     }
 
     @Override
@@ -323,4 +363,18 @@ public class Player extends EntityLiving {
         return health;
     }
 
+    public int getArrows() {
+        return arrows;
+    }
+
+    public void setArrows(int amount) {
+        this.arrows = amount;
+        if (arrows < 0) {
+            arrows = 0;
+        }
+    }
+
+    public void incrementArrows(int amount) {
+        setArrows(getArrows() + amount);
+    }
 }

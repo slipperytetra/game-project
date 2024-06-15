@@ -5,14 +5,15 @@ import block.BlockTypes;
 import block.decorations.Decoration;
 import block.decorations.FakeLightSpot;
 import entity.Entity;
-import entity.EntityLiving;
 import entity.Player;
 import level.Particle;
 import level.TextMessage;
+import utils.CollisionBox;
+import utils.Location;
+import utils.Texture;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.nio.Buffer;
+import java.util.Random;
 
 /*
 *   This class handles the rendering of all objects on the screen.
@@ -26,8 +27,11 @@ public class Camera {
     public Location loc, centerPoint;
     public Game game;
     public Player player;
+    private Random rand;
 
     public boolean debugMode;
+    public boolean isShaking;
+    private double shakeTicks, shakeCooldown;
     private int DEBUG_ENTITIES_ON_SCREEN;
     private int DEBUG_BLOCKS_ON_SCREEN;
     private int DEBUG_DECORATIONS_ON_SCREEN;
@@ -40,6 +44,8 @@ public class Camera {
     double boundsY;
     double tempLocX;
     double tempLocY;
+    double shakeOffsetX;
+    double shakeOffsetY;
 
     private long lastFpsCheck = 0;
     private int currentFps = 0;
@@ -63,9 +69,10 @@ public class Camera {
         this.camWidth = 1280;
         this.camHeight = 720;
 
-        this.textBg = game.imageBank.get("background");
-        this.textMg = game.imageBank.get("midground");
-        this.textFg = game.imageBank.get("foreground");
+        this.textBg = game.getTextureBank().getTexture("background");
+        this.textMg = game.getTextureBank().getTexture("midground");
+        this.textFg = game.getTextureBank().getTexture("foreground");
+        this.rand = new Random();
         /*
         *   'point1' is the top left location of the screen.
         *   'point2' is the bottom right location of the screen.
@@ -90,6 +97,10 @@ public class Camera {
         calculateFPS();
         setFocusPoint(getPlayer().getLocation());
 
+        trackFocus();
+    }
+
+    public void trackFocus() {
         boundsX = game.getActiveLevel().getActualWidth() - camWidth;
         boundsY = game.getActiveLevel().getActualHeight() - camHeight;
 
@@ -100,6 +111,13 @@ public class Camera {
             tempLocX = boundsX;
         }
 
+        if (shakeTicks < shakeCooldown) {
+            shakeTicks++;
+            isShaking = true;
+        } else {
+            isShaking = false;
+        }
+
         tempLocY = getFocusPoint().getY() - camHeight / 2;
         if (tempLocY < 0) {
             tempLocY = 0;
@@ -107,8 +125,13 @@ public class Camera {
             tempLocY = boundsY;
         }
 
-        loc.setX(tempLocX);
-        loc.setY(tempLocY);
+        if (isShaking()) {
+            shakeOffsetX = rand.nextDouble(-2, 2);
+            shakeOffsetY = rand.nextDouble(-2, 2);
+        }
+
+        loc.setX(tempLocX + shakeOffsetX);
+        loc.setY(tempLocY + shakeOffsetY);
 
         collisionBox.setLocation(loc.getX(), loc.getY());
     }
@@ -255,14 +278,20 @@ public class Camera {
         }
 
         if (game.getActiveLevel().getPlayer().hasKey()) {
-            game.drawImage(game.imageBank.get("key").getImage(), game.width() - 50, 20, 30, 30);
+            game.drawImage(game.getTextureBank().getTexture("key").getImage(), game.width() - 50, 20, 30, 30);
         }
 
         double localXDiff = 50;
         double localYDiff = 50;
         drawHealthBar(player, localXDiff + 20, localYDiff - 7);
-        game.drawImage(game.getTexture("ui_heart").getImage(), localXDiff - 19, localYDiff - 19, 38, 38);
-        game.drawImage(game.getTexture("gold_coin").getImage(), localXDiff - 19, localYDiff + 25, 35, 35);
+        game.drawImage(game.getTextureBank().getTexture("ui_heart").getImage(), localXDiff - 19, localYDiff - 19, 38, 38);
+        game.drawImage(game.getTextureBank().getTexture("gold_coin").getImage(), localXDiff - 19, localYDiff + 25, 35, 35);
+
+        Texture texture = game.getTextureBank().getTexture("arrow");
+        //texture.setRotation(0);
+        game.drawImage(texture.getImageNoAffine(), game.width() - 75, 55, 35, 35);
+        game.changeColor(Color.WHITE);
+        game.drawBoldText(game.width() - 40, 80, "" + getPlayer().getArrows(), 22);
         game.changeColor(Color.ORANGE);
         game.drawBoldText(localXDiff + 20, localYDiff + 55, "" + getPlayer().getCoins(), 35);
 
@@ -276,17 +305,18 @@ public class Camera {
             game.drawText(25, 220, "particles on screen: " + DEBUG_PARTICLES_ON_SCREEN, "Serif", 20);
             game.drawText(25, 240, "player:", "Serif", 20);
             game.drawText(35, 260, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
-            game.drawText(35, 260, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
+            game.drawText(35, 280, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
             if (getPlayer().getTarget() != null) {
-                game.drawText(35, 300, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
+                game.drawText(35, 320, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
             } else {
-                game.drawText(35, 300, "target: null", "Serif", 20);
+                game.drawText(35, 320, "target: null", "Serif", 20);
             }
-            game.drawText(35, 320, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
-            game.drawText(35, 340, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
+            game.drawText(35, 340, "onGround: " + getPlayer().isOnGround(), "Serif", 20);
+            game.drawText(35, 360, "hasKey: " + getPlayer().hasKey(), "Serif", 20);
 
             game.changeColor(Color.RED);
             game.drawRectangle(toScreenX(getCollisionBox().getLocation().getX()), toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            game.getActiveLevel().getQuadTree().render(this);
         }
 
         if (game.getActiveLevel().isEditMode()) {
@@ -300,8 +330,8 @@ public class Camera {
             DEBUG_PARTICLES_ON_SCREEN++;
         }
 
-        if (game.imageBank.get("overlay") != null) {
-            game.drawImage(game.imageBank.get("overlay").getImage(), 0, 0, game.width(), game.height());
+        if (game.getTextureBank().getTexture("overlay") != null) {
+            game.drawImage(game.getTextureBank().getTexture("overlay").getImage(), 0, 0, game.width(), game.height());
         }
     }
 
@@ -405,5 +435,14 @@ public class Camera {
 
     public double toWorldY(double screenY) {
         return loc.getY() + screenY;
+    }
+
+    public boolean isShaking() {
+        return isShaking;
+    }
+
+    public void shake(double time) {
+        this.shakeCooldown = time;
+        this.shakeTicks = 0;
     }
 }

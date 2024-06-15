@@ -2,11 +2,9 @@ package entity;
 
 import level.Level;
 import main.Camera;
-import main.Location;
-import main.Texture;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import utils.Location;
+import main.SoundType;
+import utils.Texture;
 
 public class EnemyPlant extends Enemy {
 
@@ -17,9 +15,9 @@ public class EnemyPlant extends Enemy {
         setMaxHealth(20);
         setHealth(20);
         setScale(1);
-        setAttackCooldown(1.0);
+        setAttackCooldown(2.0);
 
-        setHitSound(getLevel().getManager().getEngine().loadAudio("resources/sounds/attackHit.wav"));
+        setHitSound(SoundType.GENERIC_HIT);
         setAttackSound(null);
     }
 

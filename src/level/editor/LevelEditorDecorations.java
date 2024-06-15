@@ -6,11 +6,12 @@ import block.decorations.DecorationTypes;
 import level.Level;
 import main.Camera;
 import main.Game;
-import main.Texture;
+import main.SoundType;
+import utils.Texture;
 
 import java.awt.event.MouseEvent;
 
-public class LevelEditorDecorations extends LevelItem {
+public class LevelEditorDecorations extends LevelEditor {
 
     private Decoration selectedDecoration;
 
@@ -25,7 +26,7 @@ public class LevelEditorDecorations extends LevelItem {
         cam.game.drawText(cam.game.width() - 150, 30, "Decoration: " + block.getType().toString(), 15);
         cam.game.drawText(cam.game.width() - 150, 45, "Pos: (" + getTileX() + ", " + getTileY() + ")", 15);
         if (getSelectedItem() instanceof DecorationTypes decoType) {
-            Texture texture = cam.game.getTexture(decoType.toString().toLowerCase());
+            Texture texture = cam.game.getTextureBank().getTexture(decoType.toString().toLowerCase());
             if (texture != null) {
                 double height = texture.getHeight() * decoType.getScale();
                 cam.game.drawImage(texture.getImage(), mouseOffsetX, mouseOffsetY - height + Game.BLOCK_SIZE,
@@ -81,6 +82,7 @@ public class LevelEditorDecorations extends LevelItem {
             }
 
 
+            getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.BLOCK_PLACE);
             //System.out.println(getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getType().toString());
             getLevel().addDecoration(type, getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation().clone());
         }
@@ -89,6 +91,7 @@ public class LevelEditorDecorations extends LevelItem {
     public void removeDeco() {
         if (getSelectedDecoration() != null) {
             getSelectedDecoration().setActive(false);
+            getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.BLOCK_BREAK);
         }
     }
 
@@ -98,7 +101,7 @@ public class LevelEditorDecorations extends LevelItem {
 
     public void findDecoration() {
         for (Decoration deco : getLevel().getDecorations()) {
-            if (deco.isOnScreen(getEngine().getCamera())) {
+            if (deco.isOnScreen()) {
                 //System.out.println("Checking if " + deco.getType().toString());
                 //System.out.println(deco.getLocation().toString());
                 //System.out.println("matches");

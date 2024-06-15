@@ -1,14 +1,15 @@
 package entity;
 
 import level.Level;
-import main.Location;
+import utils.Location;
+import main.SoundType;
 
 public class ItemGoldCoin extends EntityItem {
 
     public ItemGoldCoin(Level level, Location loc) {
         super(EntityType.GOLD_COIN, level, loc);
 
-        setPickupSound(getLevel().getManager().getEngine().loadAudio("resources/sounds/coin_pickup.wav"));
+        setPickupSound(SoundType.COLLECT_COIN);
         setScale(1.5);
     }
 

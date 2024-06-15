@@ -1,7 +1,7 @@
 package block;
 
 import level.Level;
-import main.Location;
+import utils.Location;
 
 public class BlockInteractable extends Block {
     public BlockInteractable(Level level, Location loc, BlockTypes type) {

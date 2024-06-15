@@ -4,6 +4,7 @@ import block.*;
 import block.decorations.*;
 import entity.*;
 import main.*;
+import utils.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -31,6 +32,7 @@ public class Level {
     private String foregroundImgFilePath;
     private String backgroundmusicFilePath;
     private GameEngine.AudioClip backgroundMusic;
+    private CollisionBox bounds;
 
     public BlockGrid grid;
     private LevelManager manager;
@@ -39,6 +41,7 @@ public class Level {
     private Location keyLoc;
     private Location doorLoc;
 
+    public HashSet<GameObject> gameObjects;
     private HashSet<Decoration> decorations;
     private HashSet<FakeLightSpot> spotLights;
     private HashSet<Entity> entities;
@@ -50,6 +53,8 @@ public class Level {
     public HashMap<Character, BlockTypes> blockKeyMap;
     public HashMap<Character, EntityType> entityKeyMap;
     public HashMap<Character, DecorationTypes> decorationKeyMap;
+
+    private QuadTree qtree;
 
     /*
     *   The purpose of the level class is to extract and store data from level.txt files.
@@ -70,6 +75,7 @@ public class Level {
         this.decorations = new HashSet<>();
         this.spotLights = new HashSet<>();
         this.particles = new HashSet<>();
+        this.gameObjects = new HashSet<>();
 
         this.levelData = new ArrayList<>();
         this.textMessages = new HashMap<>();
@@ -118,6 +124,7 @@ public class Level {
 
         //System.out.println("W/L: " + sizeWidth + ", " + sizeHeight);
         this.grid = new BlockGrid(this, sizeWidth, sizeHeight);
+        this.bounds = new CollisionBox(0, 0, sizeWidth * Game.BLOCK_SIZE, sizeHeight * Game.BLOCK_SIZE);
         this.maxLines = lines.size();
     }
 
@@ -182,6 +189,8 @@ public class Level {
                         entity = new ItemGoldCoin(this, spawnLoc);
                     } else if (type == EntityType.PLANT_MONSTER) {
                         entity = new EnemyPlant(this, spawnLoc);
+                    } else if (type == EntityType.BEE) {
+                        entity = new EnemyBee(this, spawnLoc);
                     } else if (type == EntityType.KEY) {
                         keyLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
                         entity = new ItemKey(this, spawnLoc);
@@ -215,16 +224,16 @@ public class Level {
         grid.applySets();
 
         if (!backgroundImgFilePath.isEmpty()) {
-            getManager().getEngine().imageBank.put("background", new Texture((BufferedImage) getManager().getEngine().loadImage(backgroundImgFilePath)));
+            getManager().getEngine().getTextureBank().addTexture("background", new Texture((BufferedImage) getManager().getEngine().loadImage(backgroundImgFilePath)));
         }
         if (!midgroundImgFilePath.isEmpty()) {
-            getManager().getEngine().imageBank.put("midground", new Texture((BufferedImage) getManager().getEngine().loadImage(midgroundImgFilePath)));
+            getManager().getEngine().getTextureBank().addTexture("midground", new Texture((BufferedImage) getManager().getEngine().loadImage(midgroundImgFilePath)));
         }
         if (!foregroundImgFilePath.isEmpty()) {
-            getManager().getEngine().imageBank.put("foreground", new Texture((BufferedImage) getManager().getEngine().loadImage(foregroundImgFilePath)));
+            getManager().getEngine().getTextureBank().addTexture("foreground", new Texture((BufferedImage) getManager().getEngine().loadImage(foregroundImgFilePath)));
         }
         if (!overlay.isEmpty()) {
-            getManager().getEngine().imageBank.put("overlay", new Texture((BufferedImage) getManager().getEngine().loadImage(overlay)));
+            getManager().getEngine().getTextureBank().addTexture("overlay", new Texture((BufferedImage) getManager().getEngine().loadImage(overlay)));
         }
         if (!backgroundmusicFilePath.isEmpty()) {
             backgroundMusic = getManager().getEngine().loadAudio(backgroundmusicFilePath);
@@ -243,6 +252,24 @@ public class Level {
         if (getBackgroundMusic() != null) {
             getManager().getEngine().startAudioLoop(getBackgroundMusic());
         }
+        System.out.println(getActualWidth() + ", " + getActualHeight());
+        gameObjects.addAll(getEntities());
+
+        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
+        this.qtree.insert(getPlayer());
+        for (Entity entity : getEntities()) {
+            this.qtree.insert(entity);
+        }
+
+        for (int bx = 0; bx < getBlockGrid().getWidth(); bx++) {
+            for (int by = 0; by < getBlockGrid().getHeight(); by++) {
+                Block blk = getBlockGrid().getBlockAt(bx, by);
+                if (blk.isCollidable()) {
+                    this.qtree.insert(blk);
+                }
+            }
+        }
+        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
     }
 
 
@@ -255,8 +282,12 @@ public class Level {
         while (iter.hasNext()) {
             Entity entity = iter.next();
             if (entity.isActive()) {
-                if (entity.getCollisionBox().collidesWith(getManager().getEngine().getCamera().getCollisionBox())) {
+                if (entity.getCollisionBox().collidesWith(getManager().getEngine().getCamera().getCollisionBox()) && !entity.isPersistent()) {
                     //System.out.println("Running " + entity.getType().toString() + " update(dt)");
+                    entity.update(dt);
+                }
+
+                if (entity.isPersistent()) {
                     entity.update(dt);
                 }
             }
@@ -293,6 +324,8 @@ public class Level {
                 iterLight.remove();
             }
         }
+
+        updateQuadTree();
     }
 
     public void reset() {
@@ -332,6 +365,14 @@ public class Level {
     }
     public int getId(){
         return id;
+    }
+
+    public CollisionBox getBounds() {
+        return bounds;
+    }
+
+    public void setBounds(double width, double height) {
+        bounds.setSize(width, height);
     }
 
     public HashSet<Entity> getEntities() {
@@ -486,5 +527,26 @@ public class Level {
 
     public String getMidgroundImgFilePath() {
         return midgroundImgFilePath;
+    }
+
+    public QuadTree getQuadTree() {
+        return qtree;
+    }
+
+    private void updateQuadTree() {
+        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
+        this.qtree.insert(getPlayer());
+        for (Entity entity : getEntities()) {
+            this.qtree.insert(entity);
+        }
+
+        for (int bx = 0; bx < getBlockGrid().getWidth(); bx++) {
+            for (int by = 0; by < getBlockGrid().getHeight(); by++) {
+                Block blk = getBlockGrid().getBlockAt(bx, by);
+                if (blk.isCollidable()) {
+                    this.qtree.insert(blk);
+                }
+            }
+        }
     }
 }

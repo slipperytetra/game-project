@@ -2,6 +2,7 @@ package level;
 
 public enum ParticleTypes {
 
+    ARROW_TRAIL("resources/images/particles/arrow_trail.png", 0.75, 0.25, false),
     CLOUD("resources/images/particles/cloud.png", 1,0.5, 0.75, 4, true),
     LEAF("resources/images/particles/leaf.png", 3,0.25, 0.5, 32, true, 0, 1);
 
@@ -18,6 +19,14 @@ public enum ParticleTypes {
         this.fadeOut = fadeOut;
         this.minSize = -1;
         this.maxSize = -1;
+    }
+
+    ParticleTypes(String filePath, double timeAlive, double size, boolean fadeOut) {
+        this.filePath = filePath;
+        this.timeAlive = timeAlive;
+        this.fadeOut = fadeOut;
+        this.minSize = size;
+        this.maxSize = size;
     }
 
     ParticleTypes(String filePath, double timeAlive, double minSize, double maxSize, boolean fadeOut) {
@@ -78,5 +87,9 @@ public enum ParticleTypes {
 
     public double getVelY() {
         return velY;
+    }
+
+    public boolean isShrink() {
+        return this == ParticleTypes.ARROW_TRAIL;
     }
 }

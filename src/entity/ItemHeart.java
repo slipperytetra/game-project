@@ -1,9 +1,8 @@
 package entity;
 
 import level.Level;
-import main.GameEngine;
-import main.Location;
-import main.Texture;
+import utils.Location;
+import main.SoundType;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -16,7 +15,7 @@ public class ItemHeart extends EntityItem {
     public ItemHeart(Level level, Location loc) {
         super(EntityType.HEART, level, loc);
 
-        setPickupSound(getLevel().getManager().getEngine().loadAudio("resources/sounds/health.wav"));
+        setPickupSound(SoundType.COLLECT_HEALTH);
         setScale(0.75);
     }
 

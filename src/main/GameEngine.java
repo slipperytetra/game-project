@@ -380,7 +380,7 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     }
 
     // Draws a line from (x1,y2) to (x2,y2)
-    void drawLine(double x1, double y1, double x2, double y2) {
+    public void drawLine(double x1, double y1, double x2, double y2) {
         // Draw a Line
         mGraphics.draw(new Line2D.Double(x1, y1, x2, y2));
     }
@@ -400,7 +400,7 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     // This function draws a rectangle at (x,y) with width and height (w,h)
     public void drawRectangle(double x, double y, double w, double h) {
         // Draw a Rectangle
-        mGraphics.draw(new Rectangle2D.Double(x, y, w, h));
+        mGraphics.drawRect((int) x, (int) y, (int) w, (int) h);
     }
 
     // This function draws a rectangle at (x,y) with width and height (w,h)

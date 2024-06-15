@@ -1,6 +1,4 @@
-package main;
-
-import block.BlockTypes;
+package utils;
 
 import javax.swing.*;
 import java.awt.*;

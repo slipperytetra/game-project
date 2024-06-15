@@ -2,7 +2,7 @@ package block;
 
 import level.Level;
 import main.Game;
-import main.Location;
+import utils.Location;
 
 public class BlockGrid {
 
