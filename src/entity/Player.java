@@ -156,14 +156,6 @@ public class Player extends EntityLiving {
         if (cam.debugMode) {
             game.changeColor(Color.magenta);
 
-            if (getBlockBelowEntityLeft() != null) {
-                game.drawRectangle((cam.toScreenX(getBlockBelowEntityLeft().getLocation().getX())), cam.toScreenY(getBlockBelowEntityLeft().getLocation().getY()), Game.BLOCK_SIZE * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom());
-            }
-
-            if (getBlockBelowEntityRight() != null) {
-                game.drawRectangle((cam.toScreenX(getBlockBelowEntityRight().getLocation().getX())), cam.toScreenY(getBlockBelowEntityRight().getLocation().getY()), Game.BLOCK_SIZE * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom());
-            }
-
             getDirection().normalise();
             double x = cam.toScreenX(getLocation().getX() + (getWidth() / 2));
             double y = cam.toScreenY(getLocation().getY() + (getHeight() / 2));

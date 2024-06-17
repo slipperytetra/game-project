@@ -116,7 +116,7 @@ public class QuadTree {
                     continue;
                 }
 
-                if (box.collidesWith(gameObject)) {
+                if (gameObject.isCollidable() && box.collidesWith(gameObject)) {
                     found.add(gameObject);
                 }
             }

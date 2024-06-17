@@ -48,8 +48,6 @@ public class GameMenuNew extends GameEngine {
         dataPanel.setVisible(false);
         contextPanel.add(dataPanel, "Load");
 
-        this.mPanel.add(mainPanel);
-
         // TEMPPP
         // menu.stopAudioLoop(menu.menuMusic);
         // Get the reference to the frame containing the button
@@ -62,6 +60,11 @@ public class GameMenuNew extends GameEngine {
         if (menuMusic != null) {
             startAudioLoop(menuMusic);
         }*/
+    }
+
+    @Override
+    public void init() {
+        this.mPanel.add(mainPanel);
     }
 
     public void loadTitlePanel() {

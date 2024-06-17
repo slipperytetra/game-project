@@ -16,6 +16,7 @@ public class Block extends GameObject {
 
         this.type = type;
         setCollidable(type.isCollidable());
+        setIsSolid(type.isCollidable());
     }
 
     public BlockTypes getType() {

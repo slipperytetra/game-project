@@ -11,7 +11,7 @@ public class GameObject {
 
     private boolean isActive;
     private boolean isCollidable;
-    private boolean canCollide;
+    private boolean isSolid;
     private boolean isPersistent;
     private double scale;
     private double width, height;
@@ -38,8 +38,9 @@ public class GameObject {
         this.isActive = true;
         this.isPersistent = false;
         this.hitboxColor = Color.GREEN;
-        this.canCollide = true;
-        this.setCollisionBox(new CollisionBox((int)loc.getX() + hitboxOffsetX, (int)loc.getY() + hitboxOffsetY, hitboxWidth, hitboxHeight));
+        this.isCollidable = false;
+        this.isSolid = false;
+        this.setCollisionBox(new CollisionBox(loc.getX() + hitboxOffsetX, loc.getY() + hitboxOffsetY, hitboxWidth, hitboxHeight));
     }
 
     public void update(double dt) {
@@ -83,11 +84,23 @@ public class GameObject {
         return isCollidable && getCollisionBox() != null;
     }
 
-    public void setCollidable(boolean collidable) {
-        isCollidable = collidable;
+    public void setCollidable(boolean isCollidable) {
+        this.isCollidable = isCollidable;
 
         if (getCollisionBox() == null) {
-            setCollisionBox(new CollisionBox((int) location.getX() + getHitboxOffsetX(), (int) location.getY() + getHitboxOffsetY(), Game.BLOCK_SIZE, Game.BLOCK_SIZE));
+            resetCollisionBox();
+        }
+    }
+
+    public boolean isSolid() {
+        return isSolid;
+    }
+
+    public void setIsSolid(boolean isSolid) {
+        this.isSolid = isSolid;
+
+        if (getCollisionBox() == null) {
+            resetCollisionBox();
         }
     }
 
@@ -203,11 +216,7 @@ public class GameObject {
         return false;
     }
 
-    public boolean isCanCollide() {
-        return canCollide;
-    }
-
-    public void setIsCanCollide(boolean canCollide) {
-        this.canCollide = canCollide;
+    private void resetCollisionBox() {
+        this.setCollisionBox(new CollisionBox(getLocation().getX() + hitboxOffsetX, getLocation().getY() + hitboxOffsetY, hitboxWidth, hitboxHeight));
     }
 }

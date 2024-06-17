@@ -21,8 +21,6 @@ public abstract class Entity extends GameObject {
     private final double FRICTION = 32;
     protected int health;
     private int maxHealth;
-    private Block blockBelowEntityLeft;
-    private Block blockBelowEntityRight;
     private boolean isDead;
     public CollisionBox tempBoxX;
 
@@ -36,9 +34,6 @@ public abstract class Entity extends GameObject {
     private List<GameObject> collisionsY;
 
     double speed = 384; // pixels per second / 12 blocks per second
-    double fallSpeedMultiplier = 1.009; // pixels per second
-
-    double fallAccel;
 
     private boolean isFlipped;
     private boolean canMove;
@@ -46,6 +41,7 @@ public abstract class Entity extends GameObject {
 
     double MAX_SPEED = Game.BLOCK_SIZE * 8;
     double ACCELERATION = MAX_SPEED / 3;
+    public double[] locs = new double[4];
 
     public Entity(EntityType type, Level level, Location loc) {
         super(level, loc);
@@ -125,15 +121,28 @@ public abstract class Entity extends GameObject {
         //System.out.println(collisionsX.size());
         if (!collisionsX.isEmpty()) {
             for (GameObject gameObject : collisionsX) {
-                if (!gameObject.isCollidable()) {
+                if (!gameObject.isSolid()) {
                     continue;
                 }
+
+                double gObjX1 = gameObject.getCollisionBox().getLocation().getX() - 1;
+                double gObjX2 = gameObject.getCollisionBox().getCorner().getX() + 1;
+
+                double eObjX1 = cBox.getLocation().getX();
+                double eObjX2 = cBox.getCorner().getX();
+
+                boolean intersects = !((gObjX2 < eObjX1) || (eObjX2 < gObjX1));
+                if (intersects) {
+                    getVelocity().setX(0);
+                    return;
+                }
+                /*
                 double diffXLeft = gameObject.getCollisionBox().getCorner().getX() - cBox.getLocation().getX();
                 double diffXRight = gameObject.getCollisionBox().getLocation().getX() - cBox.getCorner().getX();
                 if (diffXLeft >= 1) {
                     if (getVelocity().getX() < 0) {
                         getVelocity().setX(0);
-                        System.out.println("DiffLeft: " + diffXLeft);
+                        //System.out.println("DiffLeft: " + diffXLeft);
                         //System.out.println("colliding with " + gameObject + " above you");
                         return;
                     }
@@ -142,12 +151,12 @@ public abstract class Entity extends GameObject {
                 if (diffXRight <= 1) {
                     if (getVelocity().getX() > 0) {
                         getVelocity().setX(0);
-                        System.out.println("GameObject: " + gameObject.getCollisionBox().getLocation().getX() + " - " + cBox.getCorner().getX());
-                        System.out.println("DiffRight: " + diffXRight);
+                        //System.out.println("GameObject: " + gameObject.getCollisionBox().getLocation().getX() + " - " + cBox.getCorner().getX());
+                        //System.out.println("DiffRight: " + diffXRight);
                         //System.out.println("colliding with " + gameObject + " below you");
                         return;
                     }
-                }
+                }*/
             }
         }
 
@@ -164,11 +173,56 @@ public abstract class Entity extends GameObject {
         //System.out.println(collisionsX.size());
         if (!collisionsY.isEmpty()) {
             for (GameObject gameObject : collisionsY) {
-                if (!gameObject.isCollidable()) {
+                if (!gameObject.isSolid()) {
                     continue;
                 }
+
+                double gObjY1 = gameObject.getCollisionBox().getLocation().getY();
+                double gObjY2 = gameObject.getCollisionBox().getCorner().getY();
+
+                double eObjY1 = cBox.getLocation().getY() + 1;
+                double eObjY2 = cBox.getCorner().getY() - 1;
+
+                boolean intersects = !((gObjY2 < eObjY1) || (eObjY2 < gObjY1));
+                if (intersects) {
+                    getVelocity().setY(0);
+                    return;
+                }
+                /*
                 double diffYTop = gameObject.getCollisionBox().getCorner().getY() - cBox.getLocation().getY();
                 double diffYBot = gameObject.getCollisionBox().getLocation().getY() - cBox.getCorner().getY();
+                Camera cam = getLevel().getManager().getEngine().getCamera();
+
+                if (gameObject.getLocation().getY() >= cBox.getCorner().getY()) {
+                    locs[0] = cam.toScreenX(gameObject.getCollisionBox().getLocation().getX());
+                    locs[1] = cam.toScreenY(gameObject.getCollisionBox().getLocation().getY());
+
+                    locs[2] = cam.toScreenX(cBox.getCorner().getX());
+                    locs[3] = cam.toScreenY(cBox.getCorner().getY());
+                }
+               // System.out.println(diffYTop);
+                //System.out.println(diffYBot);
+                if (diffYTop > 0 && diffYTop < 16) {
+                    if (getVelocity().getY() < 0) {
+                        getVelocity().setY(0);
+                        System.out.println("colliding top");
+                        //System.out.println("DiffLeft: " + diffYTop);
+                        //System.out.println("colliding with " + gameObject + " above you");
+                        return;
+                    }
+                }
+
+                if (diffYBot > -16 && diffYBot < 0) {
+                    if (getVelocity().getY() > 0) {
+                        getVelocity().setY(0);
+                        // System.out.println("GameObject: " + gameObject.getCollisionBox().getLocation().getY() + " - " + cBox.getCorner().getY());
+                        //System.out.println("DiffRight: " + diffYBot);
+                        System.out.println("colliding bot");
+                        return;
+                    }
+                }
+
+
                 if (diffYTop <= 1) {
                     if (getVelocity().getY() < 0) {
                         getVelocity().setY(1);
@@ -177,17 +231,7 @@ public abstract class Entity extends GameObject {
                         //System.out.println("colliding with " + gameObject + " above you");
                         return;
                     }
-                }
-
-                if (diffYBot >= 1) {
-                    if (getVelocity().getY() > 0) {
-                        getVelocity().setY(-1);
-                       // System.out.println("GameObject: " + gameObject.getCollisionBox().getLocation().getY() + " - " + cBox.getCorner().getY());
-                        //System.out.println("DiffRight: " + diffYBot);
-                        System.out.println("colliding bot");
-                        return;
-                    }
-                }
+                }*/
             }
         }
 
@@ -398,13 +442,6 @@ public abstract class Entity extends GameObject {
 
     public boolean isClimbing() {
         return getBlockAtLocation() instanceof BlockClimbable;
-    }
-
-    public Block getBlockBelowEntityLeft() {
-        return blockBelowEntityLeft;
-    }
-    public Block getBlockBelowEntityRight() {
-        return blockBelowEntityRight;
     }
 
     public EntityType getType() {

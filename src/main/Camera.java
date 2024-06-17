@@ -339,6 +339,10 @@ public class Camera {
                 }
             }
 
+
+            game.changeColor(Color.RED);
+            game.drawLine(getPlayer().locs[0], getPlayer().locs[1], getPlayer().locs[2], getPlayer().locs[3]);
+
             game.changeColor(Color.YELLOW);
             game.drawRectangle(toScreenX(getPlayer().tempBoxX.getLocation().getX()), toScreenY(getPlayer().tempBoxX.getLocation().getY()), getPlayer().tempBoxX.getWidth(), getPlayer().tempBoxX.getHeight());
         }

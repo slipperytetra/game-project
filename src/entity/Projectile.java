@@ -36,7 +36,9 @@ public class Projectile extends Entity {
         setHealth(1);
         setCanMove(true);
         setPersistent(true);
-        setIsCanCollide(false);
+
+        setCollidable(true);
+        setIsSolid(false);
 
         angle = -(Math.atan2((loc.getY() + (getHeight() / 2)) - targetY, targetX - (loc.getX() + (getWidth() / 2))));
         this.velocity = new Vector(speed * Math.cos(angle), speed * Math.sin(angle));
@@ -58,7 +60,7 @@ public class Projectile extends Entity {
 
         List<GameObject> collisions = getLevel().getQuadTree().query(this);
         for (GameObject gameObject : collisions) {
-            if (!gameObject.isCanCollide() || gameObject.equals(this) || gameObject.equals(getShooter())) {
+            if (!gameObject.isCollidable() || gameObject.equals(this) || gameObject.equals(getShooter())) {
                 continue;
             }
 
