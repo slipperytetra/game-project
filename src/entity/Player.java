@@ -13,6 +13,7 @@ import utils.TextureAnimated;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class Player extends EntityLiving {
@@ -40,7 +41,7 @@ public class Player extends EntityLiving {
         setMaxHealth(100);
         setDamage(5);
         setHealth(getMaxHealth());
-        setDirectionY(1);
+        //setDirectionY(1);
         setAttackRange(Game.BLOCK_SIZE * 2.5);
         setCollidable(true);
         setHitboxWidth(14);
@@ -84,16 +85,6 @@ public class Player extends EntityLiving {
                 //getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.PLAYER_RUN);
                 getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY() + getHeight(), partVelX, partVelY);
                 runParticleTimer = 0;
-            }
-        }
-
-
-        List<GameObject> collisions = getLevel().getQuadTree().query(this);
-        for (GameObject gameObject : collisions) {
-            if (gameObject instanceof Block block) {
-                if (this.getCollisionBox().getCorner().getY() >= block.getCollisionBox().getLocation().getY()) {
-                    break;
-                }
             }
         }
     }
@@ -173,6 +164,15 @@ public class Player extends EntityLiving {
                 game.drawRectangle((cam.toScreenX(getBlockBelowEntityRight().getLocation().getX())), cam.toScreenY(getBlockBelowEntityRight().getLocation().getY()), Game.BLOCK_SIZE * cam.getZoom(), Game.BLOCK_SIZE * cam.getZoom());
             }
 
+            getDirection().normalise();
+            double x = cam.toScreenX(getLocation().getX() + (getWidth() / 2));
+            double y = cam.toScreenY(getLocation().getY() + (getHeight() / 2));
+
+            getDirection().normalise();
+            double x2 = cam.toScreenX(getLocation().getX() + (getDirection().getX() * 64));
+            double y2 = cam.toScreenY(getLocation().getY() + (getDirection().getY() * 64));
+            cam.game.drawLine(x, y, x2, y2);
+
             game.changeColor(getHitboxColor());
             game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
         }
@@ -187,9 +187,11 @@ public class Player extends EntityLiving {
     public void playerMovement(Set<Integer> keysPressed) {
         if (keyPressTimer >= KEY_PRESS_COOLDOWN) {
             if (keysPressed.contains(32)) {//SPACE
+                getVelocity().setY(-512);
+                /*
                 if (!isJumping() && !isAttacking() && (isOnGround() || canClimb() || getLevel().isEditMode())) {
                     jump();
-                }
+                }*/
             }
             if (keysPressed.contains(87)) {//W
                 if (canClimb() && getBlockAtLocation(0, -1).getType() != BlockTypes.VOID) {
@@ -197,7 +199,8 @@ public class Player extends EntityLiving {
                 }
             }
             if (keysPressed.contains(65)) {//A
-                getVelocity().setX(Game.BLOCK_SIZE * -7);
+                getVelocity().setX(-256);
+                //getVelocity().setX(Game.BLOCK_SIZE * -7);
                 //setDirectionX(-calculateHorizontalMovement());
             }
             if (keysPressed.contains(83)) {//S
@@ -206,7 +209,8 @@ public class Player extends EntityLiving {
                 }
             }
             if (keysPressed.contains(68)) {//D
-                getVelocity().setX(Game.BLOCK_SIZE * 7);
+                getVelocity().setX(256);
+                //getVelocity().setX(Game.BLOCK_SIZE * 7);
                 //setDirectionX(calculateHorizontalMovement());
             }
             if (keysPressed.contains(90)) {//Z
@@ -234,15 +238,18 @@ public class Player extends EntityLiving {
                     attack();
                 }
             } else {
-                if (getArrows() <= 0) {
+                if (getArrows() <= 0 && !getLevel().getManager().getEngine().getCamera().debugMode) {
                     return;
                 }
 
                 Location spawnLoc = new Location(getLocation().getX(), getLocation().getY());
-                ProjectileArrow proj = new ProjectileArrow(this, getLevel(), spawnLoc, getLevel().getManager().getEngine().mouseX, getLevel().getManager().getEngine().mouseY);
-                proj.setLocation(getLocation().getX() + (getHitboxWidth() / 2) - (proj.getWidth() / 2), getLocation().getY());
-                proj.offsetTrajectory(32);
-                getLevel().addEntity(proj);
+                Random rand = new Random();
+                for (int i = 0; i < 5; i++) {
+                    ProjectileArrow proj = new ProjectileArrow(this, getLevel(), spawnLoc, getLevel().getManager().getEngine().mouseX + rand.nextDouble(-32, 32), getLevel().getManager().getEngine().mouseY + rand.nextDouble(-32, 32));
+                    proj.setLocation(getLocation().getX() + (getHitboxWidth() / 2) - (proj.getWidth() / 2), getLocation().getY());
+                    proj.offsetTrajectory(32);
+                    getLevel().addEntity(proj);
+                }
                 getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.STINGER_SHOOT);
                 setAttackTicks(0);
                 incrementArrows(-1);

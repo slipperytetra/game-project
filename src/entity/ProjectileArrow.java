@@ -25,7 +25,7 @@ public class ProjectileArrow extends Projectile {
     public void kill() {
         super.kill();
 
-        getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.BLOCK_BREAK);
+        //getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.BLOCK_BREAK);
 
         // Need to add formula to calculate intersection of collisions so i can get exactly where it hit the block/entity.
         //getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY());

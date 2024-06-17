@@ -27,7 +27,7 @@ public class Projectile extends Entity {
     private double PARTICLE_FREQUENCY = 0.025;
 
     public Projectile(Entity shooter, EntityType type, Level level, Location loc, double speed, double targetX, double targetY) {
-        super(type, level, loc);
+        super(type, level, loc.clone());
         this.shooter = shooter;
         this.rotationOffset = 90;
         this.speed = speed;
@@ -36,6 +36,7 @@ public class Projectile extends Entity {
         setHealth(1);
         setCanMove(true);
         setPersistent(true);
+        setIsCanCollide(false);
 
         angle = -(Math.atan2((loc.getY() + (getHeight() / 2)) - targetY, targetX - (loc.getX() + (getWidth() / 2))));
         this.velocity = new Vector(speed * Math.cos(angle), speed * Math.sin(angle));
@@ -57,7 +58,7 @@ public class Projectile extends Entity {
 
         List<GameObject> collisions = getLevel().getQuadTree().query(this);
         for (GameObject gameObject : collisions) {
-            if (!gameObject.isCollidable() || gameObject.equals(this) || gameObject.equals(getShooter())) {
+            if (!gameObject.isCanCollide() || gameObject.equals(this) || gameObject.equals(getShooter())) {
                 continue;
             }
 

@@ -5,6 +5,7 @@ import block.BlockTypes;
 import block.decorations.Decoration;
 import block.decorations.FakeLightSpot;
 import entity.Entity;
+import entity.EntityType;
 import entity.Player;
 import level.Particle;
 import level.TextMessage;
@@ -305,7 +306,7 @@ public class Camera {
             game.drawText(25, 220, "particles on screen: " + DEBUG_PARTICLES_ON_SCREEN, "Serif", 20);
             game.drawText(25, 240, "player:", "Serif", 20);
             game.drawText(35, 260, "pos: " + getPlayer().getLocation().toString(), "Serif", 20);
-            game.drawText(35, 280, "velocity: " + Math.round(getPlayer().moveX) + ", " + Math.round(getPlayer().moveY), "Serif", 20);
+            game.drawText(35, 280, "velocity: " + Math.round(getPlayer().getVelocity().getX()) + ", " + Math.round(getPlayer().getVelocity().getY()), "Serif", 20);
             if (getPlayer().getTarget() != null) {
                 game.drawText(35, 320, "target: " + getPlayer().getTarget().toString(), "Serif", 20);
             } else {
@@ -321,6 +322,25 @@ public class Camera {
 
         if (game.getActiveLevel().isEditMode()) {
             game.getEditor().render(this);
+        }
+
+
+        if (debugMode) {
+            if (getPlayer().getCollisionsY() != null && !getPlayer().getCollisionsY().isEmpty()) {
+                for (GameObject gameObject : getPlayer().getCollisionsY()) {
+                    game.changeColor(Color.PINK);
+                    game.drawRectangle(toScreenX(gameObject.getCollisionBox().getLocation().getX()), toScreenY(gameObject.getCollisionBox().getLocation().getY()), gameObject.getCollisionBox().getWidth(), gameObject.getCollisionBox().getHeight());
+                }
+            }
+            if (getPlayer().getCollisionsX() != null && !getPlayer().getCollisionsX().isEmpty()) {
+                for (GameObject gameObject : getPlayer().getCollisionsX()) {
+                    game.changeColor(Color.blue);
+                    game.drawRectangle(toScreenX(gameObject.getCollisionBox().getLocation().getX()), toScreenY(gameObject.getCollisionBox().getLocation().getY()), gameObject.getCollisionBox().getWidth(), gameObject.getCollisionBox().getHeight());
+                }
+            }
+
+            game.changeColor(Color.YELLOW);
+            game.drawRectangle(toScreenX(getPlayer().tempBoxX.getLocation().getX()), toScreenY(getPlayer().tempBoxX.getLocation().getY()), getPlayer().tempBoxX.getWidth(), getPlayer().tempBoxX.getHeight());
         }
     }
     public void renderFX(){

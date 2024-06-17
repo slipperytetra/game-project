@@ -17,16 +17,15 @@ public class GameMenuNew extends GameEngine {
     protected Image backgroundImage;
     protected AudioClip menuMusic; // Clip for the menu music
 
-    public void init() {
+    public GameMenuNew() {
         this.setWindowSize(1280, 720);
-        this.menuMusic = loadAudio("resources/sounds/menuMusic.wav");
+        //this.menuMusic = loadAudio("resources/sounds/menuMusic.wav");
 
         try {
             this.backgroundImage = ImageIO.read(new File("resources/images/backgrounds/title_background.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
         mainPanel.setOpaque(false);
@@ -51,9 +50,18 @@ public class GameMenuNew extends GameEngine {
 
         this.mPanel.add(mainPanel);
 
+        // TEMPPP
+        // menu.stopAudioLoop(menu.menuMusic);
+        // Get the reference to the frame containing the button
+        if (mFrame != null) {
+            mFrame.dispose();
+        }
+        new Game().startGame();
+
+        /*
         if (menuMusic != null) {
             startAudioLoop(menuMusic);
-        }
+        }*/
     }
 
     public void loadTitlePanel() {
@@ -106,7 +114,7 @@ class LevelLoadPanel extends JPanel {
         setOpaque(false);
         JButton button = new JButton("Load Game");
         button.addActionListener(e -> {
-            menu.stopAudioLoop(menu.menuMusic);
+           // menu.stopAudioLoop(menu.menuMusic);
             // Get the reference to the frame containing the button
             JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(button);
             if (parentFrame != null) {

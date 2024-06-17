@@ -23,8 +23,8 @@ public class QuadTree {
     }
 
     public boolean insert(GameObject gameObject) {
-        if (!gameObject.getLocation().isBetween(boundary.getLocation(), boundary.getCorner())) {
-        //if (!this.boundary.collidesWith(gameObject.getCollisionBox())) {
+        //if (!gameObject.getLocation().isBetween(boundary.getLocation(), boundary.getCorner())) {
+        if (!this.boundary.collidesWith(gameObject.getCollisionBox())) {
             return false;
         }
 
@@ -100,6 +100,32 @@ public class QuadTree {
                 found.addAll(this.northEast.query(target));
                 found.addAll(this.southWest.query(target));
                 found.addAll(this.southEast.query(target));
+            }
+
+            return found;
+        }
+    }
+
+    public List<GameObject> query(GameObject target, CollisionBox box) {
+        List<GameObject> found = new ArrayList<>();
+        if (!this.boundary.collidesWith(box)) {
+            return found;
+        } else {
+            for (GameObject gameObject : gameObjects) {
+                if (target.equals(gameObject)) {
+                    continue;
+                }
+
+                if (box.collidesWith(gameObject)) {
+                    found.add(gameObject);
+                }
+            }
+
+            if (divided) {
+                found.addAll(this.northWest.query(target, box));
+                found.addAll(this.northEast.query(target, box));
+                found.addAll(this.southWest.query(target, box));
+                found.addAll(this.southEast.query(target, box));
             }
 
             return found;

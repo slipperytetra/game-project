@@ -537,7 +537,9 @@ public class Level {
         this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
         this.qtree.insert(getPlayer());
         for (Entity entity : getEntities()) {
-            this.qtree.insert(entity);
+            if (!entity.isDead()) {
+                this.qtree.insert(entity);
+            }
         }
 
         for (int bx = 0; bx < getBlockGrid().getWidth(); bx++) {

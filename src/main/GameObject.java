@@ -11,6 +11,7 @@ public class GameObject {
 
     private boolean isActive;
     private boolean isCollidable;
+    private boolean canCollide;
     private boolean isPersistent;
     private double scale;
     private double width, height;
@@ -37,6 +38,7 @@ public class GameObject {
         this.isActive = true;
         this.isPersistent = false;
         this.hitboxColor = Color.GREEN;
+        this.canCollide = true;
         this.setCollisionBox(new CollisionBox((int)loc.getX() + hitboxOffsetX, (int)loc.getY() + hitboxOffsetY, hitboxWidth, hitboxHeight));
     }
 
@@ -199,5 +201,13 @@ public class GameObject {
         }
 
         return false;
+    }
+
+    public boolean isCanCollide() {
+        return canCollide;
+    }
+
+    public void setIsCanCollide(boolean canCollide) {
+        this.canCollide = canCollide;
     }
 }

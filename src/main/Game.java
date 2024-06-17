@@ -168,25 +168,33 @@ public class Game extends GameEngine {
     @Override
     public void mouseReleased(MouseEvent event) {
         super.mouseReleased(event);
-        levelEditor.mouseReleased(event);
+        if (levelEditor != null) {
+            levelEditor.mouseReleased(event);
+        }
     }
 
     @Override
     public void mouseMoved(MouseEvent event) {
         super.mouseMoved(event);
-        levelEditor.mouseMoved(event);
+        if (levelEditor != null) {
+            levelEditor.mouseMoved(event);
+        }
     }
 
     @Override
     public void mouseDragged(MouseEvent event) {
         super.mouseDragged(event);
-        levelEditor.mouseDragged(event);
+        if (levelEditor != null) {
+            levelEditor.mouseDragged(event);
+        }
     }
 
     @Override
     public void mousePressed(MouseEvent event) {
         super.mousePressed(event);
-        levelEditor.mousePressed(event);
+        if (levelEditor != null) {
+            levelEditor.mousePressed(event);
+        }
     }
 
     /*public void loadDecorationImages() {
