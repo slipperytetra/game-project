@@ -179,29 +179,31 @@ public class Player extends EntityLiving {
     public void playerMovement(Set<Integer> keysPressed) {
         if (keyPressTimer >= KEY_PRESS_COOLDOWN) {
             if (keysPressed.contains(32)) {//SPACE
-                getVelocity().setY(-512);
-                /*
                 if (!isJumping() && !isAttacking() && (isOnGround() || canClimb() || getLevel().isEditMode())) {
-                    jump();
-                }*/
+                    if (canClimb()) {
+                        getVelocity().setY(-256);
+                    } else {
+                        getVelocity().setY(-450);
+                    }
+                }
             }
             if (keysPressed.contains(87)) {//W
-                if (canClimb() && getBlockAtLocation(0, -1).getType() != BlockTypes.VOID) {
-                    setDirectionY(-1);
+                if (canClimb() && getBlockAtLocation(0, 0).getType() != BlockTypes.VOID) {
+                    getVelocity().setY(-256);
                 }
             }
             if (keysPressed.contains(65)) {//A
-                getVelocity().setX(-256);
+                getVelocity().setX(Game.BLOCK_SIZE * -10);
                 //getVelocity().setX(Game.BLOCK_SIZE * -7);
                 //setDirectionX(-calculateHorizontalMovement());
             }
             if (keysPressed.contains(83)) {//S
                 if (canClimb() || getLevel().isEditMode()) {
-                    setDirectionY(1);
+                    getVelocity().setY(256);
                 }
             }
             if (keysPressed.contains(68)) {//D
-                getVelocity().setX(256);
+                getVelocity().setX(Game.BLOCK_SIZE * 10);
                 //getVelocity().setX(Game.BLOCK_SIZE * 7);
                 //setDirectionX(calculateHorizontalMovement());
             }

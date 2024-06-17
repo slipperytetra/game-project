@@ -17,7 +17,7 @@ public abstract class Entity extends GameObject {
 
     private EntityType type;
 
-    private final double GRAVITY = 9.8 * Game.BLOCK_SIZE;
+    private final double GRAVITY = 32 * Game.BLOCK_SIZE;
     private final double FRICTION = 32;
     protected int health;
     private int maxHealth;
@@ -102,12 +102,16 @@ public abstract class Entity extends GameObject {
             if (getVelocity().getX() < 0){
                 getVelocity().setX(0);
             }
-        } else if (getVelocity().getX() < 0) {
+        } else if (getVelocity().getX() < 1) {
             getVelocity().setX(getVelocity().getX() + FRICTION);
             if (getVelocity().getX() > 0)  getVelocity().setX(0);
         }
 
-
+        if (getVelocity().getX() < 0) {
+            setFlipped(false);
+        } else if (getVelocity().getX() > 0) {
+            setFlipped(true);
+        }
         moveEntX(getVelocity().getX() * dt);
         moveEntY(getVelocity().getY() * dt);
 
@@ -180,12 +184,16 @@ public abstract class Entity extends GameObject {
                 double gObjY1 = gameObject.getCollisionBox().getLocation().getY();
                 double gObjY2 = gameObject.getCollisionBox().getCorner().getY();
 
-                double eObjY1 = cBox.getLocation().getY() + 1;
-                double eObjY2 = cBox.getCorner().getY() - 1;
+                double eObjY1 = cBox.getLocation().getY();
+                double eObjY2 = cBox.getCorner().getY();
 
                 boolean intersects = !((gObjY2 < eObjY1) || (eObjY2 < gObjY1));
                 if (intersects) {
                     getVelocity().setY(0);
+                    isOnGround = true;
+                    if (this instanceof Player player) {
+                        player.setJumping(false);
+                    }
                     return;
                 }
                 /*
@@ -234,6 +242,7 @@ public abstract class Entity extends GameObject {
                 }*/
             }
         }
+        isOnGround = false;
 
         getLocation().setY(nextLocY);
         updateCollisionBox();
@@ -430,11 +439,11 @@ public abstract class Entity extends GameObject {
     }
 
     public boolean isMovingHorizontally() {
-        return moveX != 0;
+        return getVelocity().getX() != 0;
     }
 
     public boolean isMovingVertically() {
-        return moveY != 0;
+        return getVelocity().getY() != 0;
     }
     public boolean isOnGround() {
         return isOnGround;

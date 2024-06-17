@@ -12,6 +12,7 @@ import level.TextMessage;
 import utils.CollisionBox;
 import utils.Location;
 import utils.Texture;
+import utils.Vector;
 
 import java.awt.*;
 import java.util.Random;
@@ -38,6 +39,8 @@ public class Camera {
     private int DEBUG_DECORATIONS_ON_SCREEN;
     private int DEBUG_PARTICLES_ON_SCREEN;
     private double zoom;
+
+    private double deadZone = Game.BLOCK_SIZE * 5;
 
     double camWidth;
     double camHeight;
@@ -94,14 +97,14 @@ public class Camera {
     /*
     *   This method constantly updates the points. This is needed because the players location always changes.
     * */
-    public void update() {
+    public void update(double dt) {
         calculateFPS();
         setFocusPoint(getPlayer().getLocation());
 
-        trackFocus();
+        trackFocus(dt);
     }
 
-    public void trackFocus() {
+    public void trackFocus(double dt) {
         boundsX = game.getActiveLevel().getActualWidth() - camWidth;
         boundsY = game.getActiveLevel().getActualHeight() - camHeight;
 
@@ -129,12 +132,25 @@ public class Camera {
         if (isShaking()) {
             shakeOffsetX = rand.nextDouble(-2, 2);
             shakeOffsetY = rand.nextDouble(-2, 2);
+        } else {
+            shakeOffsetX = 0;
+            shakeOffsetY = 0;
         }
 
-        loc.setX(tempLocX + shakeOffsetX);
-        loc.setY(tempLocY + shakeOffsetY);
+        Location targetLoc = new Location(tempLocX, tempLocY);
+        Vector velocity = new Vector(targetLoc.getX() - loc.getX(), targetLoc.getY() - loc.getY());
+        double speed = game.distance(loc.getX(), loc.getY(), targetLoc.getX(), targetLoc.getY());
+        //velocity.multiply(speed);
+        double offsetX = 0;
+        if (getPlayer().getVelocity().getX() > 0) {
+            offsetX = 0.025 * getPlayer().getVelocity().getX();
+        } else if (getPlayer().getVelocity().getX() < 0) {
+            offsetX = -Math.abs(0.025 * getPlayer().getVelocity().getX());
+        }
+        loc.setX((loc.getX() + shakeOffsetX + offsetX) + (velocity.getX() * dt));
+        loc.setY((loc.getY() + shakeOffsetY) + (velocity.getY() * dt));
 
-        collisionBox.setLocation(loc.getX(), loc.getY());
+        collisionBox.setLocation(loc.getX() + shakeOffsetX + offsetX, loc.getY() + shakeOffsetY);
     }
 
     public void draw() {

@@ -110,7 +110,7 @@ public class Game extends GameEngine {
         lastTime = currentTime;
         currentTime = System.currentTimeMillis();
         timeSinceLastFrame = currentTime - lastTime;
-        camera.update();
+        camera.update(dt);
 
 
         if (!isPaused) {
