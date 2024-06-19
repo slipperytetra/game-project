@@ -24,14 +24,15 @@ public class Player extends EntityLiving {
     private double keyPressTimer;
     private double KEY_PRESS_COOLDOWN = 0.05;
 
-    private double timeJumping;
-    private double maxJumpTime = 0.25;
+    private double jumpTimer;
+    private double jumpTimerCooldown;
 
     private double runParticleTimer;
     private double RUN_PARTICLE_FREQUENCY = 0.075;
 
     private int coins;
     private int arrows;
+    private double MAX_SPEED = Game.BLOCK_SIZE * 11;
 
     public Player(Level level, Location loc) {
         super(EntityType.PLAYER, level, loc);
@@ -63,11 +64,19 @@ public class Player extends EntityLiving {
 
     public void update(double dt) {
         super.update(dt);
+        System.out.println(getVelocity().getX() + ", " + getVelocity().getY());
         if (keyPressTimer < KEY_PRESS_COOLDOWN) {
             keyPressTimer += 1 * dt;
         } else {
             //System.out.println("Test");
             keyPressTimer = 0;
+        }
+
+        if (jumpTimer < jumpTimerCooldown) {
+            jumpTimer += 1 * dt;
+        } else {
+            //System.out.println("Test");
+            jumpTimer = 0;
         }
 
         if (runParticleTimer < RUN_PARTICLE_FREQUENCY) {
@@ -78,12 +87,14 @@ public class Player extends EntityLiving {
             if(isMovingHorizontally() && isOnGround()){
                 double partVelX = 0.75;
                 double partVelY = -0.5;
+                double offsetX = getWidth() / 2;
                 if (isFlipped()) {
                     partVelX *= -1;
+                    offsetX *= -1;
                 }
 
                 //getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.PLAYER_RUN);
-                getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY() + getHeight(), partVelX, partVelY);
+                getLevel().spawnParticle(ParticleTypes.CLOUD, getCenterX() + offsetX, getLocation().getY() + getHeight(), partVelX, partVelY, isFlipped());
                 runParticleTimer = 0;
             }
         }
@@ -173,29 +184,34 @@ public class Player extends EntityLiving {
     public void jump() {
         this.isJumping = true;
         this.getJumpFrame().setFrameIndex(0);
-        this.timeJumping = 0;
     }
 
     public void playerMovement(Set<Integer> keysPressed) {
         if (keyPressTimer >= KEY_PRESS_COOLDOWN) {
             if (keysPressed.contains(32)) {//SPACE
-                if (!isJumping() && !isAttacking() && (isOnGround() || canClimb() || getLevel().isEditMode())) {
-                    if (canClimb()) {
-                        getVelocity().setY(-256);
+                if (!isAttacking() && (isOnGround() || canClimb() || getLevel().isEditMode()) && jumpTimer >= jumpTimerCooldown) {
+                    if (!canClimb()) {
+                        getVelocity().setY(-Game.BLOCK_SIZE * 16);
                     } else {
-                        getVelocity().setY(-450);
+                        getVelocity().setY(-Game.BLOCK_SIZE * 13);
                     }
+                    this.getJumpFrame().setFrameIndex(0);
+                    jumpTimer = 0;
+                    setJumping(true);
                 }
             }
             if (keysPressed.contains(87)) {//W
                 if (canClimb() && getBlockAtLocation(0, 0).getType() != BlockTypes.VOID) {
-                    getVelocity().setY(-256);
+                    getVelocity().setY(-Game.BLOCK_SIZE * 13);
                 }
             }
             if (keysPressed.contains(65)) {//A
-                getVelocity().setX(Game.BLOCK_SIZE * -10);
-                //getVelocity().setX(Game.BLOCK_SIZE * -7);
-                //setDirectionX(-calculateHorizontalMovement());
+                if (getVelocity().getX() > -MAX_SPEED) {
+                    getVelocity().setX(getVelocity().getX() + -ACCELERATION);
+                    if (getVelocity().getX() < -MAX_SPEED) {
+                        getVelocity().setX(-MAX_SPEED);
+                    }
+                }
             }
             if (keysPressed.contains(83)) {//S
                 if (canClimb() || getLevel().isEditMode()) {
@@ -203,7 +219,12 @@ public class Player extends EntityLiving {
                 }
             }
             if (keysPressed.contains(68)) {//D
-                getVelocity().setX(Game.BLOCK_SIZE * 10);
+                if (getVelocity().getX() < MAX_SPEED) {
+                    getVelocity().setX(getVelocity().getX() + ACCELERATION);
+                    if (getVelocity().getX() > MAX_SPEED) {
+                        getVelocity().setX(MAX_SPEED);
+                    }
+                }
                 //getVelocity().setX(Game.BLOCK_SIZE * 7);
                 //setDirectionX(calculateHorizontalMovement());
             }
@@ -237,13 +258,10 @@ public class Player extends EntityLiving {
                 }
 
                 Location spawnLoc = new Location(getLocation().getX(), getLocation().getY());
-                Random rand = new Random();
-                for (int i = 0; i < 5; i++) {
-                    ProjectileArrow proj = new ProjectileArrow(this, getLevel(), spawnLoc, getLevel().getManager().getEngine().mouseX + rand.nextDouble(-32, 32), getLevel().getManager().getEngine().mouseY + rand.nextDouble(-32, 32));
-                    proj.setLocation(getLocation().getX() + (getHitboxWidth() / 2) - (proj.getWidth() / 2), getLocation().getY());
-                    proj.offsetTrajectory(32);
-                    getLevel().addEntity(proj);
-                }
+                ProjectileArrow proj = new ProjectileArrow(this, getLevel(), spawnLoc, getLevel().getManager().getEngine().mouseX, getLevel().getManager().getEngine().mouseY);
+                proj.setLocation(getLocation().getX() + (getHitboxWidth() / 2) - (proj.getWidth() / 2), getLocation().getY());
+                proj.offsetTrajectory(32);
+                getLevel().addEntity(proj);
                 getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.STINGER_SHOOT);
                 setAttackTicks(0);
                 incrementArrows(-1);
@@ -337,10 +355,6 @@ public class Player extends EntityLiving {
         texture.setFlipped(!isFlipped());
 
         return texture;
-    }
-
-    public boolean canClimb() {
-        return getBlockAtLocation() instanceof BlockClimbable;
     }
 
     public int getCoins() {

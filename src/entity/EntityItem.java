@@ -11,7 +11,7 @@ public class EntityItem extends Entity {
     public EntityItem(EntityType type, Level level, Location loc) {
         super(type, level, loc);
 
-        setScale(0.25);
+        setScale(1);
         setCanMove(false);
     }
 

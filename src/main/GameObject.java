@@ -219,4 +219,12 @@ public class GameObject {
     private void resetCollisionBox() {
         this.setCollisionBox(new CollisionBox(getLocation().getX() + hitboxOffsetX, getLocation().getY() + hitboxOffsetY, hitboxWidth, hitboxHeight));
     }
+
+    public double getCenterX() {
+        return getLocation().getX() + (getWidth() / 2);
+    }
+
+    public double getCenterY() {
+        return getLocation().getY() + (getHeight() / 2);
+    }
 }

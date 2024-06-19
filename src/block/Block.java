@@ -38,11 +38,11 @@ public class Block extends GameObject {
             return;
         }
 
-        cam.game.drawImage(getTexture().getImage(), cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
+        cam.game.drawImage(getTexture().getImage(), cam.toScreenX(getLocation().getX()) * cam.getZoom(), cam.toScreenY(getLocation().getY()) * cam.getZoom(), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
 
         if (cam.debugMode) {
             cam.game.changeColor(Color.GREEN);
-            cam.game.drawRectangle(cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
+            cam.game.drawRectangle(cam.toScreenX(getLocation().getX()) * cam.getZoom(), cam.toScreenY(getLocation().getY()) * cam.getZoom(), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
         }
     }
 

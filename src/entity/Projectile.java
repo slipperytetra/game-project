@@ -5,16 +5,19 @@ import level.ParticleTypes;
 import main.Camera;
 import main.Game;
 import main.GameObject;
+import main.SoundType;
 import org.w3c.dom.Text;
 import utils.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Projectile extends Entity {
 
     protected Entity shooter;
     private Vector velocity;
+    private SoundType impactSound;
 
     private int damage;
     private boolean hasGravity;
@@ -25,6 +28,7 @@ public class Projectile extends Entity {
     private ParticleTypes particleTrail;
     private double particleTimer;
     private double PARTICLE_FREQUENCY = 0.025;
+    Random rand = new Random();
 
     public Projectile(Entity shooter, EntityType type, Level level, Location loc, double speed, double targetX, double targetY) {
         super(type, level, loc.clone());
@@ -37,7 +41,7 @@ public class Projectile extends Entity {
         setCanMove(true);
         setPersistent(true);
 
-        setCollidable(true);
+        setCollidable(false);
         setIsSolid(false);
 
         angle = -(Math.atan2((loc.getY() + (getHeight() / 2)) - targetY, targetX - (loc.getX() + (getWidth() / 2))));
@@ -47,7 +51,7 @@ public class Projectile extends Entity {
 
     @Override
     public void update(double dt) {
-        if (!isActive()) {
+        if (!isActive() || !canMove()) {
             return;
         }
 
@@ -65,28 +69,21 @@ public class Projectile extends Entity {
             }
 
             kill();
+            if (hasImpactSound()) {
+                getLevel().playSound(getImpactSound());
+            }
+            //setCanMove(false);
 
             if (gameObject instanceof EntityLiving living && living.getHealth() > 0) {
                 living.damage(getDamage());
+                getLevel().spawnParticle(ParticleTypes.IMPACT, getCenterX(), getCenterY());
+            } else {
+                for (int i = 0; i < rand.nextInt(5, 10); i++) {
+                    getLevel().spawnParticle(ParticleTypes.DIRT, getCenterX() + rand.nextDouble(-4, 4) , getCenterY() + rand.nextDouble(-4, 4) - 2,
+                            rand.nextDouble(-2, 2), rand.nextDouble(-1, 4));
+                }
             }
         }
-            /*
-            for (Entity entity : getLevel().getEntities()) {
-                if (entity.getType() == shooter.getType()) {
-                    continue;
-                }
-
-                if (entity instanceof EntityLiving livingEntity) {
-                    if (livingEntity.getHealth() <= 0) {
-                        continue;
-                    }
-
-                    if (getCollisionBox().collidesWith(livingEntity)) {
-                        livingEntity.damage(getDamage());
-                        kill();
-                    }
-                }
-            }*/
 
         if (hasTrail()) {
             if (particleTimer < PARTICLE_FREQUENCY) {
@@ -122,6 +119,10 @@ public class Projectile extends Entity {
 
     @Override
     public void processMovement(double dt) {
+        if (!canMove()) {
+            return;
+        }
+
         getLocation().setX((getLocation().getX()) + getVelocity().getX() * dt);
         getLocation().setY((getLocation().getY()) + getVelocity().getY() * dt);
         updateCollisionBox();
@@ -208,5 +209,17 @@ public class Projectile extends Entity {
 
     private boolean isShooter(GameObject gameObject) {
         return gameObject instanceof EntityLiving && ((EntityLiving) gameObject).getType() != getShooter().getType();
+    }
+
+    public SoundType getImpactSound() {
+        return impactSound;
+    }
+
+    public void setImpactSound(SoundType impactSound) {
+        this.impactSound = impactSound;
+    }
+
+    public boolean hasImpactSound() {
+        return impactSound != null;
     }
 }

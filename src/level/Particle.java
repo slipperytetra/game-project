@@ -16,6 +16,7 @@ public class Particle {
     Texture image;
     ParticleTypes type;
 
+    boolean isFlipped;
     double opacity;
     double size;
     double offsetX, offsetY;
@@ -83,19 +84,26 @@ public class Particle {
             this.loc.setX(loc.getX() + ((getVelX() * speed) * dt));
         }
 
-        if (getVelY() != 0) {
-            this.loc.setY(loc.getY() + ((getVelY() * speed) * dt));
+        if (getVelY() != 0 || type.hasGravity()) {
+            if (type.hasGravity()) {
+                this.loc.setY(loc.getY() + ((getVelY() * speed + 128) * dt));
+            } else {
+                this.loc.setY(loc.getY() + ((getVelY() * speed) * dt));
+            }
         }
     }
 
     public void render(Camera cam){
-        double camLocX = cam.toScreenX(loc.getX() + offsetX);
-        double camLocY = cam.toScreenY(loc.getY() + offsetY);
+        double sizeDiff = (initialSize - size) / 2;
+        double camLocX = cam.toScreenX(loc.getX() + sizeDiff + offsetX);
+        double camLocY = cam.toScreenY(loc.getY() + sizeDiff + offsetY);
+
+        image.setFlipped(isFlipped);
 
         if (type.isFadeOut()) {
-            cam.game.drawImage(image.getImage(), camLocX, camLocY, size * cam.getZoom(), size * cam.getZoom(), (float) opacity);
+            cam.game.drawImage(image.getImage(), camLocX * cam.getZoom(), camLocY * cam.getZoom(), size * cam.getZoom(), size * cam.getZoom(), (float) opacity);
         } else {
-            cam.game.drawImage(image.getImage(), camLocX, camLocY, size * cam.getZoom(), size * cam.getZoom());
+            cam.game.drawImage(image.getImage(), camLocX * cam.getZoom(), camLocY * cam.getZoom(), size * cam.getZoom(), size * cam.getZoom());
         }
     }
 
@@ -133,5 +141,13 @@ public class Particle {
 
     public void setVelY(double velY) {
         this.velY = velY;
+    }
+
+    public boolean isFlipped() {
+        return isFlipped;
+    }
+
+    public void setFlipped(boolean isFlipped) {
+        this.isFlipped = isFlipped;
     }
 }

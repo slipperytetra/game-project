@@ -2,6 +2,7 @@ package main;
 
 public enum SoundType {
 
+    ARROW_IMPACT("resources/sounds/arrow_impact.wav", -12.0f),
     BLOCK_BREAK("resources/sounds/block_break.wav", -15.0f),
     BLOCK_PLACE("resources/sounds/block_place.wav"),
     STINGER_SHOOT("resources/sounds/stinger_shoot.wav"),

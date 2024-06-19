@@ -13,10 +13,4 @@ public class ProjectileStinger extends Projectile {
         setDamage(5);
         setHasGravity(false);
     }
-
-    @Override
-    public void kill() {
-        super.kill();
-        System.out.println("Stinger killed");
-    }
 }

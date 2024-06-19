@@ -18,7 +18,9 @@ public class ProjectileArrow extends Projectile {
         setHitboxOffsetY(16);
         setHitboxWidth(8);
         setHitboxHeight(8);
+
         setTrail(ParticleTypes.ARROW_TRAIL);
+        setImpactSound(SoundType.ARROW_IMPACT);
     }
 
     @Override

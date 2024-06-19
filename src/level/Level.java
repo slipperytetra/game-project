@@ -447,13 +447,39 @@ public class Level {
         }
     }
 
+    public void playSound(SoundType soundType) {
+        getManager().getEngine().getAudioBank().playSound(soundType);
+    }
+
+    public void playSound(SoundType soundType, boolean loop) {
+        getManager().getEngine().getAudioBank().playSound(soundType, loop);
+    }
+
+    public void playSound(SoundType soundType, boolean loop, float volume) {
+        getManager().getEngine().getAudioBank().playSound(soundType, loop, volume);
+    }
+
     public void spawnParticle(ParticleTypes type, double x, double y) {
         Particle particle = new Particle(type, new Location(x, y), this);
         getParticles().add(particle);
     }
 
+    public void spawnParticle(ParticleTypes type, double x, double y, boolean flipped) {
+        Particle particle = new Particle(type, new Location(x, y), this);
+        particle.setFlipped(flipped);
+        getParticles().add(particle);
+    }
+
     public void spawnParticle(ParticleTypes type, double x, double y, double velX, double velY) {
         Particle particle = new Particle(type, new Location(x, y), this);
+        particle.setVelX(velX);
+        particle.setVelY(velY);
+        getParticles().add(particle);
+    }
+
+    public void spawnParticle(ParticleTypes type, double x, double y, double velX, double velY, boolean flipped) {
+        Particle particle = new Particle(type, new Location(x, y), this);
+        particle.setFlipped(flipped);
         particle.setVelX(velX);
         particle.setVelY(velY);
         getParticles().add(particle);

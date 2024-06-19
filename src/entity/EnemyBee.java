@@ -16,6 +16,7 @@ public class EnemyBee extends Enemy {
         setHitSound(SoundType.GENERIC_HIT);
         setAttackSound(null);
         setAttackCooldown(2.0);
+        setHasGravity(false);
     }
 
     @Override
@@ -50,7 +51,7 @@ public class EnemyBee extends Enemy {
     public Texture getActiveFrame() {
         Texture texture = getIdleFrame();
 
-        if (isAttacking()) {
+        if (getAttackFrame().getFrameIndex() < getAttackFrame().getFrames().length - 1) {
             texture = getAttackFrame();
         }
 

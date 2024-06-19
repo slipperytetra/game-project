@@ -10,6 +10,7 @@ public class ItemKey extends EntityItem {
         super(EntityType.KEY, level, loc);
 
         setPickupSound(SoundType.COLLECT_KEY);
+        setScale(0.25);
     }
 
     public void onPickup() {

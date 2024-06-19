@@ -9,8 +9,6 @@ import utils.CollisionBox;
 import utils.Location;
 import utils.Texture;
 import utils.Vector;
-
-import java.awt.*;
 import java.util.List;
 
 public abstract class Entity extends GameObject {
@@ -26,8 +24,6 @@ public abstract class Entity extends GameObject {
 
     private boolean isOnGround;
 
-    public double moveX, moveY;
-
     private Vector direction;
     private Vector velocity;
     private List<GameObject> collisionsX;
@@ -38,14 +34,18 @@ public abstract class Entity extends GameObject {
     private boolean isFlipped;
     private boolean canMove;
     private boolean shouldRespawn;
+    private boolean hasGravity;
 
-    double MAX_SPEED = Game.BLOCK_SIZE * 8;
-    double ACCELERATION = MAX_SPEED / 3;
+    public double MAX_SPEED = Game.BLOCK_SIZE * 11;
+    public double ACCELERATION = MAX_SPEED / 2;
     public double[] locs = new double[4];
+
+    public List<CollisionBox> collisions;
 
     public Entity(EntityType type, Level level, Location loc) {
         super(level, loc);
         this.type = type;
+        this.hasGravity = true;
         this.setScale(2);
         this.velocity = new Vector(0, 0);
         this.direction = new Vector(0, 0);
@@ -60,7 +60,7 @@ public abstract class Entity extends GameObject {
 
     public void render(Camera cam) {
         super.render(cam);
-        cam.game.drawImage(getActiveFrame().getImage(), cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY()), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
+        cam.game.drawImage(getActiveFrame().getImage(), cam.toScreenX(getLocation().getX()) * cam.getZoom(), cam.toScreenY(getLocation().getY()) * cam.getZoom(), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
 
         if (cam.debugMode) {
             cam.game.changeColor(getHitboxColor());
@@ -74,9 +74,8 @@ public abstract class Entity extends GameObject {
         if (!isActive()) {
             return;
         }
-        //System.out.println(getType().toString() + " called update(dt)");
+
         if (canMove()) {
-            //processMovement(dt);
             move(dt);
         }
 
@@ -86,24 +85,30 @@ public abstract class Entity extends GameObject {
     }
 
     public void move(double dt) {
-        if (getType() != EntityType.PLAYER) {
-            return;
+        System.out.println(dt);
+        if (hasGravity()) {
+            getVelocity().setY(getVelocity().getY() + (GRAVITY * dt));
         }
 
-        //if (!isOnGround) {
-            getVelocity().setY(getVelocity().getY() + (GRAVITY * dt));
-        //}
-
-        //
-
+        if (canClimb()) {
+            if (getVelocity().getY() > 0) {
+                getVelocity().setY(getVelocity().getY() - (getFriction() * 1.5));
+                if (getVelocity().getY() < 0){
+                    getVelocity().setY(0);
+                }
+            } else if (getVelocity().getY() < 1) {
+                getVelocity().setY(getVelocity().getY() + (getFriction() * 1.5));
+                if (getVelocity().getY() > 0)  getVelocity().setY(0);
+            }
+        }
 
         if (getVelocity().getX() > 0) {
-            getVelocity().setX(getVelocity().getX() - FRICTION);
+            getVelocity().setX(getVelocity().getX() - getFriction());
             if (getVelocity().getX() < 0){
                 getVelocity().setX(0);
             }
         } else if (getVelocity().getX() < 1) {
-            getVelocity().setX(getVelocity().getX() + FRICTION);
+            getVelocity().setX(getVelocity().getX() + getFriction());
             if (getVelocity().getX() > 0)  getVelocity().setX(0);
         }
 
@@ -112,140 +117,114 @@ public abstract class Entity extends GameObject {
         } else if (getVelocity().getX() > 0) {
             setFlipped(true);
         }
+
+        Camera cam = getLevel().getManager().getEngine().getCamera();
+        locs[0] = cam.toScreenX(cam.getFocusPoint().getX() - 32);
+        locs[1] = cam.toScreenY(cam.getFocusPoint().getY() - 32);
+
+        locs[2] = cam.toScreenX(cam.getFocusPoint().getX() + 32);
+        locs[3] = cam.toScreenY(cam.getFocusPoint().getY() + 32);
+
         moveEntX(getVelocity().getX() * dt);
         moveEntY(getVelocity().getY() * dt);
-
     }
 
     public void moveEntX(double distX) {
-        double nextLocX = getLocation().getX() + distX;
-        CollisionBox cBox = new CollisionBox(getCollisionBox().getLocation().getX() + distX - 1, getCollisionBox().getLocation().getY() - 1, getCollisionBox().getWidth() + 2, getCollisionBox().getHeight() + 2);
-
-        this.collisionsX = getLevel().getQuadTree().query(this, cBox);
-        //System.out.println(collisionsX.size());
-        if (!collisionsX.isEmpty()) {
-            for (GameObject gameObject : collisionsX) {
-                if (!gameObject.isSolid()) {
-                    continue;
-                }
-
-                double gObjX1 = gameObject.getCollisionBox().getLocation().getX() - 1;
-                double gObjX2 = gameObject.getCollisionBox().getCorner().getX() + 1;
-
-                double eObjX1 = cBox.getLocation().getX();
-                double eObjX2 = cBox.getCorner().getX();
-
-                boolean intersects = !((gObjX2 < eObjX1) || (eObjX2 < gObjX1));
-                if (intersects) {
-                    getVelocity().setX(0);
-                    return;
-                }
-                /*
-                double diffXLeft = gameObject.getCollisionBox().getCorner().getX() - cBox.getLocation().getX();
-                double diffXRight = gameObject.getCollisionBox().getLocation().getX() - cBox.getCorner().getX();
-                if (diffXLeft >= 1) {
-                    if (getVelocity().getX() < 0) {
-                        getVelocity().setX(0);
-                        //System.out.println("DiffLeft: " + diffXLeft);
-                        //System.out.println("colliding with " + gameObject + " above you");
-                        return;
-                    }
-                }
-
-                if (diffXRight <= 1) {
-                    if (getVelocity().getX() > 0) {
-                        getVelocity().setX(0);
-                        //System.out.println("GameObject: " + gameObject.getCollisionBox().getLocation().getX() + " - " + cBox.getCorner().getX());
-                        //System.out.println("DiffRight: " + diffXRight);
-                        //System.out.println("colliding with " + gameObject + " below you");
-                        return;
-                    }
-                }*/
+        double moveIncre = distX / (int) distX;
+        for (int i = 0; i < Math.abs((int) distX); i++) {
+            int num = 1;
+            if (distX < 0) {
+                num = -1;
             }
-        }
 
-        getLocation().setX(nextLocX);
-        updateCollisionBox();
+            double nextLocX = getLocation().getX() + (moveIncre * num);
+            CollisionBox cBox = new CollisionBox(getCollisionBox().getLocation().getX() + num + (num), getCollisionBox().getLocation().getY() + num, getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            if (nextLocX <= 0 || nextLocX >= getLevel().getActualWidth() - getHitboxWidth()) {
+                return;
+            }
+
+            this.collisionsX = getLevel().getQuadTree().query(this, cBox);
+            if (!collisionsX.isEmpty()) {
+                for (GameObject gameObject : collisionsX) {
+                    if (!gameObject.isSolid()) {
+                        continue;
+                    }
+
+                    double gObjX1 = gameObject.getCollisionBox().getLocation().getX() - 1;
+                    double gObjX2 = gameObject.getCollisionBox().getCorner().getX() + 1;
+
+                    double eObjX1 = cBox.getLocation().getX();
+                    double eObjX2 = cBox.getCorner().getX();
+
+                    boolean intersects = !((gObjX2 < eObjX1) || (eObjX2 < gObjX1));
+                    if (intersects) {
+                        getVelocity().setX(0);
+                        return;
+                    }
+                }
+            }
+
+            getLocation().setX(nextLocX);
+            updateCollisionBox();
+        }
     }
 
     public void moveEntY(double distY) {
-        double nextLocY = getLocation().getY() + distY;
-        CollisionBox cBox = new CollisionBox(getCollisionBox().getLocation().getX() - 1, getCollisionBox().getLocation().getY() + distY - 1, getCollisionBox().getWidth() + 2, getCollisionBox().getHeight() + 2);
-        tempBoxX = cBox;
-
-        this.collisionsY = getLevel().getQuadTree().query(this, cBox);
-        //System.out.println(collisionsX.size());
-        if (!collisionsY.isEmpty()) {
-            for (GameObject gameObject : collisionsY) {
-                if (!gameObject.isSolid()) {
-                    continue;
-                }
-
-                double gObjY1 = gameObject.getCollisionBox().getLocation().getY();
-                double gObjY2 = gameObject.getCollisionBox().getCorner().getY();
-
-                double eObjY1 = cBox.getLocation().getY();
-                double eObjY2 = cBox.getCorner().getY();
-
-                boolean intersects = !((gObjY2 < eObjY1) || (eObjY2 < gObjY1));
-                if (intersects) {
-                    getVelocity().setY(0);
-                    isOnGround = true;
-                    if (this instanceof Player player) {
-                        player.setJumping(false);
-                    }
-                    return;
-                }
-                /*
-                double diffYTop = gameObject.getCollisionBox().getCorner().getY() - cBox.getLocation().getY();
-                double diffYBot = gameObject.getCollisionBox().getLocation().getY() - cBox.getCorner().getY();
-                Camera cam = getLevel().getManager().getEngine().getCamera();
-
-                if (gameObject.getLocation().getY() >= cBox.getCorner().getY()) {
-                    locs[0] = cam.toScreenX(gameObject.getCollisionBox().getLocation().getX());
-                    locs[1] = cam.toScreenY(gameObject.getCollisionBox().getLocation().getY());
-
-                    locs[2] = cam.toScreenX(cBox.getCorner().getX());
-                    locs[3] = cam.toScreenY(cBox.getCorner().getY());
-                }
-               // System.out.println(diffYTop);
-                //System.out.println(diffYBot);
-                if (diffYTop > 0 && diffYTop < 16) {
-                    if (getVelocity().getY() < 0) {
-                        getVelocity().setY(0);
-                        System.out.println("colliding top");
-                        //System.out.println("DiffLeft: " + diffYTop);
-                        //System.out.println("colliding with " + gameObject + " above you");
-                        return;
-                    }
-                }
-
-                if (diffYBot > -16 && diffYBot < 0) {
-                    if (getVelocity().getY() > 0) {
-                        getVelocity().setY(0);
-                        // System.out.println("GameObject: " + gameObject.getCollisionBox().getLocation().getY() + " - " + cBox.getCorner().getY());
-                        //System.out.println("DiffRight: " + diffYBot);
-                        System.out.println("colliding bot");
-                        return;
-                    }
-                }
-
-
-                if (diffYTop <= 1) {
-                    if (getVelocity().getY() < 0) {
-                        getVelocity().setY(1);
-                        System.out.println("colliding top");
-                        //System.out.println("DiffLeft: " + diffYTop);
-                        //System.out.println("colliding with " + gameObject + " above you");
-                        return;
-                    }
-                }*/
+        double moveIncre = distY / (int) distY;
+        for (int i = 0; i < Math.abs((int) distY); i++) {
+            int num = 1;
+            if (distY < 0) {
+                num = -1;
             }
-        }
-        isOnGround = false;
 
-        getLocation().setY(nextLocY);
-        updateCollisionBox();
+            double nextLocY = getLocation().getY() + (moveIncre * num);
+            CollisionBox cBox = new CollisionBox(getCollisionBox().getLocation().getX() + num, getCollisionBox().getLocation().getY() + num + (num), getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            tempBoxX = cBox;
+
+            this.collisionsY = getLevel().getQuadTree().query(this, cBox);
+            if (!collisionsY.isEmpty()) {
+                for (GameObject gameObject : collisionsY) {
+                    if (!gameObject.isSolid()) {
+                        continue;
+                    }
+
+                    double gObjY1 = gameObject.getCollisionBox().getLocation().getY() - 1;
+                    double gObjY2 = gameObject.getCollisionBox().getCorner().getY() + 1;
+
+                    double eObjY1 = cBox.getLocation().getY();
+                    double eObjY2 = cBox.getCorner().getY();
+
+                    boolean intersects = !((gObjY2 < eObjY1) || (eObjY2 < gObjY1));
+                    if (intersects) {
+                        getVelocity().setY(1);
+                        if (gameObject.isSolid() && gameObject.getLocation().getY() > getLocation().getY()) {
+                            isOnGround = true;
+                        }
+                        if (this instanceof Player player) {
+                            player.setJumping(false);
+                        }
+                        if (gameObject instanceof BlockLiquid) {
+                            this.setHealth(0);
+                        }
+
+                        return;
+                    }
+                }
+            }
+
+            isOnGround = false;
+
+            getLocation().setY(nextLocY);
+            updateCollisionBox();
+        }
+    }
+
+    public double getFriction() {
+        if (canClimb()) {
+            return FRICTION * 1.5;
+        }
+
+        return FRICTION;
     }
 
 
@@ -266,67 +245,19 @@ public abstract class Entity extends GameObject {
     }
 
     public void processMovement(double dt) {
-        //getVelocity().setY(getVelocity().getY() + (GRAVITY * dt));
-        //List<GameObject> collisions = getLevel().getQuadTree().query(this);
-
-        //System.out.println("collisions: " + collisions.size());
-
-
-
-        if (getVelocity().getX() > 0) {
+         if (getVelocity().getX() > 0) {
             getVelocity().setX(getVelocity().getX() - FRICTION);
             if (getVelocity().getX() < 0){
                 getVelocity().setX(0);
             }
-
-            /*
-            for (GameObject gameObject : collisions) {
-                if (gameObject.isCollidable()) {
-                    //System.out.println(gameObject.toString() + " < colliding with");
-                    if (gameObject.getCollisionBox().getCorner().getX() >= getCollisionBox().getLocation().getX()) {
-                        setVelocity(0, getVelocity().getY());
-                    }
-                }
-            }*/
         } else if (getVelocity().getX() < 0) {
             getVelocity().setX(getVelocity().getX() + FRICTION);
             if (getVelocity().getX() > 0)  getVelocity().setX(0);
         }
 
-        //move();
         getLocation().setX(getLocation().getX() + (getVelocity().getX() * dt));
         getLocation().setY(getLocation().getY() + (getVelocity().getY() * dt));
         updateCollisionBox();
-
-       // translate(dt, getVelocity().getX(), getVelocity().getY());
-
-
-        /*
-        // Apply friction to velocityY
-        if (getVelocity().getY() > 0) {
-            getVelocity().setY(getVelocity().getY() - FRICTION);
-            if (getVelocity().getY() < 0) getVelocity().setY(0);
-        } else if (getVelocity().getY() < 0) {
-            getVelocity().setY(getVelocity().getY() + FRICTION);
-            if (getVelocity().getY() > 0) getVelocity().setY(0);
-        }*/
-
-        /*
-        moveX = getDirectionX() * (speed * dt);
-        moveY = getDirectionY() * (speed * dt);
-
-        moveX(moveX);
-        moveY(moveY);
-
-        if (isFalling()) {
-            if (fallAccel > 0) {
-                fallAccel *= fallSpeedMultiplier;
-                setDirectionY(1 * fallAccel);
-            }
-        } else {
-            fallAccel = 1;
-            setDirectionY(0);
-        }*/
     }
 
     public void translate(double dt, double movX, double movY) {
@@ -351,70 +282,6 @@ public abstract class Entity extends GameObject {
     public void setDirectionY(double y) {
         getDirection().setY(y);
     }
-
-
-    /*
-    public void moveX(double x) {
-        if (x < 0) { //left
-            for (int i = 0; i < Math.abs(x); i++) {
-                Block leftBlock = getBlockAtLocation(-1, 1);
-                //System.out.println("left: " + leftBlock.getType().toString());
-                if (leftBlock == null || getCollisionBox().collidesWith(leftBlock.getCollisionBox()) && leftBlock.isCollidable()) {
-                    return;
-                }
-
-                this.setLocation(getLocation().getX() - 1, getLocation().getY());
-            }
-        } else if (x >= 0) { //right
-            for (int i = 0; i < x; i++) {
-                Block rightBlock = getBlockAtLocation(1, 1);
-                //System.out.println("right: " + rightBlock.getType().toString());
-                if (rightBlock == null || getCollisionBox().collidesWith(rightBlock.getCollisionBox()) && rightBlock.isCollidable()) {
-                    return;
-                }
-
-                this.setLocation(getLocation().getX() + 1, getLocation().getY());
-            }
-        }
-    }
-
-    public void moveY(double y) {
-        int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
-        int tileY = (int)((getLocation().getY() + 16) / Game.BLOCK_SIZE);
-        if (y < 0) { //up
-            for (int i = 0; i < Math.abs(y); i++) {
-                Block blockAbove = getLevel().getBlockGrid().getBlockAt(tileX, tileY - 1);
-                if (blockAbove == null) {
-                    return;
-                }
-
-                if (blockAbove.getCollisionBox() != null) {
-                    if (getCollisionBox().collidesWith(blockAbove.getCollisionBox()) && blockAbove.isCollidable()) {
-                        setDirectionY(0);
-                        if (this instanceof Player) {
-                            ((Player) this).setJumping(false);
-                        }
-                        return;
-                    }
-                }
-
-                this.setLocation(getLocation().getX(), getLocation().getY() - 1);
-            }
-        } else if (y > 0) { //down
-            if (getBlockAtLocation(0, 2) == null) {
-                setHealth(0);
-                return;
-            }
-
-            for (int i = 0; i < y; i++) {
-                if (isFalling() && !(this instanceof Projectile)) {
-                    this.setLocation(getLocation().getX(), getLocation().getY() + 1);
-                } else {
-                    this.setLocation(getLocation().getX(), getLocation().getY() + 1);
-                }
-            }
-        }
-    }*/
 
     public Block getBlockAtLocation() {
         int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);
@@ -449,8 +316,16 @@ public abstract class Entity extends GameObject {
         return isOnGround;
     }
 
-    public boolean isClimbing() {
+    public boolean canClimb() {
         return getBlockAtLocation() instanceof BlockClimbable;
+    }
+
+    public boolean hasGravity() {
+        return hasGravity;
+    }
+
+    public void setHasGravity(boolean hasGravity) {
+        this.hasGravity = hasGravity;
     }
 
     public EntityType getType() {
@@ -517,7 +392,8 @@ public abstract class Entity extends GameObject {
     public void reset(){
         if (isShouldRespawn() && isDead()) {
             setActive(true);
-            setHealth(maxHealth);
+            setHealth(getMaxHealth());
+            isDead = false;
         }
     }
 

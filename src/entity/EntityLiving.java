@@ -28,7 +28,7 @@ public abstract class EntityLiving extends Entity {
         setShouldRespawn(true);
         this.attackRange = Game.BLOCK_SIZE * 2.5;
 
-        System.out.println("New attack timer for " + type.toString());
+        //System.out.println("New attack timer for " + type.toString());
         setAttackTimer(new AttackTimer(this));
     }
 

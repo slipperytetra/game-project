@@ -40,8 +40,6 @@ public class Camera {
     private int DEBUG_PARTICLES_ON_SCREEN;
     private double zoom;
 
-    private double deadZone = Game.BLOCK_SIZE * 5;
-
     double camWidth;
     double camHeight;
     double boundsX;
@@ -62,13 +60,14 @@ public class Camera {
     private Texture textMg;
     private Texture textFg;
 
-    public double centerOffsetX, centerOffsetY;
+    private double deadZoneX, deadZoneY;
+    private double deadZoneSize = Game.BLOCK_SIZE * 2;
 
     public Camera(Game game, Player p) {
         this.game = game;
         this.player = p;
         this.loc = new Location(0, 0);
-        this.zoom = 1;
+        this.zoom = 1.0;
 
         this.camWidth = 1280;
         this.camHeight = 720;
@@ -100,15 +99,39 @@ public class Camera {
     public void update(double dt) {
         calculateFPS();
         setFocusPoint(getPlayer().getLocation());
-
         trackFocus(dt);
+
+        deadZoneX = getFocusPoint().getX() - deadZoneSize + (getPlayer().getWidth() / 2);
+        deadZoneY = getFocusPoint().getY() - deadZoneSize + (getPlayer().getHeight() / 2);
     }
 
     public void trackFocus(double dt) {
-        boundsX = game.getActiveLevel().getActualWidth() - camWidth;
-        boundsY = game.getActiveLevel().getActualHeight() - camHeight;
+        boundsX = game.getActiveLevel().getActualWidth() - (camWidth * zoom);
+        boundsY = game.getActiveLevel().getActualHeight() - (camHeight * zoom);
 
-        tempLocX = getFocusPoint().getX() - camWidth / 2;
+        tempLocX = getFocusPoint().getX() - (camWidth / 2);
+        tempLocY = getFocusPoint().getY() - (camHeight / 2);
+
+        Vector velocity = new Vector(tempLocX - loc.getX(), tempLocY - loc.getY());
+        double offsetX = 0;
+
+        if (getPlayer().getVelocity().getX() > 0) {
+            offsetX = 0.025 * getPlayer().getVelocity().getX();
+        } else if (getPlayer().getVelocity().getX() < 0) {
+            offsetX = -Math.abs(0.025 * getPlayer().getVelocity().getX());
+        }
+
+        if (isShaking()) {
+            shakeOffsetX = rand.nextDouble(-2, 2);
+            shakeOffsetY = rand.nextDouble(-2, 2);
+        } else {
+            shakeOffsetX = 0;
+            shakeOffsetY = 0;
+        }
+
+        tempLocX = (loc.getX() + shakeOffsetX + offsetX) + (velocity.getX() * dt);
+        tempLocY = (loc.getY() + shakeOffsetY) + (velocity.getY() * dt);
+
         if (tempLocX < 0) {
             tempLocX = 0;
         } else if (tempLocX > boundsX) {
@@ -122,35 +145,16 @@ public class Camera {
             isShaking = false;
         }
 
-        tempLocY = getFocusPoint().getY() - camHeight / 2;
         if (tempLocY < 0) {
             tempLocY = 0;
         } else if (tempLocY > boundsY) {
             tempLocY = boundsY;
         }
 
-        if (isShaking()) {
-            shakeOffsetX = rand.nextDouble(-2, 2);
-            shakeOffsetY = rand.nextDouble(-2, 2);
-        } else {
-            shakeOffsetX = 0;
-            shakeOffsetY = 0;
-        }
+        loc.setX(tempLocX);
+        loc.setY(tempLocY);
 
-        Location targetLoc = new Location(tempLocX, tempLocY);
-        Vector velocity = new Vector(targetLoc.getX() - loc.getX(), targetLoc.getY() - loc.getY());
-        double speed = game.distance(loc.getX(), loc.getY(), targetLoc.getX(), targetLoc.getY());
-        //velocity.multiply(speed);
-        double offsetX = 0;
-        if (getPlayer().getVelocity().getX() > 0) {
-            offsetX = 0.025 * getPlayer().getVelocity().getX();
-        } else if (getPlayer().getVelocity().getX() < 0) {
-            offsetX = -Math.abs(0.025 * getPlayer().getVelocity().getX());
-        }
-        loc.setX((loc.getX() + shakeOffsetX + offsetX) + (velocity.getX() * dt));
-        loc.setY((loc.getY() + shakeOffsetY) + (velocity.getY() * dt));
-
-        collisionBox.setLocation(loc.getX() + shakeOffsetX + offsetX, loc.getY() + shakeOffsetY);
+        collisionBox.setLocation(tempLocX, tempLocY);
     }
 
     public void draw() {
@@ -342,25 +346,22 @@ public class Camera {
 
 
         if (debugMode) {
-            if (getPlayer().getCollisionsY() != null && !getPlayer().getCollisionsY().isEmpty()) {
-                for (GameObject gameObject : getPlayer().getCollisionsY()) {
-                    game.changeColor(Color.PINK);
-                    game.drawRectangle(toScreenX(gameObject.getCollisionBox().getLocation().getX()), toScreenY(gameObject.getCollisionBox().getLocation().getY()), gameObject.getCollisionBox().getWidth(), gameObject.getCollisionBox().getHeight());
-                }
+
+            game.changeColor(Color.BLUE);
+            for (GameObject gameObjectX : getPlayer().getCollisionsY()) {
+                game.drawRectangle(toScreenX(gameObjectX.getLocation().getX()), toScreenY(gameObjectX.getLocation().getY()),
+                        gameObjectX.getWidth(), gameObjectX.getHeight());
             }
-            if (getPlayer().getCollisionsX() != null && !getPlayer().getCollisionsX().isEmpty()) {
-                for (GameObject gameObject : getPlayer().getCollisionsX()) {
-                    game.changeColor(Color.blue);
-                    game.drawRectangle(toScreenX(gameObject.getCollisionBox().getLocation().getX()), toScreenY(gameObject.getCollisionBox().getLocation().getY()), gameObject.getCollisionBox().getWidth(), gameObject.getCollisionBox().getHeight());
-                }
+            for (GameObject gameObjectY : getPlayer().getCollisionsY()) {
+                game.drawRectangle(toScreenX(gameObjectY.getLocation().getX()), toScreenY(gameObjectY.getLocation().getY()),
+                        gameObjectY.getWidth(), gameObjectY.getHeight());
             }
 
 
             game.changeColor(Color.RED);
-            game.drawLine(getPlayer().locs[0], getPlayer().locs[1], getPlayer().locs[2], getPlayer().locs[3]);
+            game.drawLine(toScreenX(getCenterX()), toScreenY(getCenterY()), toScreenX(deadZoneX), toScreenY(deadZoneY));
 
-            game.changeColor(Color.YELLOW);
-            game.drawRectangle(toScreenX(getPlayer().tempBoxX.getLocation().getX()), toScreenY(getPlayer().tempBoxX.getLocation().getY()), getPlayer().tempBoxX.getWidth(), getPlayer().tempBoxX.getHeight());
+            game.drawRectangle(toScreenX(deadZoneX), toScreenY(deadZoneY), deadZoneSize * 2, deadZoneSize * 2);
         }
     }
     public void renderFX(){
@@ -377,7 +378,7 @@ public class Camera {
 
     private void renderBackground() {
         if (textBg != null) {
-            game.drawImage(textBg.getImage(), 0, 0, game.width(), game.height());
+            game.drawImage(textBg.getImage(), 0, 0, game.width() * getZoom(), game.height() * getZoom());
         }
 
         drawParallaxImage(textMg, 0.5);
@@ -396,6 +397,19 @@ public class Camera {
 
             int width = (int) ((camTopRightX - camBotLeftX));
             int height = (int) ((camTopRightY - camBotLeftY));
+
+            if (camBotLeftX < 0) {
+                camBotLeftX = 0;
+            }
+            if (camBotLeftY < 0) {
+                camBotLeftY = 0;
+            }
+            if (width > bg.getImage().getWidth()) {
+                width = bg.getImage().getWidth();
+            }
+            if (height > bg.getImage().getHeight()) {
+                height = bg.getImage().getHeight();
+            }
 
             game.drawImage(bg.getImage().getSubimage((int) camBotLeftX, (int) camBotLeftY, width, height), 0, 0, game.width(), game.height());
         }
@@ -484,5 +498,13 @@ public class Camera {
     public void shake(double time) {
         this.shakeCooldown = time;
         this.shakeTicks = 0;
+    }
+
+    public double getCenterX() {
+        return loc.getX() + (camWidth / 2);
+    }
+
+    public double getCenterY() {
+        return loc.getY() + (camHeight / 2);
     }
 }

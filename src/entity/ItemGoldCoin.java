@@ -10,6 +10,10 @@ public class ItemGoldCoin extends EntityItem {
         super(EntityType.GOLD_COIN, level, loc);
 
         setPickupSound(SoundType.COLLECT_COIN);
+        setHitboxHeight(getHitboxHeight() + 8);
+        setHitboxWidth(getHitboxWidth() + 8);
+        setHitboxOffsetX(-8);
+        setHitboxOffsetY(-8);
         setScale(1.5);
     }
 
