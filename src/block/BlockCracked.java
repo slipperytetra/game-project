@@ -44,16 +44,19 @@ public class BlockCracked extends BlockActive {
     @Override
     public void update(double dt) {
         if (getState() >= getMaxStates() - 1) {
+            System.out.println("maxed");
             return;
         }
 
         if (hasCracked) {
+            System.out.println("has cracked");
             return;
         }
 
         if (cracking) {
             if (crackTimer < crackCooldown) {
                 crackTimer += 1 * dt;
+                System.out.println("ticking");
             } else {
                 crackTimer = 0;
                 setState(getState() + 1);
@@ -71,11 +74,15 @@ public class BlockCracked extends BlockActive {
 
             if (!collisions.isEmpty()) {
                 for (GameObject obj : collisions) {
-                    if (obj instanceof EntityLiving entity) {
+                    if (obj instanceof EntityLiving) {
+                        System.out.println("no empty");
                         cracking = true;
                         getLevel().playSound(SoundType.STONE_CRACK);
                     }
                 }
+            } else {
+
+                System.out.println("empty");
             }
 
             /*

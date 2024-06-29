@@ -591,6 +591,15 @@ public class Level {
     private void updateQuadTree(double dt) {
         this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 6);
         this.qtree.focus = getPlayer();
+
+        this.qtree.insert(getPlayer());
+
+        for (Entity entity : getEntities()) {
+            if (!entity.isDead()) {
+                this.qtree.insert(entity);
+            }
+        }
+
         for (int bx = 0; bx < getBlockGrid().getWidth(); bx++) {
             for (int by = 0; by < getBlockGrid().getHeight(); by++) {
                 Block blk = getBlockGrid().getBlockAt(bx, by);
@@ -604,14 +613,6 @@ public class Level {
                 }
             }
         }
-
-        for (Entity entity : getEntities()) {
-            if (!entity.isDead()) {
-                this.qtree.insert(entity);
-            }
-        }
-
-        this.qtree.insert(getPlayer());
     }
 
     public HashSet<Inventory> getOpenInventories() {
