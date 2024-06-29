@@ -6,7 +6,11 @@ public enum ParticleTypes {
     CLOUD("resources/images/particles/cloud.png", 1,0.5, 0.75, 4, true),
     LEAF("resources/images/particles/leaf.png", 3,0.25, 0.5, 32, true, 0, 1),
     IMPACT("resources/images/particles/impact.png", 0.15, 1.5, false),
-    DIRT("resources/images/particles/dirt.png", 0.75, 0.25, false);
+    DIRT("resources/images/particles/dirt.png", 0.75, 0.25, false),
+    GROUND_CRACKED_0("resources/images/particles/ground_cracked_0.png", 0.75, 1,1, 0, false, -1, -1),
+    GROUND_CRACKED_1("resources/images/particles/ground_cracked_1.png", 0.75, 1,1, 0, false, 1, -1),
+    GROUND_CRACKED_2("resources/images/particles/ground_cracked_2.png", 0.75, 1,1, 0, false, -1, 1),
+    GROUND_CRACKED_3("resources/images/particles/ground_cracked_3.png", 0.75, 1,1, 0, false, 1, 1);
 
     private final String filePath;
     private final double timeAlive;
@@ -92,10 +96,12 @@ public enum ParticleTypes {
     }
 
     public boolean isShrink() {
-        return this == ParticleTypes.ARROW_TRAIL || this == ParticleTypes.IMPACT;
+        return this == ParticleTypes.ARROW_TRAIL || this == ParticleTypes.IMPACT || this == ParticleTypes.GROUND_CRACKED_0 || this == ParticleTypes.GROUND_CRACKED_1
+                || this == ParticleTypes.GROUND_CRACKED_2 || this == ParticleTypes.GROUND_CRACKED_3;
     }
 
     public boolean hasGravity() {
-        return this == ParticleTypes.DIRT;
+        return this == ParticleTypes.DIRT || this == ParticleTypes.GROUND_CRACKED_0 || this == ParticleTypes.GROUND_CRACKED_1
+                || this == ParticleTypes.GROUND_CRACKED_2 || this == ParticleTypes.GROUND_CRACKED_3;
     }
 }

@@ -5,6 +5,10 @@ import block.BlockClimbable;
 import block.BlockTypes;
 import level.Level;
 import level.ParticleTypes;
+import level.item.Inventory;
+import level.item.InventoryItem;
+import level.item.InventoryItemSlot;
+import level.item.ItemType;
 import main.*;
 import utils.Location;
 import utils.Texture;
@@ -12,8 +16,12 @@ import utils.TextureAnimated;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Set;
 
 public class Player extends EntityLiving {
@@ -31,23 +39,41 @@ public class Player extends EntityLiving {
     private double RUN_PARTICLE_FREQUENCY = 0.075;
 
     private int coins;
-    private int arrows;
     private double MAX_SPEED = Game.BLOCK_SIZE * 11;
+
+    private Inventory backPack;
 
     public Player(Level level, Location loc) {
         super(EntityType.PLAYER, level, loc);
-
+        this.backPack = new Inventory(5, 1);
         setHitboxColor(Color.cyan);
         setAttackCooldown(0.5);
         setMaxHealth(100);
-        setDamage(5);
+        setDamage(1);
         setHealth(getMaxHealth());
-        //setDirectionY(1);
         setAttackRange(Game.BLOCK_SIZE * 2.5);
         setCollidable(true);
         setHitboxWidth(14);
         setHitboxOffsetX(4);
         init();
+
+        getBackPack().addItem(ItemType.SWORD, 1);
+        getBackPack().addItem(ItemType.BOW, 1);
+        getBackPack().addItem(ItemType.ARROW, 32);
+
+        File file = new File("saves/player_save.txt");
+        try {
+            Scanner fileReader = new Scanner(file);
+            while (fileReader.hasNextLine()) {
+                String line = fileReader.nextLine();
+                if (line.startsWith("coins: ")) {
+                    setCoins(Integer.parseInt(line.replaceAll("coins: ", "")));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Couldn't locate file!");
+            return;
+        }
     }
 
     public void init() {
@@ -59,12 +85,11 @@ public class Player extends EntityLiving {
         this.healthBar.setForeground(Color.RED); // Set the color
         this.healthBar.setValue(getMaxHealth()); // Set initial health
         this.healthBar.setStringPainted(true); // Show health value
-        this.arrows = 25;
     }
 
     public void update(double dt) {
         super.update(dt);
-        System.out.println(getVelocity().getX() + ", " + getVelocity().getY());
+        //System.out.println(getVelocity().getX() + ", " + getVelocity().getY());
         if (keyPressTimer < KEY_PRESS_COOLDOWN) {
             keyPressTimer += 1 * dt;
         } else {
@@ -94,7 +119,7 @@ public class Player extends EntityLiving {
                 }
 
                 //getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.PLAYER_RUN);
-                getLevel().spawnParticle(ParticleTypes.CLOUD, getCenterX() + offsetX, getLocation().getY() + getHeight(), partVelX, partVelY, isFlipped());
+                getLevel().spawnParticle(ParticleTypes.CLOUD, getCenterX() + offsetX, getLocation().getY() + getHitboxHeight(), partVelX, partVelY, isFlipped());
                 runParticleTimer = 0;
             }
         }
@@ -111,7 +136,7 @@ public class Player extends EntityLiving {
 
     @Override
     public void processMovement(double dt) {
-        super.processMovement(dt);
+        //super.processMovement(dt);
         /*moveX = getDirectionX() * (speed * dt);
         moveY = getDirectionY() * (speed * dt);
 
@@ -162,32 +187,21 @@ public class Player extends EntityLiving {
             playerOffsetY = playerOffsetY - 8;
         }
 
-        game.drawImage(getActiveFrame().getImage(), playerOffsetX * cam.getZoom(), playerOffsetY * cam.getZoom(), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
+        game.drawImage(getActiveFrame().getImage(), playerOffsetX , playerOffsetY , getWidth() , getHeight() );
 
         if (cam.debugMode) {
             game.changeColor(Color.magenta);
-
-            getDirection().normalise();
-            double x = cam.toScreenX(getLocation().getX() + (getWidth() / 2));
-            double y = cam.toScreenY(getLocation().getY() + (getHeight() / 2));
-
-            getDirection().normalise();
-            double x2 = cam.toScreenX(getLocation().getX() + (getDirection().getX() * 64));
-            double y2 = cam.toScreenY(getLocation().getY() + (getDirection().getY() * 64));
-            cam.game.drawLine(x, y, x2, y2);
-
             game.changeColor(getHitboxColor());
-            game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
+            game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() , getCollisionBox().getHeight() );
         }
-    }
-
-    public void jump() {
-        this.isJumping = true;
-        this.getJumpFrame().setFrameIndex(0);
     }
 
     public void playerMovement(Set<Integer> keysPressed) {
         if (keyPressTimer >= KEY_PRESS_COOLDOWN) {
+            if (getLevel().isEditMode()) {
+                return;
+            }
+
             if (keysPressed.contains(32)) {//SPACE
                 if (!isAttacking() && (isOnGround() || canClimb() || getLevel().isEditMode()) && jumpTimer >= jumpTimerCooldown) {
                     if (!canClimb()) {
@@ -198,6 +212,43 @@ public class Player extends EntityLiving {
                     this.getJumpFrame().setFrameIndex(0);
                     jumpTimer = 0;
                     setJumping(true);
+                }
+            }
+            if (keysPressed.contains(9)) {//TAB
+                if (getBackPack() != null) {
+                    getBackPack().setOpen(!getBackPack().isOpen(), getLevel());
+                    if (getBackPack().isOpen()) {
+                        getLevel().playSound(SoundType.BACKPACK_OPEN);
+                    } else {
+                        getLevel().playSound(SoundType.BACKPACK_CLOSE);
+                    }
+                    keysPressed.remove(9);
+                }
+            }
+            if (keysPressed.contains(37)) {//LEFT
+                if (getBackPack().isOpen()) {
+                    int slot = getBackPack().getSelectedSlot();
+                    if (slot < 1) {
+                        slot = getBackPack().getWidth() - 1;
+                    } else {
+                        slot--;
+                    }
+                    getLevel().playSound(SoundType.MENU_NAVIGATE);
+                    getBackPack().setSelectedSlot(slot);
+                    keysPressed.remove(37);
+                }
+            }
+            if (keysPressed.contains(39)) {//RIGHT
+                if (getBackPack().isOpen()) {
+                    int slot = getBackPack().getSelectedSlot();
+                    if (slot >= getBackPack().getWidth() - 1) {
+                        slot = 0;
+                    } else {
+                        slot++;
+                    }
+                    getLevel().playSound(SoundType.MENU_NAVIGATE);
+                    getBackPack().setSelectedSlot(slot);
+                    keysPressed.remove(39);
                 }
             }
             if (keysPressed.contains(87)) {//W
@@ -225,14 +276,14 @@ public class Player extends EntityLiving {
                         getVelocity().setX(MAX_SPEED);
                     }
                 }
-                //getVelocity().setX(Game.BLOCK_SIZE * 7);
-                //setDirectionX(calculateHorizontalMovement());
             }
-            if (keysPressed.contains(90)) {//Z
-                attemptAttack(true);
-            }
+
             if (keysPressed.contains(81)) {
-                attemptAttack(false);
+                if (getItemInHand() != null && getItemInHand().getItemType() == ItemType.SWORD) {
+                    attemptAttack(false);
+                } else if (getItemInHand() != null && getItemInHand().getItemType() == ItemType.BOW) {
+                    attemptAttack(true);
+                }
             }
             keyPressTimer = 0;
         }
@@ -253,7 +304,7 @@ public class Player extends EntityLiving {
                     attack();
                 }
             } else {
-                if (getArrows() <= 0 && !getLevel().getManager().getEngine().getCamera().debugMode) {
+                if (!getBackPack().containsItem(ItemType.ARROW) && !getLevel().getManager().getEngine().getCamera().debugMode) {
                     return;
                 }
 
@@ -261,10 +312,20 @@ public class Player extends EntityLiving {
                 ProjectileArrow proj = new ProjectileArrow(this, getLevel(), spawnLoc, getLevel().getManager().getEngine().mouseX, getLevel().getManager().getEngine().mouseY);
                 proj.setLocation(getLocation().getX() + (getHitboxWidth() / 2) - (proj.getWidth() / 2), getLocation().getY());
                 proj.offsetTrajectory(32);
+                proj.setDamage(getDamage());
                 getLevel().addEntity(proj);
                 getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.STINGER_SHOOT);
                 setAttackTicks(0);
-                incrementArrows(-1);
+                for (InventoryItemSlot item : getBackPack().getItems()) {
+                    if (item.getItem() == null) {
+                        continue;
+                    }
+
+                    if (item.getItem().getItemType() == ItemType.ARROW) {
+                        item.getItem().setAmount(item.getItem().getAmount() - 1);
+                        getBackPack().update();
+                    }
+                }
             }
         }
     }
@@ -312,18 +373,6 @@ public class Player extends EntityLiving {
     @Override
     public void kill() {
         getLevel().reset();
-    }
-
-    public double calculateHorizontalMovement() {
-        if (isAttacking()) {
-            return 0;
-        }
-
-        if (isMovingVertically()) {
-            return 0.75;
-        }
-
-        return 1;
     }
 
     public Texture getRunFrame() {
@@ -379,17 +428,26 @@ public class Player extends EntityLiving {
     }
 
     public int getArrows() {
+        int arrows = 0;
+
+        for (InventoryItemSlot itemSlot : getBackPack().getItems()) {
+            if (itemSlot.getItem() == null) {
+                continue;
+            }
+
+            if (itemSlot.getItem().getItemType() == ItemType.ARROW) {
+                arrows += itemSlot.getItem().getAmount();
+            }
+        }
+
         return arrows;
     }
 
-    public void setArrows(int amount) {
-        this.arrows = amount;
-        if (arrows < 0) {
-            arrows = 0;
-        }
+    public Inventory getBackPack() {
+        return backPack;
     }
 
-    public void incrementArrows(int amount) {
-        setArrows(getArrows() + amount);
+    public InventoryItem getItemInHand() {
+        return getBackPack().getItemAt(getBackPack().getSelectedSlot()).getItem();
     }
 }

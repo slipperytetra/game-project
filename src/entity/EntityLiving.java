@@ -33,6 +33,17 @@ public abstract class EntityLiving extends Entity {
     }
 
     @Override
+    public void initAttributes() {
+        super.initAttributes();
+
+        setAttribute(AttributeTypes.ATTACK_DAMAGE, AttributeTypes.ATTACK_DAMAGE.getDefaultValue());
+        setAttribute(AttributeTypes.ATTACK_RANGE, AttributeTypes.ATTACK_RANGE.getDefaultValue());
+        setAttribute(AttributeTypes.ATTACK_RESISTANCE, AttributeTypes.ATTACK_RESISTANCE.getDefaultValue());
+        setAttribute(AttributeTypes.ATTACK_SPEED, AttributeTypes.ATTACK_SPEED.getDefaultValue());
+        setAttribute(AttributeTypes.PROJECTILE_DAMAGE, AttributeTypes.PROJECTILE_DAMAGE.getDefaultValue());
+    }
+
+    @Override
     public void update(double dt) {
         super.update(dt);
 
@@ -58,6 +69,11 @@ public abstract class EntityLiving extends Entity {
     }
 
     public int getDamage() {
+        if (this instanceof Player p) {
+            if (p.getItemInHand() != null) {
+                return p.getItemInHand().getItemType().getDamage();
+            }
+        }
         return hitDamage;
     }
 
@@ -104,7 +120,7 @@ public abstract class EntityLiving extends Entity {
     }
 
     public void attack() {
-        if (getTarget() == null) {
+        if (getTarget() == null || getLevel().isEditMode() || getLevel().getManager().getEngine().isPaused) {
             return;
         }
 
@@ -119,7 +135,7 @@ public abstract class EntityLiving extends Entity {
             getLevel().getManager().getEngine().getCamera().shake(10);
         }
 
-        target.damage(this);
+        target.damage(this, true);
     }
 
     public double getAttackCooldown() {
@@ -142,16 +158,16 @@ public abstract class EntityLiving extends Entity {
         return getAttackTicks() >= getAttackCooldown() && getTarget() != null;
     }
 
-    public void damage(EntityLiving attacker) {
+    public void damage(EntityLiving attacker, boolean playSound) {
         setHealth(getHealth() - attacker.getDamage());
-        if (getHitSound() != null) {
+        if (getHitSound() != null && playSound) {
             getLevel().getManager().getEngine().getAudioBank().playSound(getHitSound());
         }
     }
 
-    public void damage(int damage) {
+    public void damage(int damage, boolean playSound) {
         setHealth(getHealth() - damage);
-        if (getHitSound() != null) {
+        if (getHitSound() != null && playSound) {
             getLevel().getManager().getEngine().getAudioBank().playSound(getHitSound());
         }
     }

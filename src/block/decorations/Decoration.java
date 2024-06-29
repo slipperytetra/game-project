@@ -21,11 +21,11 @@ public class Decoration extends GameObject {
     }
 
     public void render(Camera cam) {
-        cam.game.drawImage(getFrame().getImage(), cam.toScreenX(getLocation().getX()) * cam.getZoom(), (cam.toScreenY(getLocation().getY()) - getHeight() + Game.BLOCK_SIZE) * cam.getZoom(), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
+        cam.game.drawImage(getFrame().getImage(), cam.toScreenX(getLocation().getX()), (cam.toScreenY(getLocation().getY()) - getHeight() + Game.BLOCK_SIZE), getWidth() , getHeight() );
 
         if (cam.debugMode) {
             cam.game.changeColor(Color.GREEN);
-            cam.game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
+            cam.game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() , getCollisionBox().getHeight() );
         }
     }
 

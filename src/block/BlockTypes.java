@@ -7,6 +7,7 @@ public enum BlockTypes {
     VOID("resources/images/blocks/void.png", false),
     BARRIER("resources/images/blocks/dirt.png"),
     FOREST_GROUND("resources/images/blocks/forest_ground/forest_ground", true, 16),
+    FOREST_GROUND_CRACKED("resources/images/blocks/forest_ground/forest_ground_cracked", true, 5),
     LADDER("resources/images/blocks/ladder.png", false),
     ROPE("resources/images/blocks/rope.png", false),
     WATER_TOP("resources/images/blocks/waterTop.png"),
@@ -29,8 +30,6 @@ public enum BlockTypes {
     LOG_MID("resources/images/blocks/log_mid.png"),
     LOG_END("resources/images/blocks/log_end.png"),
     PLAYER_SPAWN("resources/images/blocks/player_spawn.png", false);
-
-
 
 
     private final String getFilePath;

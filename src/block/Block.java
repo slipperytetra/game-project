@@ -34,15 +34,15 @@ public class Block extends GameObject {
 
 
         if (getTexture() == null) {
-            System.out.println("Null block image: " + getType().getFilePath());
+            //System.out.println("Null block image: " + getType().getFilePath());
             return;
         }
 
-        cam.game.drawImage(getTexture().getImage(), cam.toScreenX(getLocation().getX()) * cam.getZoom(), cam.toScreenY(getLocation().getY()) * cam.getZoom(), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
+        cam.game.drawImage(getTexture().getImage(), cam.toScreenX(getLocation().getX()) , cam.toScreenY(getLocation().getY()) , Game.BLOCK_SIZE, Game.BLOCK_SIZE );
 
         if (cam.debugMode) {
             cam.game.changeColor(Color.GREEN);
-            cam.game.drawRectangle(cam.toScreenX(getLocation().getX()) * cam.getZoom(), cam.toScreenY(getLocation().getY()) * cam.getZoom(), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
+            cam.game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()) , cam.toScreenY(getCollisionBox().getLocation().getY()) , getCollisionBox().getWidth() , getCollisionBox().getHeight() );
         }
     }
 

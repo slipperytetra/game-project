@@ -101,9 +101,9 @@ public class Particle {
         image.setFlipped(isFlipped);
 
         if (type.isFadeOut()) {
-            cam.game.drawImage(image.getImage(), camLocX * cam.getZoom(), camLocY * cam.getZoom(), size * cam.getZoom(), size * cam.getZoom(), (float) opacity);
+            cam.game.drawImage(image.getImage(), camLocX , camLocY , size , size , (float) opacity);
         } else {
-            cam.game.drawImage(image.getImage(), camLocX * cam.getZoom(), camLocY * cam.getZoom(), size * cam.getZoom(), size * cam.getZoom());
+            cam.game.drawImage(image.getImage(), camLocX , camLocY , size , size );
         }
     }
 

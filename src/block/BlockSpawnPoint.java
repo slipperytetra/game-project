@@ -19,11 +19,11 @@ public class BlockSpawnPoint extends Block {
         }
 
         if (cam.debugMode || getLevel().isEditMode()) {
-            cam.game.drawImage(getTexture().getImage(), cam.toScreenX(getLocation().getX()) * cam.getZoom(), cam.toScreenY(getLocation().getY()) * cam.getZoom(), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
+            cam.game.drawImage(getTexture().getImage(), cam.toScreenX(getLocation().getX()) , cam.toScreenY(getLocation().getY()) , getCollisionBox().getWidth() , getCollisionBox().getHeight() );
 
             if (cam.debugMode) {
                 cam.game.changeColor(Color.GREEN);
-                cam.game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()) * cam.getZoom(), cam.toScreenY(getCollisionBox().getLocation().getY()) * cam.getZoom(), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
+                cam.game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()) , cam.toScreenY(getCollisionBox().getLocation().getY()) , getCollisionBox().getWidth() , getCollisionBox().getHeight() );
             }
         }
     }

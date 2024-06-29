@@ -1,11 +1,10 @@
 package entity;
 
+import block.Block;
+import block.BlockLiquid;
 import level.Level;
 import level.ParticleTypes;
-import main.Camera;
-import main.Game;
-import main.GameObject;
-import main.SoundType;
+import main.*;
 import org.w3c.dom.Text;
 import utils.*;
 
@@ -64,7 +63,7 @@ public class Projectile extends Entity {
 
         List<GameObject> collisions = getLevel().getQuadTree().query(this);
         for (GameObject gameObject : collisions) {
-            if (!gameObject.isCollidable() || gameObject.equals(this) || gameObject.equals(getShooter())) {
+            if (!gameObject.isCollidable() || gameObject.equals(this) || gameObject.equals(getShooter()) || isWater(gameObject)) {
                 continue;
             }
 
@@ -75,7 +74,7 @@ public class Projectile extends Entity {
             //setCanMove(false);
 
             if (gameObject instanceof EntityLiving living && living.getHealth() > 0) {
-                living.damage(getDamage());
+                living.damage(getDamage(), false);
                 getLevel().spawnParticle(ParticleTypes.IMPACT, getCenterX(), getCenterY());
             } else {
                 for (int i = 0; i < rand.nextInt(5, 10); i++) {
@@ -83,6 +82,7 @@ public class Projectile extends Entity {
                             rand.nextDouble(-2, 2), rand.nextDouble(-1, 4));
                 }
             }
+            break;
         }
 
         if (hasTrail()) {
@@ -123,14 +123,21 @@ public class Projectile extends Entity {
             return;
         }
 
-        getLocation().setX((getLocation().getX()) + getVelocity().getX() * dt);
-        getLocation().setY((getLocation().getY()) + getVelocity().getY() * dt);
+        double velocityX = getVelocity().getX();
+        double velocityY = getVelocity().getY();
+
+        getLocation().setX((getLocation().getX()) + velocityX * dt);
+        getLocation().setY((getLocation().getY()) + velocityY * dt);
         updateCollisionBox();
 
         if (hasGravity) {
-            getVelocity().setY(getVelocity().getY() + (GRAVITY * dt));
+            if (getBlockAtLocation() instanceof BlockLiquid) {
+                getVelocity().setY(velocityY + (GRAVITY * dt));
+            } else {
+                getVelocity().setY(velocityY + (GRAVITY * dt));
+            }
         } else {
-            getVelocity().setY(getVelocity().getY() + (1 * dt));
+            getVelocity().setY(velocityY + (1 * dt));
         }
 
         angle = Math.atan2(getVelocity().getY(), getVelocity().getX());
@@ -221,5 +228,9 @@ public class Projectile extends Entity {
 
     public boolean hasImpactSound() {
         return impactSound != null;
+    }
+
+    public boolean isWater(GameObject block) {
+        return block instanceof BlockLiquid;
     }
 }

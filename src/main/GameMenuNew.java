@@ -1,9 +1,16 @@
 package main;
 
+import utils.Location;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 public class GameMenuNew extends GameEngine {
@@ -13,11 +20,14 @@ public class GameMenuNew extends GameEngine {
     protected JPanel buttonsPanel;
     protected JPanel titlePanel;
     public JPanel contextPanel;
+    private JPanel levelEditorPanel;
     protected LevelLoadPanel dataPanel;
     protected Image backgroundImage;
-    protected AudioClip menuMusic; // Clip for the menu music
+    //protected AudioClip menuMusic; // Clip for the menu music
 
-    public GameMenuNew() {
+    public ArrayList<BufferedImage> icons = new ArrayList<>();
+
+    public void init() {
         this.setWindowSize(1280, 720);
         //this.menuMusic = loadAudio("resources/sounds/menuMusic.wav");
 
@@ -26,6 +36,7 @@ public class GameMenuNew extends GameEngine {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
         mainPanel.setOpaque(false);
@@ -48,23 +59,14 @@ public class GameMenuNew extends GameEngine {
         dataPanel.setVisible(false);
         contextPanel.add(dataPanel, "Load");
 
-        // TEMPPP
-        // menu.stopAudioLoop(menu.menuMusic);
-        // Get the reference to the frame containing the button
-        if (mFrame != null) {
-            mFrame.dispose();
-        }
-        new Game().startGame();
+        this.mPanel.add(mainPanel);
 
-        /*
-        if (menuMusic != null) {
+        levelEditorPanel = new LevelEditorPanel(this);
+        contextPanel.add(levelEditorPanel, "Editor");
+
+        /*if (menuMusic != null) {
             startAudioLoop(menuMusic);
         }*/
-    }
-
-    @Override
-    public void init() {
-        this.mPanel.add(mainPanel);
     }
 
     public void loadTitlePanel() {
@@ -85,14 +87,30 @@ public class GameMenuNew extends GameEngine {
 
         JButton buttonLoad = new JButton("Load Game");
         buttonLoad.addActionListener(e -> cl.show(contextPanel, "Load"));
-
         buttonsPanel.add(buttonLoad);
-        buttonsPanel.add(new JButton("Level Editor"));
+
+        JButton buttonEditor = new JButton("Level Editor");
+        buttonEditor.addActionListener(e -> cl.show(contextPanel, "Editor"));
+        buttonsPanel.add(buttonEditor);
+
         JButton settingsButton = new JButton("Settings");
         settingsButton.addActionListener(e -> cl.show(contextPanel, "Settings"));
 
         buttonsPanel.add(settingsButton);
-        buttonsPanel.add(new JButton("Quit"));
+        JButton quitButton = new JButton("Quit");
+        quitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int result = JOptionPane.showOptionDialog(buttonsPanel, "Do you want to exit the game?",
+                        "Exit game?", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE,
+                        null, new String[]{"No", "Yes"}, "No");
+
+                if (result == 1) {
+                    System.exit(0);
+                }
+            }
+        });
+        buttonsPanel.add(quitButton);
 
         contextPanel.add(buttonsPanel, "Home");
     }
@@ -107,6 +125,14 @@ public class GameMenuNew extends GameEngine {
         if (backgroundImage != null) {
             drawImage(backgroundImage, 0, 0, width(), height());
         }
+
+        if (levelEditorPanel.isVisible()) {
+            for (int i = 0; i < icons.size(); i++) {
+                BufferedImage img = icons.get(i);
+                int y = i / 3;
+                drawImage(img, 100 + (i * img.getWidth()) + (i * 50), y * img.getHeight() + 175, img.getWidth(), img.getHeight());
+            }
+        }
     }
 }
 
@@ -117,7 +143,7 @@ class LevelLoadPanel extends JPanel {
         setOpaque(false);
         JButton button = new JButton("Load Game");
         button.addActionListener(e -> {
-           // menu.stopAudioLoop(menu.menuMusic);
+            //menu.stopAudioLoop(menu.menuMusic);
             // Get the reference to the frame containing the button
             JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(button);
             if (parentFrame != null) {
@@ -188,6 +214,92 @@ class SettingsMenu extends JPanel {
 
     public void showContainer(String name) {
         cl.show(this, name);
+    }
+}
+
+class LevelEditorPanel extends JPanel {
+
+    private GameMenuNew menu;
+    private JButton refresh;
+    private JLabel dirLabel;
+    private JTextField dirTextField;
+
+    private JPanel optionsPanel;
+    private JPanel levelsPanel;
+
+
+    public LevelEditorPanel(GameMenuNew menu) {
+        this.menu = menu;
+        setLayout(new GridBagLayout());
+        setOpaque(false);
+
+        levelsPanel = new JPanel();
+        levelsPanel.setOpaque(false);
+        levelsPanel.setLayout(new GridBagLayout());
+        refresh = new JButton("Refresh");
+        dirLabel = new JLabel("Levels Location:");
+        dirTextField = new JTextField("saves/levels");
+        dirTextField.setForeground(Color.GRAY);
+
+        optionsPanel = new JPanel();
+        optionsPanel.setLayout(new GridBagLayout());
+        optionsPanel.setOpaque(false);
+        optionsPanel.add(dirLabel);
+        optionsPanel.add(dirTextField);
+        optionsPanel.add(refresh);
+        optionsPanel.add(new BackButton(menu.cl, menu.contextPanel, "Home"));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        add(optionsPanel);
+        gbc.gridy = 1;
+        add(levelsPanel, gbc);
+
+        loadLevels();
+    }
+
+    public void loadLevels() {
+        File folder = new File("saves/levels");
+        File[] listOfFiles = folder.listFiles();
+        BufferedImage defaultImg = (BufferedImage) menu.loadImage("saves/levels/default_icon.png");
+        if (listOfFiles != null) {
+            for (File file : listOfFiles) {
+                if (file.getName().contains(".png") || file.getName().startsWith(".")) {
+                    continue;
+                }
+
+                BufferedImage levelImg = defaultImg;
+                File levelImgFile = new File(folder.getPath() + "/" + file.getName().replaceAll(".txt", "") + "_icon.png");
+                if (levelImgFile.exists()) {
+                    levelImg = (BufferedImage) menu.loadImage(levelImgFile.getPath());
+                } else {
+                    System.out.println(levelImgFile.getPath());
+                }
+
+                JButton button = new JButton();
+                button.setOpaque(false);
+                button.setIcon(new ImageIcon(levelImg));
+                button.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        //menu.stopAudioLoop(menu.menuMusic);
+                        // Get the reference to the frame containing the button
+                        JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(button);
+                        if (parentFrame != null) {
+                            parentFrame.dispose();
+                        }
+
+                        Game game = new Game();
+                        game.startGame();
+
+                        game.setActiveLevel(folder.getPath() + "/" + file.getName(), true);
+                        game.camera.setFocusPoint(new Location(game.getActiveLevel().getActualWidth() / 2, game.getActiveLevel().getActualHeight() / 2));
+                        game.getActiveLevel().setEditMode(true);
+                    }
+                });
+                levelsPanel.add(button);
+                //menu.icons.add(GameUtils.makeRoundedCorner(levelImg, 30));
+            }
+        }
     }
 }
 

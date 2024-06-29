@@ -22,7 +22,7 @@ public class Door extends Entity {
 
             // Check if the specified key is pressed to switch to the next level
             if (getLevel().getManager().getEngine().keysPressed.contains(69)) {
-                getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.DOOR_OPOEN);
+                getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.DOOR_OPEN);
                 getLevel().getManager().getEngine().setActiveLevel(getLevel().getManager().getLevels().get(getLevel().getNextLevel()));
             }
         }

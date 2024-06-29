@@ -14,6 +14,7 @@ public class Texture {
 
     public Texture(BufferedImage image) {
         this.image = image;
+        this.rotation = 0;
     }
 
     public double getRotation() {
@@ -36,7 +37,7 @@ public class Texture {
             }
 
             if (getRotation() != 0) {
-                AffineTransform tx = AffineTransform.getRotateInstance(getRotation(), getWidth() / 2, getHeight() / 2);
+                AffineTransform tx = AffineTransform.getRotateInstance(getRotation(), (double) getWidth() / 2, (double) getHeight() / 2);
                 AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
                 img = op.filter(img, null);
             }

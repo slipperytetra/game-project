@@ -4,6 +4,7 @@ import block.Block;
 import level.Level;
 import main.Camera;
 import main.Game;
+import utils.CollisionBox;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -20,8 +21,16 @@ public abstract class LevelEditor {
         this.game = level.getManager().getEngine();
     }
 
+    public void update(double dt) {
+
+    }
+
     public void render(Camera cam) {
         Block b = getSelectedBlock();
+        if (b == null) {
+            return;
+        }
+
         mouseOffsetX = cam.toScreenX(b.getLocation().getX());
         mouseOffsetY = cam.toScreenY(b.getLocation().getY());
 
@@ -33,23 +42,27 @@ public abstract class LevelEditor {
     public void mouseMoved(MouseEvent event) {
         game.mouseX = game.getCamera().toWorldX(event.getX());
         game.mouseY = game.getCamera().toWorldY(event.getY());
+        updateMouseBox();
     }
 
     public void mousePressed(MouseEvent event) {
         game.mouseX = game.getCamera().toWorldX(event.getX());
         game.mouseY = game.getCamera().toWorldY(event.getY());
+        updateMouseBox();
         editObject(event);
     }
 
     public void mouseReleased(MouseEvent event) {
         game.mouseX = game.getCamera().toWorldX(event.getX());
         game.mouseY = game.getCamera().toWorldY(event.getY());
+        updateMouseBox();
         //editObject(event);
     }
 
     public void mouseDragged(MouseEvent event) {
         game.mouseX = game.getCamera().toWorldX(event.getX());
         game.mouseY = game.getCamera().toWorldY(event.getY());
+        updateMouseBox();
         editObject(event);
     }
 
@@ -89,5 +102,15 @@ public abstract class LevelEditor {
 
     public Level getLevel() {
         return level;
+    }
+
+    public void updateMouseBox() {
+        Camera cam = getLevel().getManager().getEngine().getCamera();
+        if (game.mouseBox == null) {
+            game.mouseBox = new CollisionBox(game.mouseX, game.mouseY, 4, 4);
+            return;
+        }
+
+        game.mouseBox.setLocation(game.mouseX, game.mouseY);
     }
 }

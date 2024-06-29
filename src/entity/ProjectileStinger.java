@@ -2,6 +2,7 @@ package entity;
 
 import level.Level;
 import main.Game;
+import main.SoundType;
 import utils.Location;
 
 public class ProjectileStinger extends Projectile {
@@ -12,5 +13,6 @@ public class ProjectileStinger extends Projectile {
         setScale(1);
         setDamage(5);
         setHasGravity(false);
+        setImpactSound(SoundType.ARROW_IMPACT);
     }
 }

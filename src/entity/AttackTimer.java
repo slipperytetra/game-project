@@ -16,6 +16,9 @@ public class AttackTimer extends Timer {
         addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (entity.getLevel().isEditMode() || entity.getLevel().getManager().getEngine().isPaused) {
+                    return;
+                }
                 //System.out.println(entity.getType().toString() + " running attackTimer");
                 if (entity.getType() != EntityType.PLAYER) {
                     if (entity.getAttackSound() != null) {

@@ -9,6 +9,8 @@ import utils.CollisionBox;
 import utils.Location;
 import utils.Texture;
 import utils.Vector;
+
+import java.util.HashMap;
 import java.util.List;
 
 public abstract class Entity extends GameObject {
@@ -16,7 +18,7 @@ public abstract class Entity extends GameObject {
     private EntityType type;
 
     private final double GRAVITY = 32 * Game.BLOCK_SIZE;
-    private final double FRICTION = 32;
+    private final double FRICTION = 32 * Game.BLOCK_SIZE;
     protected int health;
     private int maxHealth;
     private boolean isDead;
@@ -28,6 +30,7 @@ public abstract class Entity extends GameObject {
     private Vector velocity;
     private List<GameObject> collisionsX;
     private List<GameObject> collisionsY;
+    private HashMap<AttributeTypes, Double> attributes;
 
     double speed = 384; // pixels per second / 12 blocks per second
 
@@ -40,12 +43,11 @@ public abstract class Entity extends GameObject {
     public double ACCELERATION = MAX_SPEED / 2;
     public double[] locs = new double[4];
 
-    public List<CollisionBox> collisions;
-
     public Entity(EntityType type, Level level, Location loc) {
         super(level, loc);
         this.type = type;
         this.hasGravity = true;
+        this.attributes = new HashMap<>();
         this.setScale(2);
         this.velocity = new Vector(0, 0);
         this.direction = new Vector(0, 0);
@@ -56,15 +58,23 @@ public abstract class Entity extends GameObject {
 
         setHitboxWidth(getIdleFrame().getWidth());
         setHitboxHeight(getIdleFrame().getHeight());
+
+        initAttributes();
+    }
+
+    public void initAttributes() {
+        attributes.put(AttributeTypes.HEALTH, AttributeTypes.HEALTH.getDefaultValue());
+        attributes.put(AttributeTypes.MAX_HEALTH, AttributeTypes.MAX_HEALTH.getDefaultValue());
+        attributes.put(AttributeTypes.MOVEMENT_SPEED, AttributeTypes.MOVEMENT_SPEED.getDefaultValue());
     }
 
     public void render(Camera cam) {
         super.render(cam);
-        cam.game.drawImage(getActiveFrame().getImage(), cam.toScreenX(getLocation().getX()) * cam.getZoom(), cam.toScreenY(getLocation().getY()) * cam.getZoom(), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
+        cam.game.drawImage(getActiveFrame().getImage(), cam.toScreenX(getLocation().getX()) , cam.toScreenY(getLocation().getY()) , getWidth() , getHeight() );
 
         if (cam.debugMode) {
             cam.game.changeColor(getHitboxColor());
-            cam.game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
+            cam.game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() , getCollisionBox().getHeight() );
         }
     }
 
@@ -85,30 +95,30 @@ public abstract class Entity extends GameObject {
     }
 
     public void move(double dt) {
-        System.out.println(dt);
+        //System.out.println(dt);
         if (hasGravity()) {
             getVelocity().setY(getVelocity().getY() + (GRAVITY * dt));
         }
 
         if (canClimb()) {
             if (getVelocity().getY() > 0) {
-                getVelocity().setY(getVelocity().getY() - (getFriction() * 1.5));
+                getVelocity().setY(getVelocity().getY() - (getFriction() * 1.5 * dt));
                 if (getVelocity().getY() < 0){
                     getVelocity().setY(0);
                 }
             } else if (getVelocity().getY() < 1) {
-                getVelocity().setY(getVelocity().getY() + (getFriction() * 1.5));
+                getVelocity().setY(getVelocity().getY() + (getFriction() * 1.5 * dt));
                 if (getVelocity().getY() > 0)  getVelocity().setY(0);
             }
         }
 
         if (getVelocity().getX() > 0) {
-            getVelocity().setX(getVelocity().getX() - getFriction());
+            getVelocity().setX(getVelocity().getX() - (getFriction() * dt));
             if (getVelocity().getX() < 0){
                 getVelocity().setX(0);
             }
         } else if (getVelocity().getX() < 1) {
-            getVelocity().setX(getVelocity().getX() + getFriction());
+            getVelocity().setX(getVelocity().getX() + (getFriction() * dt));
             if (getVelocity().getX() > 0)  getVelocity().setX(0);
         }
 
@@ -130,6 +140,9 @@ public abstract class Entity extends GameObject {
     }
 
     public void moveEntX(double distX) {
+        if (this instanceof Player p && p.isAttacking()) {
+            distX = 0;
+        }
         double moveIncre = distX / (int) distX;
         for (int i = 0; i < Math.abs((int) distX); i++) {
             int num = 1;
@@ -150,8 +163,8 @@ public abstract class Entity extends GameObject {
                         continue;
                     }
 
-                    double gObjX1 = gameObject.getCollisionBox().getLocation().getX() - 1;
-                    double gObjX2 = gameObject.getCollisionBox().getCorner().getX() + 1;
+                    double gObjX1 = gameObject.getCollisionBox().getLocation().getX() - 2;
+                    double gObjX2 = gameObject.getCollisionBox().getCorner().getX() + 2;
 
                     double eObjX1 = cBox.getLocation().getX();
                     double eObjX2 = cBox.getCorner().getX();
@@ -164,7 +177,7 @@ public abstract class Entity extends GameObject {
                 }
             }
 
-            getLocation().setX(nextLocX);
+            getLocation().setX(Math.round(nextLocX * 2) / 2.0);
             updateCollisionBox();
         }
     }
@@ -177,8 +190,12 @@ public abstract class Entity extends GameObject {
                 num = -1;
             }
 
-            double nextLocY = getLocation().getY() + (moveIncre * num);
-            CollisionBox cBox = new CollisionBox(getCollisionBox().getLocation().getX() + num, getCollisionBox().getLocation().getY() + num + (num), getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            double nextLocY = Math.round((getLocation().getY() + (moveIncre * num)) * 2) / 2.0;
+            CollisionBox cBox = new CollisionBox(getCollisionBox().getLocation().getX(), getCollisionBox().getLocation().getY() + num + (num), getCollisionBox().getWidth(), getCollisionBox().getHeight());
+            if (nextLocY <= 0 || nextLocY >= getLevel().getActualHeight() - getHitboxHeight()) { //Make sure the object can't go outside the level
+                return;
+            }
+
             tempBoxX = cBox;
 
             this.collisionsY = getLevel().getQuadTree().query(this, cBox);
@@ -188,8 +205,8 @@ public abstract class Entity extends GameObject {
                         continue;
                     }
 
-                    double gObjY1 = gameObject.getCollisionBox().getLocation().getY() - 1;
-                    double gObjY2 = gameObject.getCollisionBox().getCorner().getY() + 1;
+                    double gObjY1 = gameObject.getCollisionBox().getLocation().getY() - 2;
+                    double gObjY2 = gameObject.getCollisionBox().getCorner().getY() + 2;
 
                     double eObjY1 = cBox.getLocation().getY();
                     double eObjY2 = cBox.getCorner().getY();
@@ -258,29 +275,6 @@ public abstract class Entity extends GameObject {
         getLocation().setX(getLocation().getX() + (getVelocity().getX() * dt));
         getLocation().setY(getLocation().getY() + (getVelocity().getY() * dt));
         updateCollisionBox();
-    }
-
-    public void translate(double dt, double movX, double movY) {
-        System.out.println(movX + ", " + movY);
-        getLocation().setX((getLocation().getX()) + movX * dt);
-        getLocation().setY((getLocation().getY()) + movY * dt);
-        updateCollisionBox();
-    }
-
-    public Vector getDirection() {
-        return direction;
-    }
-
-    public void setDirection(Vector dir) {
-        this.direction = dir;
-    }
-
-    public void setDirectionX(double x) {
-        getDirection().setX(x);
-    }
-
-    public void setDirectionY(double y) {
-        getDirection().setY(y);
     }
 
     public Block getBlockAtLocation() {
@@ -454,5 +448,29 @@ public abstract class Entity extends GameObject {
 
     public List<GameObject> getCollisionsY() {
         return collisionsY;
+    }
+
+    public HashMap<AttributeTypes, Double> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(HashMap<AttributeTypes, Double> attributes) {
+        this.attributes = attributes;
+    }
+
+    public double getAttributeValue(AttributeTypes attribute) {
+        if (!hasAttribute(attribute)) {
+            return 0;
+        }
+
+        return this.attributes.get(attribute);
+    }
+
+    public void setAttribute(AttributeTypes attribute, double value) {
+        this.attributes.put(attribute, value);
+    }
+
+    public boolean hasAttribute(AttributeTypes attribute) {
+        return this.attributes.containsKey(attribute);
     }
 }

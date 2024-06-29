@@ -1,6 +1,7 @@
 package level.editor;
 
 import block.Block;
+import block.BlockCracked;
 import block.BlockSet;
 import block.BlockTypes;
 import level.Level;
@@ -57,8 +58,13 @@ public class LevelEditorBlocks extends LevelEditor {
 
         if (getLevel()!= null && getLevel().isEditMode()) {
             if (type.toString().contains("FOREST_GROUND")) {
-                BlockSet b = new BlockSet(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
-                getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
+                if (type.toString().contains("CRACKED")) {
+                    BlockCracked b = new BlockCracked(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
+                    getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
+                } else {
+                    BlockSet b = new BlockSet(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
+                    getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
+                }
             } else {
                 Block b = new Block(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
                 getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);

@@ -11,10 +11,12 @@ public class QuadTree {
 
     private CollisionBox boundary;
     private int capacity;
-    private List<GameObject> gameObjects;
+    public List<GameObject> gameObjects;
     private boolean divided;
 
     private QuadTree northEast, northWest, southEast, southWest;
+
+    public GameObject focus;
 
     public QuadTree(CollisionBox boundary, int capacity) {
         this.boundary = boundary;
@@ -58,15 +60,19 @@ public class QuadTree {
 
         CollisionBox nw = new CollisionBox(x, y, w/2, h/2);
         northWest = new QuadTree(nw, capacity);
+        northWest.focus = focus;
 
         CollisionBox ne = new CollisionBox(x + w/2, y, w/2, h/2);
         northEast = new QuadTree(ne, capacity);
+        northEast.focus = focus;
 
         CollisionBox sw = new CollisionBox(x, y + h/2, w/2, h/2);
         southWest = new QuadTree(sw, capacity);
+        southWest.focus = focus;
 
         CollisionBox se = new CollisionBox(x + w/2, y + h/2, w/2, h/2);
         southEast = new QuadTree(se, capacity);
+        southEast.focus = focus;
 
         /*
         CollisionBox nw = new CollisionBox(x - w/2, y - h/2, w/2, h/2);
@@ -116,7 +122,7 @@ public class QuadTree {
                     continue;
                 }
 
-                if (gameObject.isCollidable() && box.collidesWith(gameObject)) {
+                if (box.collidesWith(gameObject)) {
                     found.add(gameObject);
                 }
             }
@@ -148,6 +154,13 @@ public class QuadTree {
 
     public void render(Camera cam) {
         cam.game.changeColor(Color.MAGENTA);
+
+        if (focus != null) {
+            if (focus.isCollidable() && focus.getCollisionBox().collidesWith(boundary)) {
+                cam.game.changeColor(Color.orange);
+            }
+        }
+
         //System.out.println(cam.toScreenX(boundary.getLocation().getX()) + ", " + cam.toScreenY(boundary.getLocation().getY()));
         cam.game.drawRectangle(cam.toScreenX(boundary.getLocation().getX()),
                 cam.toScreenY(boundary.getLocation().getY()),

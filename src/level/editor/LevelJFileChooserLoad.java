@@ -27,7 +27,7 @@ public class LevelJFileChooserLoad extends JPanel implements ActionListener {
         chooser.setDialogTitle("Choose level txt file to load from . .");
         int returnValue = chooser.showOpenDialog(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
-            level.getManager().getEngine().setActiveLevel(chooser.getSelectedFile().getName());
+            level.getManager().getEngine().setActiveLevel(chooser.getSelectedFile().getPath(), false);
         }
     }
 

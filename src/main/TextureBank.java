@@ -4,6 +4,7 @@ import block.BlockTypes;
 import block.decorations.DecorationTypes;
 import entity.EntityType;
 import level.ParticleTypes;
+import level.item.ItemType;
 import utils.Texture;
 import utils.TextureAnimated;
 
@@ -37,6 +38,10 @@ public class TextureBank {
 
         for (ParticleTypes particleType : ParticleTypes.values()) {
             addTexture(particleType.toString().toLowerCase(), new Texture((BufferedImage) game.loadImage(particleType.getFilePath())));
+        }
+
+        for (ItemType itemType : ItemType.values()) {
+            addTexture("item_" + itemType.toString().toLowerCase(), new Texture((BufferedImage) game.loadImage(itemType.getFilePath())));
         }
 
 
@@ -106,6 +111,19 @@ public class TextureBank {
         }, 11, false));
 
         addTexture("ui_heart",  new Texture((BufferedImage) game.loadImage("resources/images/ui/health_bar_heart.png")));
+        addTexture("ui_inventory_0",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_0.png")));
+        addTexture("ui_inventory_1",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_1.png")));
+        addTexture("ui_inventory_2",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_2.png")));
+        addTexture("ui_inventory_3",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_3.png")));
+        addTexture("ui_inventory_4",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_4.png")));
+        addTexture("ui_inventory_5",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_5.png")));
+        addTexture("ui_inventory_6",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_6.png")));
+        addTexture("ui_inventory_7",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_7.png")));
+        addTexture("ui_inventory_8",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_8.png")));
+        addTexture("ui_inventory_filled",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_filled.png")));
+        addTexture("ui_inventory_filled_selected",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_filled_selected.png")));
+        addTexture("ui_inventory_icon",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_icon.png")));
+        addTexture("ui_inventory_selected",  new Texture((BufferedImage) game.loadImage("resources/images/ui/menus/inventory_selected.png")));
 
         addTexture("spot_light",  new Texture((BufferedImage) game.loadImage("resources/images/blocks/decorations/spot_light.png")));
 

@@ -4,8 +4,9 @@ import block.BlockTypes;
 import block.decorations.DecorationTypes;
 import level.*;
 import level.editor.*;
-import utils.ComboBoxItem;
-import utils.ComboBoxRenderer;
+import level.item.Inventory;
+import level.item.InventoryItemSlot;
+import utils.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +20,7 @@ import java.util.Set;
 public class Game extends GameEngine {
     public static int BLOCK_SIZE = 32;
     private boolean gameOver;
-    public boolean isPaused;
+    public static boolean isPaused;
     private AudioBank audioBank;
     private TextureBank textureBank;
 
@@ -27,6 +28,7 @@ public class Game extends GameEngine {
     public long lastTime;
     public long currentTime;
     public Set<Integer> keysPressed = new HashSet();
+    public CollisionBox mouseBox;
     public double mouseX, mouseY;
 
     public JPanel editingPanel;
@@ -34,13 +36,14 @@ public class Game extends GameEngine {
     public JComboBox<ComboBoxItem> cBoxEntities;
     public JComboBox<ComboBoxItem> cBoxDecorations;
 
+    private ConfigManager configManager;
     private LevelEditor levelEditor;
-    int objectCounter;
-    int maxObjects;
 
     LevelManager lvlManager;
     private Level activeLevel;
     Camera camera;
+
+    Location tempLoc;
 
     public static void main(String[] args) {
         createGame(new GameMenuNew(),  60);
@@ -49,11 +52,13 @@ public class Game extends GameEngine {
 
     public void startGame(){
         createGame(this,  60);
+        initComboBoxes();
     }
 
     @Override
     public void setupMenu() {
-        initComboBoxes();
+        mPanel.add(editingPanel);
+        this.mFrame.addWindowListener(new SaveGameListener(getActiveLevel()));
     }
 
     public void init() {
@@ -64,6 +69,13 @@ public class Game extends GameEngine {
         this.lvlManager = new LevelManager(this);
         setActiveLevel(lvlManager.FOREST);
         this.levelEditor = new LevelEditorBlocks(getActiveLevel());
+        tempLoc = new Location(getActiveLevel().getActualWidth() / 2, getActiveLevel().getActualWidth() / 2);
+        this.mouseBox = new CollisionBox(mouseX, mouseY, 2, 2);
+
+        this.configManager = new ConfigManager();
+        for (ConfigAttribute att : ConfigAttribute.values()) {
+            configManager.addItem(att, att.getDefaultValue());
+        }
     }
 
     public Level getActiveLevel() {
@@ -85,14 +97,14 @@ public class Game extends GameEngine {
     }
 
 
-    public void setActiveLevel(String levelPath) {
-        File file = new File("resources/levels/" + levelPath);
+    public void setActiveLevel(String levelPath, boolean editMode) {
+        File file = new File(levelPath);
         if (!file.exists()) {
             System.out.println("Error creating temp level: file " + levelPath + " not found.");
             return;
         }
 
-        Level level = new Level(lvlManager, 999, "resources/levels/" + levelPath);
+        Level level = new Level(lvlManager, 999, levelPath);
         if (activeLevel != null) {
             if (activeLevel.getBackgroundMusic() != null) {
                 stopAudioLoop(activeLevel.getBackgroundMusic());
@@ -103,7 +115,6 @@ public class Game extends GameEngine {
         this.activeLevel.init();
         level.load();
         this.camera = new Camera(this, level.getPlayer());
-        getCamera().setFocusObject(level.getPlayer());
     }
 
     public void update(double dt) {
@@ -111,7 +122,7 @@ public class Game extends GameEngine {
         currentTime = System.currentTimeMillis();
         timeSinceLastFrame = currentTime - lastTime;
         camera.update(dt);
-
+        //System.out.println(mouseX + ", " + mouseY);
 
         if (!isPaused) {
             getActiveLevel().update(dt);
@@ -123,12 +134,6 @@ public class Game extends GameEngine {
     }
 
     public void paintComponent() {
-        this.clearBackground(width(), height());
-        /*if (isLoading()) {
-            drawText((width() / 2) - 100, height() / 2, "Loading: " + getActiveLevel().loadCompletion + "%", 75);
-            return;
-        }*/
-
         camera.draw();
     }
 
@@ -140,8 +145,23 @@ public class Game extends GameEngine {
             isPaused = !isPaused;
         }
 
-        if(event.getKeyCode() == 81 && isPaused){
+        if(event.getKeyCode() == 81 && isPaused) { //Q
             System.exit(0);
+        }
+
+        if (getActiveLevel().isEditMode()) {
+            if (keysPressed.contains(87)) {//W
+                camera.tempLocY = camera.tempLocY - Game.BLOCK_SIZE;
+            }
+            if (keysPressed.contains(65)) {//A
+                camera.tempLocX = camera.tempLocX - Game.BLOCK_SIZE;
+            }
+            if (keysPressed.contains(83)) {//S
+                camera.tempLocY = camera.tempLocY + Game.BLOCK_SIZE;
+            }
+            if (keysPressed.contains(68)) {//D
+                camera.tempLocX = camera.tempLocX + Game.BLOCK_SIZE;
+            }
         }
     }
 
@@ -152,16 +172,11 @@ public class Game extends GameEngine {
             camera.debugMode = !camera.debugMode;
         }
 
-        if (event.getKeyCode() == 65 || event.getKeyCode() == 68) {
-            activeLevel.getPlayer().setDirectionX(0);
-        }
-
-        if (event.getKeyCode() == 83 || event.getKeyCode() == 87) {
-            activeLevel.getPlayer().setDirectionY(0);
-        }
-
         if (event.getKeyCode() == 69) {
             activeLevel.setEditMode(!activeLevel.isEditMode());
+            if (activeLevel.isEditMode()) {
+                camera.setFocusPoint(new Location(activeLevel.getActualWidth() / 2, activeLevel.getActualHeight() / 2));
+            }
         }
     }
 
@@ -195,97 +210,21 @@ public class Game extends GameEngine {
         if (levelEditor != null) {
             levelEditor.mousePressed(event);
         }
+
+        if (getActiveLevel() != null) {
+            for (Inventory inv : getActiveLevel().getOpenInventories()) {
+                for (InventoryItemSlot slot : inv.getItems()) {
+                    if (slot.getItem() == null) {
+                        continue;
+                    }
+                    if (mouseBox.collidesWith(slot.getCollisionBox())) {
+                        inv.setSelectedSlot(slot.getSlot());
+                        getActiveLevel().playSound(SoundType.MENU_NAVIGATE);
+                    }
+                }
+            }
+        }
     }
-
-    /*public void loadDecorationImages() {
-        for (DecorationTypes type : DecorationTypes.values()) {
-            if (type.getFrames() > 0 && type.getFrameRate() > 0) {
-                BufferedImage[] frames = new BufferedImage[type.getFrames()];
-                for (int i = 0; i < type.getFrames(); i++) {
-                    frames[i] = (BufferedImage) loadImage(type.getFilePath() + i + ".png");
-                }
-                imageBank.put(type.toString().toLowerCase(), new TextureAnimated(frames, type.getFrameRate(), true));
-            } else {
-                imageBank.put(type.toString().toLowerCase(), new Texture((BufferedImage) loadImage(type.getFilePath())));
-            }
-        }
-
-        for (ParticleTypes particleType : ParticleTypes.values()) {
-            imageBank.put(particleType.toString().toLowerCase(), new Texture((BufferedImage) loadImage(particleType.getFilePath())));
-        }
-    }*/
-
-    /*
-    public void loadBlockImages() {
-        for (BlockTypes type : BlockTypes.values()) {
-            if (type.getBlockSetAmount() > 0) {
-                for (int i = 0; i < type.getBlockSetAmount(); i++) {
-                    String suffix = "_" + i;
-                    imageBank.put(type.toString() + suffix, new Texture((BufferedImage) loadImage(type.getFilePath() + suffix + ".png")));
-                }
-            } else {
-                imageBank.put(type.toString(),  new Texture((BufferedImage) loadImage(type.getFilePath())));
-            }
-        }
-    }*/
-
-    /*
-    *   This is where the image bank is loaded. Basically how it works is it uses a HashMap<String, Image> and it assigns
-    *   a string to an image object.
-    *
-    *   By doing it
-    * */
-    /*public void  loadCharacterImages() {
-        imageBank.put("player_fall", new Texture((BufferedImage) loadImage("resources/images/characters/jump3.png")));
-
-        imageBank.put("player_jump",  new TextureAnimated(new BufferedImage[]{
-                (BufferedImage) loadImage("resources/images/characters/jump0.png"),
-                (BufferedImage) loadImage("resources/images/characters/jump1.png"),
-                (BufferedImage) loadImage("resources/images/characters/jump2.png"),
-                (BufferedImage) loadImage("resources/images/characters/jump3.png")
-        }, 16, false));
-
-        imageBank.put("player_run",  new TextureAnimated(new BufferedImage[]{
-                (BufferedImage) loadImage("resources/images/characters/run0.png"),
-                (BufferedImage) loadImage("resources/images/characters/run1.png"),
-                (BufferedImage) loadImage("resources/images/characters/run2.png"),
-                (BufferedImage) loadImage("resources/images/characters/run3.png")
-        }, 12));
-
-        imageBank.put("player_attack",  new TextureAnimated(new BufferedImage[]{
-                (BufferedImage) loadImage("resources/images/characters/attack0.png"),
-                (BufferedImage) loadImage("resources/images/characters/attack1.png"),
-                (BufferedImage) loadImage("resources/images/characters/attack2.png"),
-                (BufferedImage) loadImage("resources/images/characters/attack3.png"),
-                (BufferedImage) loadImage("resources/images/characters/attack4.png")
-        }, 12, false));
-
-        imageBank.put("plant_monster_attack",  new TextureAnimated(new BufferedImage[]{
-                (BufferedImage) loadImage("resources/images/characters/plant/plant_attack_0.png"),
-                (BufferedImage) loadImage("resources/images/characters/plant/plant_attack_1.png"),
-                (BufferedImage) loadImage("resources/images/characters/plant/plant_attack_2.png"),
-                (BufferedImage) loadImage("resources/images/characters/plant/plant_attack_3.png"),
-                (BufferedImage) loadImage("resources/images/characters/plant/plant_attack_4.png"),
-                (BufferedImage) loadImage("resources/images/characters/plant/plant_attack_5.png"),
-                (BufferedImage) loadImage("resources/images/characters/plant/plant_attack_6.png")
-        }, 12, false));
-
-        imageBank.put("ui_heart",  new Texture((BufferedImage) loadImage("resources/images/ui/health_bar_heart.png")));
-
-        imageBank.put("spot_light",  new Texture((BufferedImage) loadImage("resources/images/blocks/decorations/spot_light.png")));
-
-        for (EntityType type : EntityType.values()) {
-            if (type.getFrames() > 0 && type.getFrameRate() > 0) {
-                BufferedImage[] frames = new BufferedImage[type.getFrames()];
-                for (int i = 0; i < type.getFrames(); i++) {
-                    frames[i] = (BufferedImage) loadImage(type.getFilePath() + i + ".png");
-                }
-                imageBank.put(type.toString().toLowerCase(), new TextureAnimated(frames, type.getFrameRate(), true));
-            } else {
-                imageBank.put(type.toString().toLowerCase(), new Texture((BufferedImage) loadImage(type.getFilePath())));
-            }
-        }
-    }*/
 
     public Camera getCamera() {
         return camera;
@@ -411,10 +350,6 @@ public class Game extends GameEngine {
 
         editingPanel.add(topPanel, BorderLayout.NORTH);
         editingPanel.add(rightPanel, BorderLayout.EAST);
-        mPanel.add(editingPanel);
-
-        //mPanel.add(editingPanel);
-        //mPanel.add(cBoxEntities);
     }
 
     public TextureBank getTextureBank() {
@@ -422,5 +357,9 @@ public class Game extends GameEngine {
     }
     public AudioBank getAudioBank() {
         return audioBank;
+    }
+
+    public ConfigManager getConfig() {
+        return configManager;
     }
 }

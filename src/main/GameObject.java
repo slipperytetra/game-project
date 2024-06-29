@@ -143,6 +143,7 @@ public class GameObject {
 
     public void setHitboxWidth(double hitboxWidth) {
         this.hitboxWidth = hitboxWidth;
+        updateCollisionBox();
     }
 
     public double getHitboxHeight() {
@@ -151,6 +152,7 @@ public class GameObject {
 
     public void setHitboxHeight(double hitboxHeight) {
         this.hitboxHeight = hitboxHeight;
+        updateCollisionBox();
     }
 
     public double getHitboxOffsetX() {
@@ -159,6 +161,7 @@ public class GameObject {
 
     public void setHitboxOffsetX(double hitboxOffsetX) {
         this.hitboxOffsetX = hitboxOffsetX;
+        updateCollisionBox();
     }
 
     public double getHitboxOffsetY() {
@@ -167,6 +170,7 @@ public class GameObject {
 
     public void setHitboxOffsetY(double hitboxOffsetY) {
         this.hitboxOffsetY = hitboxOffsetY;
+        updateCollisionBox();
     }
 
     public Color getHitboxColor() {
@@ -221,10 +225,10 @@ public class GameObject {
     }
 
     public double getCenterX() {
-        return getLocation().getX() + (getWidth() / 2);
+        return getLocation().getX() + (getHitboxWidth() / 2);
     }
 
     public double getCenterY() {
-        return getLocation().getY() + (getHeight() / 2);
+        return getLocation().getY() + (getHitboxHeight() / 2);
     }
 }

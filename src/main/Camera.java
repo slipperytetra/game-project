@@ -9,6 +9,7 @@ import entity.EntityType;
 import entity.Player;
 import level.Particle;
 import level.TextMessage;
+import level.item.Inventory;
 import utils.CollisionBox;
 import utils.Location;
 import utils.Texture;
@@ -38,7 +39,6 @@ public class Camera {
     private int DEBUG_BLOCKS_ON_SCREEN;
     private int DEBUG_DECORATIONS_ON_SCREEN;
     private int DEBUG_PARTICLES_ON_SCREEN;
-    private double zoom;
 
     double camWidth;
     double camHeight;
@@ -59,6 +59,7 @@ public class Camera {
     private Texture textBg;
     private Texture textMg;
     private Texture textFg;
+    public Vector velocity;
 
     private double deadZoneX, deadZoneY;
     private double deadZoneSize = Game.BLOCK_SIZE * 2;
@@ -67,7 +68,6 @@ public class Camera {
         this.game = game;
         this.player = p;
         this.loc = new Location(0, 0);
-        this.zoom = 1.0;
 
         this.camWidth = 1280;
         this.camHeight = 720;
@@ -87,10 +87,17 @@ public class Camera {
         *   aren't then we can just ignore them.
         * */
 
-        this.collisionBox = new CollisionBox(0, 0, camWidth, camHeight);
+        this.velocity = new Vector(0, 0);
         setFocusPoint(getPlayer().getLocation());
-        //this.centerPoint = new Location(camWidth, camHeight);
-        //this.focusPoint = new Location(getPlayer().getLocation().getX(), getPlayer().getLocation().getY());
+        loc.setX(getFocusPoint().getX() - (camWidth / 2.0));
+        loc.setY(getFocusPoint().getY() - (camHeight / 2.0));
+        this.collisionBox = new CollisionBox(loc.getX(), loc.getY(), camWidth, camHeight);
+
+        boundsX = game.getActiveLevel().getActualWidth() - camWidth;
+        boundsY = game.getActiveLevel().getActualHeight() - camHeight;
+
+        tempLocX = getFocusPoint().getX() - (camWidth / 2.0);
+        tempLocY = getFocusPoint().getY() - (camHeight / 2.0);
     }
 
     /*
@@ -98,57 +105,72 @@ public class Camera {
     * */
     public void update(double dt) {
         calculateFPS();
-        setFocusPoint(getPlayer().getLocation());
+        if (Game.isPaused) {
+            return;
+        }
+
+        if (!game.getActiveLevel().isEditMode()) {
+            setFocusPoint(getPlayer().getLocation());
+        }
         trackFocus(dt);
 
-        deadZoneX = getFocusPoint().getX() - deadZoneSize + (getPlayer().getWidth() / 2);
-        deadZoneY = getFocusPoint().getY() - deadZoneSize + (getPlayer().getHeight() / 2);
+        //deadZoneX = getFocusPoint().getX() - deadZoneSize + (getPlayer().getWidth() / 2);
+        //deadZoneY = getFocusPoint().getY() - deadZoneSize + (getPlayer().getHeight() / 2);
     }
 
     public void trackFocus(double dt) {
-        boundsX = game.getActiveLevel().getActualWidth() - (camWidth * zoom);
-        boundsY = game.getActiveLevel().getActualHeight() - (camHeight * zoom);
+        if (!game.getActiveLevel().isEditMode()) {
+            boundsX = game.getActiveLevel().getActualWidth() - camWidth;
+            boundsY = game.getActiveLevel().getActualHeight() - camHeight;
 
-        tempLocX = getFocusPoint().getX() - (camWidth / 2);
-        tempLocY = getFocusPoint().getY() - (camHeight / 2);
+            tempLocX = getFocusPoint().getX() - (camWidth / 2.0);
+            tempLocY = getFocusPoint().getY() - (camHeight / 2.0);
 
-        Vector velocity = new Vector(tempLocX - loc.getX(), tempLocY - loc.getY());
-        double offsetX = 0;
+            velocity.setX(tempLocX - loc.getX());
+            velocity.setY(tempLocY - loc.getY());
+            double offsetX = 0;
+            double offsetY = 0;
 
-        if (getPlayer().getVelocity().getX() > 0) {
-            offsetX = 0.025 * getPlayer().getVelocity().getX();
-        } else if (getPlayer().getVelocity().getX() < 0) {
-            offsetX = -Math.abs(0.025 * getPlayer().getVelocity().getX());
+            if (getPlayer().getVelocity().getX() > 0 && !getPlayer().isAttacking()) {
+                offsetX = 0.025 * getPlayer().getVelocity().getX();
+            } else if (getPlayer().getVelocity().getX() < 0 && !getPlayer().isAttacking()) {
+                offsetX = -Math.abs(0.025 * getPlayer().getVelocity().getX());
+            }
+
+            if (isShaking()) {
+                shakeOffsetX = rand.nextDouble(-2, 2);
+                shakeOffsetY = rand.nextDouble(-2, 2);
+            } else {
+                shakeOffsetX = 0;
+                shakeOffsetY = 0;
+            }
+
+
+            tempLocX = (loc.getX() + shakeOffsetX + offsetX) + (velocity.getX() * dt);
+            tempLocY = (loc.getY() + shakeOffsetY + offsetY) + (velocity.getY() * dt);
+
+            if (shakeTicks < shakeCooldown) {
+                shakeTicks++;
+                isShaking = true;
+            } else {
+                isShaking = false;
+            }
         }
-
-        if (isShaking()) {
-            shakeOffsetX = rand.nextDouble(-2, 2);
-            shakeOffsetY = rand.nextDouble(-2, 2);
-        } else {
-            shakeOffsetX = 0;
-            shakeOffsetY = 0;
-        }
-
-        tempLocX = (loc.getX() + shakeOffsetX + offsetX) + (velocity.getX() * dt);
-        tempLocY = (loc.getY() + shakeOffsetY) + (velocity.getY() * dt);
 
         if (tempLocX < 0) {
             tempLocX = 0;
+            velocity.setX(0);
         } else if (tempLocX > boundsX) {
             tempLocX = boundsX;
-        }
-
-        if (shakeTicks < shakeCooldown) {
-            shakeTicks++;
-            isShaking = true;
-        } else {
-            isShaking = false;
+            velocity.setX(0);
         }
 
         if (tempLocY < 0) {
             tempLocY = 0;
+            velocity.setY(0);
         } else if (tempLocY > boundsY) {
             tempLocY = boundsY;
+            velocity.setY(0);
         }
 
         loc.setX(tempLocX);
@@ -162,7 +184,9 @@ public class Camera {
         renderDecorations();
         renderBlocks();
         renderEntities();
-        getPlayer().render(this);
+        if (!game.getActiveLevel().isEditMode()) {
+            getPlayer().render(this);
+        }
         renderTextMessages();
         renderFX();
         renderSpotLights();
@@ -290,7 +314,7 @@ public class Camera {
     *   It also displays all the debug information which is useful when making the game or testing features.
     * */
     public void renderUI() {
-        if (game.isPaused) {
+        if (Game.isPaused) {
             game.changeColor(Color.orange);
             game.drawText((game.width() / 2) - 100, game.height() / 2, "Paused", 75);
             game.drawText((game.width() / 2) - 110, game.height() / 2 + 100, "Press 'Q' to Quit.", 40);
@@ -301,6 +325,12 @@ public class Camera {
         if (game.getActiveLevel().getPlayer().hasKey()) {
             game.drawImage(game.getTextureBank().getTexture("key").getImage(), game.width() - 50, 20, 30, 30);
         }
+
+        /*
+        if (game.mouseBox != null) {
+            game.changeColor(Color.ORANGE);
+            game.drawRectangle(toScreenX(game.mouseBox.getLocation().getX()), toScreenY(game.mouseBox.getLocation().getY()), game.mouseBox.getWidth(), game.mouseBox.getHeight());
+        }*/
 
         double localXDiff = 50;
         double localYDiff = 50;
@@ -338,15 +368,25 @@ public class Camera {
             game.changeColor(Color.RED);
             game.drawRectangle(toScreenX(getCollisionBox().getLocation().getX()), toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth(), getCollisionBox().getHeight());
             game.getActiveLevel().getQuadTree().render(this);
+
+            game.changeColor(Color.YELLOW);
+            game.drawRectangle(toScreenX(getPlayer().tempBoxX.getLocation().getX()), toScreenY(getPlayer().tempBoxX.getLocation().getY()), getPlayer().tempBoxX.getWidth(), getPlayer().tempBoxX.getHeight());
         }
 
         if (game.getActiveLevel().isEditMode()) {
             game.getEditor().render(this);
         }
 
+        for (Inventory inv : game.getActiveLevel().getOpenInventories()) {
+            if (!inv.isOpen()) {
+                continue;
+            }
+
+            inv.render(this, getPlayer().getLocation().getX(), getPlayer().getLocation().getY() - 96);
+        }
+
 
         if (debugMode) {
-
             game.changeColor(Color.BLUE);
             for (GameObject gameObjectX : getPlayer().getCollisionsY()) {
                 game.drawRectangle(toScreenX(gameObjectX.getLocation().getX()), toScreenY(gameObjectX.getLocation().getY()),
@@ -358,12 +398,16 @@ public class Camera {
             }
 
 
+            /*
             game.changeColor(Color.RED);
             game.drawLine(toScreenX(getCenterX()), toScreenY(getCenterY()), toScreenX(deadZoneX), toScreenY(deadZoneY));
 
             game.drawRectangle(toScreenX(deadZoneX), toScreenY(deadZoneY), deadZoneSize * 2, deadZoneSize * 2);
+            (/
+             */
         }
     }
+
     public void renderFX(){
         DEBUG_PARTICLES_ON_SCREEN = 0;
         for (Particle particle : game.getActiveLevel().getParticles()){
@@ -378,7 +422,7 @@ public class Camera {
 
     private void renderBackground() {
         if (textBg != null) {
-            game.drawImage(textBg.getImage(), 0, 0, game.width() * getZoom(), game.height() * getZoom());
+            game.drawImage(textBg.getImage(), 0, 0, game.width() , game.height() );
         }
 
         drawParallaxImage(textMg, 0.5);
@@ -471,10 +515,6 @@ public class Camera {
         this.focusObj = object;
     }
 
-    public double getZoom() {
-        return zoom;
-    }
-
     public double toScreenX(double worldX) {
         return worldX - loc.getX();
     }
@@ -501,10 +541,10 @@ public class Camera {
     }
 
     public double getCenterX() {
-        return loc.getX() + (camWidth / 2);
+        return loc.getX() + (camWidth / 2.0);
     }
 
     public double getCenterY() {
-        return loc.getY() + (camHeight / 2);
+        return loc.getY() + (camHeight / 2.0);
     }
 }

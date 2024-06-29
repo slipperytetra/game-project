@@ -3,12 +3,19 @@ package level;
 import block.*;
 import block.decorations.*;
 import entity.*;
+import level.item.Inventory;
 import main.*;
+import org.w3c.dom.Text;
 import utils.*;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 public class Level {
@@ -22,7 +29,7 @@ public class Level {
     private int currentLine;
     public int maxLines;
     public int loadCompletion;
-    public boolean isEditMode;
+    private boolean isEditMode;
 
     private String name;
     private String nextLevel;
@@ -42,6 +49,7 @@ public class Level {
     private Location doorLoc;
 
     public HashSet<GameObject> gameObjects;
+    private HashSet<Inventory> openInventories;
     private HashSet<Decoration> decorations;
     private HashSet<FakeLightSpot> spotLights;
     private HashSet<Entity> entities;
@@ -76,6 +84,7 @@ public class Level {
         this.spotLights = new HashSet<>();
         this.particles = new HashSet<>();
         this.gameObjects = new HashSet<>();
+        this.openInventories = new HashSet<>();
 
         this.levelData = new ArrayList<>();
         this.textMessages = new HashMap<>();
@@ -129,19 +138,16 @@ public class Level {
     }
 
     public void load() {
-        loadCompletion = 0;
         System.out.println("Loading level '" + getName() + "'");
         for (int y = currentLine + 1 + sizeHeight; y < lines.size(); y++) { // Assign character codes to types
             String line = lines.get(y);
             char key = line.charAt(0);
             String type = line.substring(1);
             assignKeyToMap(key, type);
-            loadCompletion++;
         }
 
         int y = 0;
         for (String line : levelData) { // Place objects into the world via BlockGrid and lists
-            //System.out.println(line);
             for (int x = 0; x < line.length(); x++) {
                 char key = line.charAt(x);
                 double spawnX = x * Game.BLOCK_SIZE;
@@ -152,7 +158,9 @@ public class Level {
                     BlockTypes type = blockKeyMap.get(key);
                     Block block = new Block(this, spawnLoc, blockKeyMap.get(key));
                     if (type == BlockTypes.FOREST_GROUND) {
-                        block = new BlockSet(this, spawnLoc, BlockTypes.FOREST_GROUND);
+                        block = new BlockSet(this, spawnLoc, type);
+                    } else if (type == BlockTypes.FOREST_GROUND_CRACKED) {
+                        block = new BlockCracked(this, spawnLoc, type);
                     } else if (type == BlockTypes.LADDER) {
                         block = new BlockClimbable(this, spawnLoc, type);
                     } else if (type == BlockTypes.ROPE) {
@@ -191,6 +199,8 @@ public class Level {
                         entity = new EnemyPlant(this, spawnLoc);
                     } else if (type == EntityType.BEE) {
                         entity = new EnemyBee(this, spawnLoc);
+                    } else if (type == EntityType.ARROW_BUNDLE) {
+                        entity = new ItemArrowBundle(this, spawnLoc);
                     } else if (type == EntityType.KEY) {
                         keyLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
                         entity = new ItemKey(this, spawnLoc);
@@ -252,10 +262,11 @@ public class Level {
         if (getBackgroundMusic() != null) {
             getManager().getEngine().startAudioLoop(getBackgroundMusic());
         }
+
         System.out.println(getActualWidth() + ", " + getActualHeight());
         gameObjects.addAll(getEntities());
 
-        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
+        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 6);
         this.qtree.insert(getPlayer());
         for (Entity entity : getEntities()) {
             this.qtree.insert(entity);
@@ -269,7 +280,9 @@ public class Level {
                 }
             }
         }
-        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
+
+        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 6);
+        createImage();
     }
 
 
@@ -290,6 +303,16 @@ public class Level {
                 if (entity.isPersistent()) {
                     entity.update(dt);
                 }
+            }
+        }
+
+        Iterator<Inventory> iterInv = getOpenInventories().iterator();
+        while (iterInv.hasNext()) {
+            Inventory inv = iterInv.next();
+            if (inv.isOpen()) {
+                inv.update(dt);
+            } else {
+                iterInv.remove();
             }
         }
 
@@ -325,7 +348,7 @@ public class Level {
             }
         }
 
-        updateQuadTree();
+        updateQuadTree(dt);
     }
 
     public void reset() {
@@ -485,6 +508,10 @@ public class Level {
         getParticles().add(particle);
     }
 
+    public void spawnParticle(Particle particle) {
+        getParticles().add(particle);
+    }
+
     private void assignKeyToMap(char key, String input) {
         input = input.toUpperCase();
         for (BlockTypes type : BlockTypes.values()) {
@@ -528,7 +555,9 @@ public class Level {
     public void setEditMode(boolean isEditMode) {
         this.isEditMode = isEditMode;
 
-        getManager().getEngine().editingPanel.setVisible(isEditMode());
+        if (getManager().getEngine().editingPanel != null) {
+            getManager().getEngine().editingPanel.setVisible(isEditMode());
+        }
     }
 
     public boolean isEditMode() {
@@ -559,21 +588,116 @@ public class Level {
         return qtree;
     }
 
-    private void updateQuadTree() {
-        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
-        this.qtree.insert(getPlayer());
+    private void updateQuadTree(double dt) {
+        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 6);
+        this.qtree.focus = getPlayer();
+        for (int bx = 0; bx < getBlockGrid().getWidth(); bx++) {
+            for (int by = 0; by < getBlockGrid().getHeight(); by++) {
+                Block blk = getBlockGrid().getBlockAt(bx, by);
+
+                if (blk.isCollidable()) {
+                    if (blk.getType() == BlockTypes.FOREST_GROUND_CRACKED) {
+                        blk.update(dt);
+                    }
+
+                    this.qtree.insert(blk);
+                }
+            }
+        }
+
         for (Entity entity : getEntities()) {
             if (!entity.isDead()) {
                 this.qtree.insert(entity);
             }
         }
 
-        for (int bx = 0; bx < getBlockGrid().getWidth(); bx++) {
-            for (int by = 0; by < getBlockGrid().getHeight(); by++) {
-                Block blk = getBlockGrid().getBlockAt(bx, by);
-                if (blk.isCollidable()) {
-                    this.qtree.insert(blk);
+        this.qtree.insert(getPlayer());
+    }
+
+    public HashSet<Inventory> getOpenInventories() {
+        return openInventories;
+    }
+
+    private void createImage() {
+        int width = 6;
+        File file = new File("saves/levels/level_" + getName().toLowerCase() + "_icon.png");
+        BufferedImage img = new BufferedImage(width * 2 * 32, width * 2 * 32, BufferedImage.TYPE_INT_ARGB);
+        Texture bgText = getManager().getEngine().getTextureBank().getTexture("background");
+        for (int x = 0; x < img.getWidth(); x++) {
+            for (int y = 0; y < img.getHeight(); y++) {
+                //System.out.println(x + ", " + y);
+                if (y >= bgText.getHeight()) {
+                    break;
                 }
+                int rgb = bgText.getImage().getRGB(x, y);
+                img.setRGB(x, y, rgb);
+            }
+        }
+
+        int spLocX = getSpawnPoint().getTileX();
+        int spLocY = getSpawnPoint().getTileY();
+
+        int pLocX = 0;
+        int pLocY = 0;
+
+        for (int x = -width; x < width; x++) {
+            for (int y = -width; y < width; y++) {
+                Block block = getBlockGrid().getBlockAt(spLocX + x, spLocY + y);
+                if (block == null || block.getType() == BlockTypes.VOID || block.getType() == BlockTypes.BARRIER) {
+                    continue;
+                }
+
+                if (block.getType() == BlockTypes.PLAYER_SPAWN) {
+                    pLocX = x;
+                    pLocY = y;
+                }
+
+                Texture texture = block.getTexture();
+                for (int imgX = 0; imgX < texture.getImage().getWidth(); imgX++) {
+                    for (int imgY = 0; imgY < texture.getImage().getHeight(); imgY++) {
+                        img.setRGB(imgX + ((x + width) * 32), imgY + ((y + width) * 32), new Color(texture.getImage().getRGB(imgX, imgY), true).getRGB());
+                    }
+                }
+            }
+        }
+
+        Texture player = getManager().getEngine().getTextureBank().getTexture(EntityType.PLAYER.toString());
+        AffineTransform tx = AffineTransform.getScaleInstance(getPlayer().getScale(), getPlayer().getScale());
+        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        BufferedImage pImg = op.filter(player.getImage(), null);
+        for (int pX = 0; pX < pImg.getWidth(); pX++) {
+            for (int pY = 0; pY < pImg.getHeight(); pY++) {
+                img.setRGB(pX + ((pLocX + width) * 32), pY + ((pLocY + width) * 32), new Color(pImg.getRGB(pX, pY), true).getRGB());
+            }
+        }
+
+
+        try {
+            AffineTransform afTx = AffineTransform.getScaleInstance((double) 250 / img.getWidth() , (double) 250 / img.getHeight());
+            AffineTransformOp atOP = new AffineTransformOp(afTx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+            ImageIO.write(atOP.filter(img, null), "png", file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public HashSet<GameObject> getGameObjects() {
+        return gameObjects;
+    }
+
+    public void addGameObject(GameObject object) {
+        gameObjects.add(object);
+    }
+
+    public void removeGameObject(GameObject object) {
+        gameObjects.remove(object);
+    }
+
+    public void removeGameObject(UUID uuid) {
+        for (GameObject obj : gameObjects) {
+            if (obj.getUniqueID().compareTo(uuid) == 0) {
+                gameObjects.remove(obj);
+                break;
             }
         }
     }

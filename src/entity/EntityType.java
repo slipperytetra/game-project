@@ -3,6 +3,7 @@ package entity;
 public enum EntityType {
 
     ARROW("resources/images/objects/arrow.png"),
+    ARROW_BUNDLE("resources/images/objects/arrow_bundle/arrow_bundle_", 14, 10),
     BEE("resources/images/characters/bee/bee_idle_frame_", 4, 8),
     STINGER("resources/images/objects/stinger.png"),
     PLAYER("resources/images/characters/idle.png"),

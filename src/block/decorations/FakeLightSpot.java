@@ -50,7 +50,7 @@ public class FakeLightSpot {
         double decoOffsetY = cam.toScreenY(getParent().getLocation().getY() - getParent().getHeight() + Game.BLOCK_SIZE + getOffsetY());
 
         cam.game.drawImage(cam.game.getTextureBank().getTexture("spot_light").getImage(),
-                decoOffsetX * cam.getZoom(), decoOffsetY * cam.getZoom(), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
+                decoOffsetX , decoOffsetY , getWidth() , getHeight() );
     }
 
     public Decoration getParent() {

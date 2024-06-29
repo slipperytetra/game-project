@@ -1,5 +1,7 @@
 package utils;
 
+import main.Game;
+
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -29,6 +31,9 @@ public class TextureAnimated extends Texture {
     }
 
     public void update(double dt) {
+        if (Game.isPaused) {
+            return;
+        }
         if (frameCounter < maxFrames) {
             frameCounter += (frameRate * dt);
             if (frameCounter > maxFrames) {

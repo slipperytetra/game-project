@@ -42,11 +42,11 @@ public class EnemyPlant extends Enemy {
             offsetY = offsetY + diffY;
         }
 
-        getLevel().getManager().getEngine().drawImage(getActiveFrame().getImage(), offsetX * cam.getZoom(), offsetY * cam.getZoom(), getWidth() * cam.getZoom(), getHeight() * cam.getZoom());
+        getLevel().getManager().getEngine().drawImage(getActiveFrame().getImage(), offsetX , offsetY , getWidth() , getHeight() );
 
         if (cam.debugMode) {
             getLevel().getManager().getEngine().changeColor(getHitboxColor());
-            getLevel().getManager().getEngine().drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() * cam.getZoom(), getCollisionBox().getHeight() * cam.getZoom());
+            getLevel().getManager().getEngine().drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() , getCollisionBox().getHeight() );
         }
     }
 
