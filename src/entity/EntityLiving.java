@@ -52,10 +52,11 @@ public abstract class EntityLiving extends Entity {
         }
     }
 
+    /*
     @Override
     public void processMovement(double dt) {
         super.processMovement(dt);
-    }
+    }*/
 
     @Override
     public void kill() {

@@ -29,10 +29,11 @@ public class Door extends Entity {
     }
 
 
+    /*
     @Override
     public void processMovement(double dt) {
         return;
-    }
+    }*/
 
     public boolean canEnter(Player p) {
         return p.hasKey() && getCollisionBox().collidesWith(p.getCollisionBox());

@@ -1,1 +1,1 @@
-coins: 96
+coins: 122

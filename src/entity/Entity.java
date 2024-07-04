@@ -70,7 +70,9 @@ public abstract class Entity extends GameObject {
 
     public void render(Camera cam) {
         super.render(cam);
-        cam.game.drawImage(getActiveFrame().getImage(), cam.toScreenX(getLocation().getX()) , cam.toScreenY(getLocation().getY()) , getWidth() , getHeight() );
+        double offsetX = getLocation().getX() + cam.loc.getX();
+        double offsetY = getLocation().getY() + cam.loc.getY();
+        cam.game.drawImage(getActiveFrame().getImage(), offsetX , offsetY , getWidth() , getHeight() );
 
         if (cam.debugMode) {
             cam.game.changeColor(getHitboxColor());
@@ -261,6 +263,8 @@ public abstract class Entity extends GameObject {
         this.canMove = canMove;
     }
 
+
+    /*
     public void processMovement(double dt) {
          if (getVelocity().getX() > 0) {
             getVelocity().setX(getVelocity().getX() - FRICTION);
@@ -275,7 +279,7 @@ public abstract class Entity extends GameObject {
         getLocation().setX(getLocation().getX() + (getVelocity().getX() * dt));
         getLocation().setY(getLocation().getY() + (getVelocity().getY() * dt));
         updateCollisionBox();
-    }
+    }*/
 
     public Block getBlockAtLocation() {
         int tileX = (int)((getLocation().getX() + 16) / Game.BLOCK_SIZE);

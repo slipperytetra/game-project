@@ -134,39 +134,11 @@ public class Player extends EntityLiving {
     }
 
 
+    /*
     @Override
     public void processMovement(double dt) {
-        //super.processMovement(dt);
-        /*moveX = getDirectionX() * (speed * dt);
-        moveY = getDirectionY() * (speed * dt);
-
-        moveX(moveX);
-        moveY(moveY);
-
-        if (isJumping()) {
-            setDirectionY(-1.5);
-            timeJumping += 1 * dt;
-
-            if (timeJumping > maxJumpTime) {
-                this.setJumping(false);
-                this.setDirectionY(0);
-                this.timeJumping = 0;
-            }
-            return;
-        }
-
-        if (!getLevel().isEditMode()) {
-            if (isFalling() && !canClimb()) {
-                if (fallAccel > 0) {
-                    fallAccel *= fallSpeedMultiplier;
-                    setDirectionY(1 * fallAccel);
-                }
-            } else if (!isFalling()) {
-                fallAccel = 1;
-                setDirectionY(0);
-            }
-        }*/
-    }
+        // Do nothing for now.
+    }*/
 
     public boolean isJumping() {
         return isJumping;

@@ -40,8 +40,8 @@ public class Camera {
     private int DEBUG_DECORATIONS_ON_SCREEN;
     private int DEBUG_PARTICLES_ON_SCREEN;
 
-    double camWidth;
-    double camHeight;
+    public double camWidth;
+    public double camHeight;
     double boundsX;
     double boundsY;
     double tempLocX;
@@ -89,8 +89,8 @@ public class Camera {
 
         this.velocity = new Vector(0, 0);
         setFocusPoint(getPlayer().getLocation());
-        loc.setX(getFocusPoint().getX() - (camWidth / 2.0));
-        loc.setY(getFocusPoint().getY() - (camHeight / 2.0));
+        loc.setX(getFocusPoint().getX() - (camWidth / 2));
+        loc.setY(getFocusPoint().getY() - (camHeight / 2));
         this.collisionBox = new CollisionBox(loc.getX(), loc.getY(), camWidth, camHeight);
 
         boundsX = game.getActiveLevel().getActualWidth() - camWidth;
@@ -119,13 +119,12 @@ public class Camera {
     }
 
     public void trackFocus(double dt) {
+        //double offsetX = getLocation().getX() + (cam.camWidth / 2) - getLevel().getPlayer().getLocation().getX();
         if (!game.getActiveLevel().isEditMode()) {
-            boundsX = game.getActiveLevel().getActualWidth() - camWidth;
-            boundsY = game.getActiveLevel().getActualHeight() - camHeight;
+            tempLocX = getFocusPoint().getX() + (camWidth / 2);
+            tempLocY = getFocusPoint().getY() + (camHeight / 2);
 
-            tempLocX = getFocusPoint().getX() - (camWidth / 2.0);
-            tempLocY = getFocusPoint().getY() - (camHeight / 2.0);
-
+            /*
             velocity.setX(tempLocX - loc.getX());
             velocity.setY(tempLocY - loc.getY());
             double offsetX = 0;
@@ -145,9 +144,12 @@ public class Camera {
                 shakeOffsetY = 0;
             }
 
-
             tempLocX = (loc.getX() + shakeOffsetX + offsetX) + (velocity.getX() * dt);
-            tempLocY = (loc.getY() + shakeOffsetY + offsetY) + (velocity.getY() * dt);
+            tempLocY = (loc.getY() + shakeOffsetY + offsetY) + (velocity.getY() * dt);*/
+
+
+            tempLocX = loc.getX() + tempLocX;
+            tempLocY = loc.getY() + tempLocY;
 
             if (shakeTicks < shakeCooldown) {
                 shakeTicks++;
@@ -157,6 +159,7 @@ public class Camera {
             }
         }
 
+        /*
         if (tempLocX < 0) {
             tempLocX = 0;
             velocity.setX(0);
@@ -171,7 +174,7 @@ public class Camera {
         } else if (tempLocY > boundsY) {
             tempLocY = boundsY;
             velocity.setY(0);
-        }
+        }*/
 
         loc.setX(tempLocX);
         loc.setY(tempLocY);
@@ -425,8 +428,8 @@ public class Camera {
             game.drawImage(textBg.getImage(), 0, 0, game.width() , game.height() );
         }
 
-        drawParallaxImage(textMg, 0.5);
-        drawParallaxImage(textFg, 0.85);
+        //drawParallaxImage(textMg, 0.5);
+        //drawParallaxImage(textFg, 0.85);
     }
 
     private void drawParallaxImage(Texture bg, double paraZoom) {
@@ -516,6 +519,8 @@ public class Camera {
     }
 
     public double toScreenX(double worldX) {
+        //double offsetX = getLocation().getX() + (cam.camWidth / 2) - getLevel().getPlayer().getLocation().getX();
+        //double offsetY = getLocation().getY() + (cam.camHeight / 2) - getLevel().getPlayer().getLocation().getY();
         return worldX - loc.getX();
     }
 

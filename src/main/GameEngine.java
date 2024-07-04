@@ -554,7 +554,7 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
             return;
         }
         // Draw image on screen at (x,y) with size (w,h)
-        mGraphics.drawImage(image, (int)x, (int)y, (int)w, (int)h, null);
+        mGraphics.drawImage(image, (int) Math.ceil(x), (int)Math.ceil(y), (int)Math.ceil(w), (int)Math.ceil(h), null);
     }
 
     // Draws an image on the screen at position (x,y)

@@ -32,7 +32,7 @@ public class GameMenuNew extends GameEngine {
         //this.menuMusic = loadAudio("resources/sounds/menuMusic.wav");
 
         try {
-            this.backgroundImage = ImageIO.read(new File("resources/images/backgrounds/title_background.jpg"));
+            this.backgroundImage = ImageIO.read(new File("resources/images/backgrounds/title_background.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }

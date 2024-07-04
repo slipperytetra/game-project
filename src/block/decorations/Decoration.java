@@ -21,7 +21,7 @@ public class Decoration extends GameObject {
     }
 
     public void render(Camera cam) {
-        cam.game.drawImage(getFrame().getImage(), cam.toScreenX(getLocation().getX()), (cam.toScreenY(getLocation().getY()) - getHeight() + Game.BLOCK_SIZE), getWidth() , getHeight() );
+        cam.game.drawImage(getFrame().getImage(), cam.toScreenX(getLocation().getX()), (cam.toScreenY(getLocation().getY()) - getHeight() + Game.BLOCK_SIZE), getWidth(), getHeight());
 
         if (cam.debugMode) {
             cam.game.changeColor(Color.GREEN);

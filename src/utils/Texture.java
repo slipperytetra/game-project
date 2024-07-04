@@ -32,13 +32,13 @@ public class Texture {
             if (isFlipped()) {
                 AffineTransform tx = AffineTransform.getScaleInstance(-1.0, 1.0);
                 tx.translate(-img.getWidth(null), 0.0);
-                AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+                AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
                 img = op.filter(img, null);
             }
 
             if (getRotation() != 0) {
                 AffineTransform tx = AffineTransform.getRotateInstance(getRotation(), (double) getWidth() / 2, (double) getHeight() / 2);
-                AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+                AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
                 img = op.filter(img, null);
             }
 

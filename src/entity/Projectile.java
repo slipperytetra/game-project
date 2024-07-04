@@ -54,7 +54,8 @@ public class Projectile extends Entity {
             return;
         }
 
-        processMovement(dt);
+        //processMovement(dt);
+        move(dt);
 
         if (getHealth() <= 0 || !isInsideWorld()) {
             //System.out.println("Removed arrow");
@@ -118,7 +119,7 @@ public class Projectile extends Entity {
     }
 
     @Override
-    public void processMovement(double dt) {
+    public void move(double dt) {
         if (!canMove()) {
             return;
         }

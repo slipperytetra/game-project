@@ -50,8 +50,9 @@ public class EntityItem extends Entity {
         return this.pickupSound != null;
     }
 
+    /*
     @Override
     public void processMovement(double dt) {
         return;
-    }
+    }*/
 }
