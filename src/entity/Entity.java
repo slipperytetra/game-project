@@ -70,9 +70,7 @@ public abstract class Entity extends GameObject {
 
     public void render(Camera cam) {
         super.render(cam);
-        double offsetX = getLocation().getX() + cam.loc.getX();
-        double offsetY = getLocation().getY() + cam.loc.getY();
-        cam.game.drawImage(getActiveFrame().getImage(), offsetX , offsetY , getWidth() , getHeight() );
+        cam.game.drawImage(getActiveFrame().getImage(), cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY()), getWidth(), getHeight());
 
         if (cam.debugMode) {
             cam.game.changeColor(getHitboxColor());

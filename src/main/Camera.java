@@ -19,12 +19,12 @@ import java.awt.*;
 import java.util.Random;
 
 /*
-*   This class handles the rendering of all objects on the screen.
-*
-*   It works by making the players location the center of the screen and only drawings the objects that are
-*   around the player, taking into account the dimensions of the screen.
-*
-* */
+ *   This class handles the rendering of all objects on the screen.
+ *
+ *   It works by making the players location the center of the screen and only drawings the objects that are
+ *   around the player, taking into account the dimensions of the screen.
+ *
+ * */
 public class Camera {
 
     public Location loc, centerPoint;
@@ -40,8 +40,8 @@ public class Camera {
     private int DEBUG_DECORATIONS_ON_SCREEN;
     private int DEBUG_PARTICLES_ON_SCREEN;
 
-    public double camWidth;
-    public double camHeight;
+    double camWidth;
+    double camHeight;
     double boundsX;
     double boundsY;
     double tempLocX;
@@ -77,20 +77,20 @@ public class Camera {
         this.textFg = game.getTextureBank().getTexture("foreground");
         this.rand = new Random();
         /*
-        *   'point1' is the top left location of the screen.
-        *   'point2' is the bottom right location of the screen.
-        *
-        *   It works these out by getting the players location and then subtracting half of the screen's width and height
-        *   to get the first point (point1), then adding the screen's width and height for the second point (point2).
-        *
-        *   By having these two points, we can see if world objects are between these two points, and if so then draw them. If they
-        *   aren't then we can just ignore them.
-        * */
+         *   'point1' is the top left location of the screen.
+         *   'point2' is the bottom right location of the screen.
+         *
+         *   It works these out by getting the players location and then subtracting half of the screen's width and height
+         *   to get the first point (point1), then adding the screen's width and height for the second point (point2).
+         *
+         *   By having these two points, we can see if world objects are between these two points, and if so then draw them. If they
+         *   aren't then we can just ignore them.
+         * */
 
         this.velocity = new Vector(0, 0);
         setFocusPoint(getPlayer().getLocation());
-        loc.setX(getFocusPoint().getX() - (camWidth / 2));
-        loc.setY(getFocusPoint().getY() - (camHeight / 2));
+        loc.setX(getFocusPoint().getX() - (camWidth / 2.0));
+        loc.setY(getFocusPoint().getY() - (camHeight / 2.0));
         this.collisionBox = new CollisionBox(loc.getX(), loc.getY(), camWidth, camHeight);
 
         boundsX = game.getActiveLevel().getActualWidth() - camWidth;
@@ -101,8 +101,8 @@ public class Camera {
     }
 
     /*
-    *   This method constantly updates the points. This is needed because the players location always changes.
-    * */
+     *   This method constantly updates the points. This is needed because the players location always changes.
+     * */
     public void update(double dt) {
         calculateFPS();
         if (Game.isPaused) {
@@ -119,12 +119,13 @@ public class Camera {
     }
 
     public void trackFocus(double dt) {
-        //double offsetX = getLocation().getX() + (cam.camWidth / 2) - getLevel().getPlayer().getLocation().getX();
         if (!game.getActiveLevel().isEditMode()) {
-            tempLocX = getFocusPoint().getX() + (camWidth / 2);
-            tempLocY = getFocusPoint().getY() + (camHeight / 2);
+            boundsX = game.getActiveLevel().getActualWidth() - camWidth;
+            boundsY = game.getActiveLevel().getActualHeight() - camHeight;
 
-            /*
+            tempLocX = getFocusPoint().getX() - (camWidth / 2.0);
+            tempLocY = getFocusPoint().getY() - (camHeight / 2.0);
+
             velocity.setX(tempLocX - loc.getX());
             velocity.setY(tempLocY - loc.getY());
             double offsetX = 0;
@@ -144,12 +145,9 @@ public class Camera {
                 shakeOffsetY = 0;
             }
 
+
             tempLocX = (loc.getX() + shakeOffsetX + offsetX) + (velocity.getX() * dt);
-            tempLocY = (loc.getY() + shakeOffsetY + offsetY) + (velocity.getY() * dt);*/
-
-
-            tempLocX = loc.getX() + tempLocX;
-            tempLocY = loc.getY() + tempLocY;
+            tempLocY = (loc.getY() + shakeOffsetY + offsetY) + (velocity.getY() * dt);
 
             if (shakeTicks < shakeCooldown) {
                 shakeTicks++;
@@ -159,7 +157,6 @@ public class Camera {
             }
         }
 
-        /*
         if (tempLocX < 0) {
             tempLocX = 0;
             velocity.setX(0);
@@ -174,7 +171,7 @@ public class Camera {
         } else if (tempLocY > boundsY) {
             tempLocY = boundsY;
             velocity.setY(0);
-        }*/
+        }
 
         loc.setX(tempLocX);
         loc.setY(tempLocY);
@@ -200,13 +197,13 @@ public class Camera {
 
 
     /*
-    *   Most renderer functions work the same way. They look through all the objects in the relevant list,
-    *   in this case its decorations. Then it calls their render function which just draws the object's texture
-    *   taking into account certain factors like scale, offsets ect.
-    *
-    *   It also checks if the object is viewable on the camera before drawing it by comparing its collision
-    *   box to the camera's collision box (width and height of the screen)
-    * */
+     *   Most renderer functions work the same way. They look through all the objects in the relevant list,
+     *   in this case its decorations. Then it calls their render function which just draws the object's texture
+     *   taking into account certain factors like scale, offsets ect.
+     *
+     *   It also checks if the object is viewable on the camera before drawing it by comparing its collision
+     *   box to the camera's collision box (width and height of the screen)
+     * */
     private void renderDecorations() {
         DEBUG_DECORATIONS_ON_SCREEN = 0;
         for (Decoration deco : game.getActiveLevel().getDecorations()) {
@@ -226,10 +223,10 @@ public class Camera {
     }
 
     /*
-    *   This is where each individual block is drawn. It goes through the entire world map and checks if the blocks are
-    *   between our point1 and point2. If they are, this means they are visible to the camera and should be drawn.
-    *
-    * */
+     *   This is where each individual block is drawn. It goes through the entire world map and checks if the blocks are
+     *   between our point1 and point2. If they are, this means they are visible to the camera and should be drawn.
+     *
+     * */
     private void renderBlocks() {
         DEBUG_BLOCKS_ON_SCREEN = 0;
         for (int x = 0; x < game.getActiveLevel().getBlockGrid().getWidth(); x++) {
@@ -241,12 +238,12 @@ public class Camera {
 
                 if (b.getLocation().isBlockBetween(getPoint1(), getPoint2())) {
                     /*
-                    *   Here we have to convert the blocks coordinates to be relative to the camera.
-                    *   Basically in update(dt) we calculate the centerOffset by getting the center of the screen and then subtracting
-                    *   the players location from it.
-                    *
-                    *   Then in here, we get the block's location and add the centerOffset to it.
-                    * */
+                     *   Here we have to convert the blocks coordinates to be relative to the camera.
+                     *   Basically in update(dt) we calculate the centerOffset by getting the center of the screen and then subtracting
+                     *   the players location from it.
+                     *
+                     *   Then in here, we get the block's location and add the centerOffset to it.
+                     * */
 
                     b.render(this);
                     DEBUG_BLOCKS_ON_SCREEN++;
@@ -257,8 +254,8 @@ public class Camera {
 
 
     /*
-    *   Same renderer concept, entities just have an active boolean.
-    * */
+     *   Same renderer concept, entities just have an active boolean.
+     * */
     public void renderEntities() {
         DEBUG_ENTITIES_ON_SCREEN = 0;
         for (Entity entity : game.getActiveLevel().getEntities()) {
@@ -282,12 +279,12 @@ public class Camera {
 
 
     /*
-    *   This renders text in the actual level. It's mostly used in the demo levels for displaying help
-    *   messages.
-    *
-    *   Levels have an embedded list of TextMessage objects that have an assigned location, string and other
-    *   string attributes. Makes it easier for displaying the text relative to the player's position.
-    * */
+     *   This renders text in the actual level. It's mostly used in the demo levels for displaying help
+     *   messages.
+     *
+     *   Levels have an embedded list of TextMessage objects that have an assigned location, string and other
+     *   string attributes. Makes it easier for displaying the text relative to the player's position.
+     * */
     public void renderTextMessages() {
         for (TextMessage txtMsg : game.getActiveLevel().getTextMessages().values()) {
             if (txtMsg == null) {
@@ -311,11 +308,11 @@ public class Camera {
     }
 
     /*
-    *   Here is where all the UI related things are drawn. It displays the player health, pause menu, key ect
-    *   and is the one of the last things to render so that it displays on top of the level.
-    *
-    *   It also displays all the debug information which is useful when making the game or testing features.
-    * */
+     *   Here is where all the UI related things are drawn. It displays the player health, pause menu, key ect
+     *   and is the one of the last things to render so that it displays on top of the level.
+     *
+     *   It also displays all the debug information which is useful when making the game or testing features.
+     * */
     public void renderUI() {
         if (Game.isPaused) {
             game.changeColor(Color.orange);
@@ -428,8 +425,8 @@ public class Camera {
             game.drawImage(textBg.getImage(), 0, 0, game.width() , game.height() );
         }
 
-        //drawParallaxImage(textMg, 0.5);
-        //drawParallaxImage(textFg, 0.85);
+        drawParallaxImage(textMg, 0.5);
+        drawParallaxImage(textFg, 0.85);
     }
 
     private void drawParallaxImage(Texture bg, double paraZoom) {
@@ -519,8 +516,6 @@ public class Camera {
     }
 
     public double toScreenX(double worldX) {
-        //double offsetX = getLocation().getX() + (cam.camWidth / 2) - getLevel().getPlayer().getLocation().getX();
-        //double offsetY = getLocation().getY() + (cam.camHeight / 2) - getLevel().getPlayer().getLocation().getY();
         return worldX - loc.getX();
     }
 
