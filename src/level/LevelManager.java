@@ -4,7 +4,10 @@ import main.Game;
 import utils.Location;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 
 public class LevelManager {
 
@@ -57,4 +60,11 @@ public class LevelManager {
     public HashMap<String, Level> getLevels() {
         return levels;
     }
+
+
+    public List<String> getLevelNames() {
+        List<String> levelNames = new ArrayList<>(levels.keySet());
+        return levelNames;
+    }
+
 }

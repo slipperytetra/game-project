@@ -1,5 +1,7 @@
 package main;
 
+import level.Level;
+import level.LevelManager;
 import utils.Location;
 
 import javax.swing.*;
@@ -9,9 +11,9 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+
 
 public class GameMenuNew extends GameEngine {
 
@@ -21,15 +23,28 @@ public class GameMenuNew extends GameEngine {
     protected JPanel titlePanel;
     public JPanel contextPanel;
     private JPanel levelEditorPanel;
+    private JPanel selectLevel;
     protected LevelLoadPanel dataPanel;
     protected Image backgroundImage;
-    //protected AudioClip menuMusic; // Clip for the menu music
+
+
+    //protected AudioClip menuMusic;
+    // Clip for the menu music
+
 
     public ArrayList<BufferedImage> icons = new ArrayList<>();
 
+
+
     public void init() {
         this.setWindowSize(1280, 720);
-        //this.menuMusic = loadAudio("resources/sounds/menuMusic.wav");
+
+
+
+
+
+
+
 
         try {
             this.backgroundImage = ImageIO.read(new File("resources/images/backgrounds/title_background.png"));
@@ -37,9 +52,12 @@ public class GameMenuNew extends GameEngine {
             e.printStackTrace();
         }
 
+
+
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
         mainPanel.setOpaque(false);
+
 
         cl = new CardLayout();
         contextPanel = new JPanel(cl);
@@ -50,19 +68,34 @@ public class GameMenuNew extends GameEngine {
 
         loadTitlePanel();
         loadButtonsPanel();
+        SelectMenu selectMenu = new SelectMenu(this);
+        JButton selectLevelButton = new JButton("Select Level");
+        selectLevelButton.addActionListener(e -> cl.show(contextPanel, "Select"));
+        buttonsPanel.add(selectLevelButton);
+
+        // Add SelectMenu to contextPanel
+        contextPanel.add(selectMenu, "Select");
+
 
         SettingsMenu sMenu = new SettingsMenu(this);
         sMenu.showContainer("Settings");
         contextPanel.add(sMenu, "Settings");
 
+
+
         dataPanel = new LevelLoadPanel(this);
         dataPanel.setVisible(false);
         contextPanel.add(dataPanel, "Load");
+
+      //  selectLevel = new SelectMenu(this);
+      //  selectLevel.setVisible(false);
+       // contextPanel.add(selectLevel, "Selector");
 
         this.mPanel.add(mainPanel);
 
         levelEditorPanel = new LevelEditorPanel(this);
         contextPanel.add(levelEditorPanel, "Editor");
+
 
         /*if (menuMusic != null) {
             startAudioLoop(menuMusic);
@@ -92,6 +125,9 @@ public class GameMenuNew extends GameEngine {
         JButton buttonEditor = new JButton("Level Editor");
         buttonEditor.addActionListener(e -> cl.show(contextPanel, "Editor"));
         buttonsPanel.add(buttonEditor);
+
+
+
 
         JButton settingsButton = new JButton("Settings");
         settingsButton.addActionListener(e -> cl.show(contextPanel, "Settings"));
@@ -162,6 +198,109 @@ class LevelLoadPanel extends JPanel {
         add(new BackButton(menu.cl, menu.contextPanel, "Home"), gbc);
     }
 }
+
+ class SelectMenu extends JPanel {
+    private GameMenuNew menu;
+    private JPanel levelsPanel;
+    private JComboBox<String> levelsComboBox;
+
+    public SelectMenu(GameMenuNew menu) {
+        this.menu = menu;
+        setLayout(new GridBagLayout());
+        setOpaque(false);
+
+        levelsPanel = new JPanel(new GridBagLayout());
+        levelsPanel.setOpaque(false);
+
+        // Add levelsPanel to this SelectMenu panel
+        GridBagConstraints gbcLevels = new GridBagConstraints();
+        gbcLevels.gridy = 1;
+        add(levelsPanel, gbcLevels);
+
+        // Initialize JComboBox for levels selection (if needed)
+        levelsComboBox = new JComboBox<>();
+        levelsComboBox.setPreferredSize(new Dimension(200, 30));
+        GridBagConstraints gbcComboBox = new GridBagConstraints();
+        gbcComboBox.gridy = 0;
+        add(levelsComboBox, gbcComboBox);
+
+        loadLevels();
+
+    }
+
+     public void loadLevels() {
+         levelsPanel.removeAll();
+
+         // Get list of files in "saves/levels" directory
+         File folder = new File("saves/levels");
+         File[] listOfFiles = folder.listFiles();
+
+         BufferedImage defaultImg = loadImage("saves/levels/default_icon.png");
+
+         if (listOfFiles != null) {
+             for (File file : listOfFiles) {
+                 if (!file.getName().endsWith(".txt")) {
+                     continue; // Skip files that are not level files
+                 }
+
+                 // Load icon image for the level
+                 BufferedImage levelImg = defaultImg;
+                 File levelImgFile = new File(folder.getPath() + "/" + file.getName().replaceAll(".txt", "") + "_icon.png");
+                 if (levelImgFile.exists()) {
+                     levelImg = loadImage(levelImgFile.getPath());
+                 }
+
+                 // Create button for the level
+                 JButton button = new JButton();
+                 button.setIcon(new ImageIcon(levelImg));
+                 button.setOpaque(false);
+                 button.setContentAreaFilled(false);
+                 button.setBorderPainted(false);
+                 button.addActionListener(new ActionListener() {
+                     @Override
+                     public void actionPerformed(ActionEvent e) {
+                         //menu.stopAudioLoop(menu.menuMusic);
+                         // Get the reference to the frame containing the button
+                         JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(button);
+                         if (parentFrame != null) {
+                             parentFrame.dispose();
+                         }
+
+                         Game game = new Game();
+                         game.startGame();
+
+                         game.setActiveLevel(folder.getPath() + "/" + file.getName(), false);
+                         game.camera.setFocusPoint(new Location(game.getActiveLevel().getActualWidth() / 2, game.getActiveLevel().getActualHeight() / 2));
+                         game.getActiveLevel().setEditMode(false);
+                     }
+                 });
+                 levelsPanel.add(button);
+                 //menu.icons.add(GameUtils.makeRoundedCorner(levelImg, 30));
+
+
+
+                 // Add button to levelsPanel
+             }
+         }
+
+         // Refresh the UI to reflect changes
+         revalidate();
+         repaint();
+     }
+
+
+
+
+     private BufferedImage loadImage(String imagePath) {
+        try {
+            return ImageIO.read(new File(imagePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
+
 
 class SettingsMenu extends JPanel {
 
@@ -256,6 +395,8 @@ class LevelEditorPanel extends JPanel {
 
         loadLevels();
     }
+
+
 
     public void loadLevels() {
         File folder = new File("saves/levels");
