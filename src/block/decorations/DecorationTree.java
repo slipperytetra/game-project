@@ -54,12 +54,12 @@ public class DecorationTree extends Decoration {
         int height = texture.getHeight();
         distortedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                double yOffset = waveEffect.getOffset(x, y, time);
-                int newY = (int) (y + yOffset);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                double offset = waveEffect.getOffset(x, (double)y / height, time);  // Pass y as a fraction
+                int newY = (int) Math.round(y + offset);
                 if (newY >= 0 && newY < height) {
-                    distortedImage.setRGB(x, newY, texture.getRGB(x, y));
+                    distortedImage.setRGB(x, y, texture.getRGB(x, newY));
                 }
             }
         }
