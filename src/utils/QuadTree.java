@@ -44,11 +44,7 @@ public class QuadTree {
                 return true;
             } else if (this.southEast.insert(gameObject)) {
                 return true;
-            } else if (this.southWest.insert(gameObject)) {
-                return true;
-            } else {
-                return false;
-            }
+            } else return this.southWest.insert(gameObject);
         }
     }
 
@@ -62,35 +58,43 @@ public class QuadTree {
         northWest = new QuadTree(nw, capacity);
         northWest.focus = focus;
 
-        CollisionBox ne = new CollisionBox(x + w/2, y, w/2, h/2);
+        CollisionBox ne = new CollisionBox(x + (w/2), y, w/2, h/2);
         northEast = new QuadTree(ne, capacity);
         northEast.focus = focus;
 
-        CollisionBox sw = new CollisionBox(x, y + h/2, w/2, h/2);
+        CollisionBox sw = new CollisionBox(x, y + (h/2), w/2, h/2);
         southWest = new QuadTree(sw, capacity);
         southWest.focus = focus;
 
-        CollisionBox se = new CollisionBox(x + w/2, y + h/2, w/2, h/2);
+        CollisionBox se = new CollisionBox(x + (w/2), y + (h/2), w/2, h/2);
         southEast = new QuadTree(se, capacity);
         southEast.focus = focus;
 
-        /*
-        CollisionBox nw = new CollisionBox(x - w/2, y - h/2, w/2, h/2);
+
+/*
+        CollisionBox nw = new CollisionBox(x, y, w/2, h/2);
         northWest = new QuadTree(nw, capacity);
-        CollisionBox ne = new CollisionBox(x + w/2, y - h/2, w/2, h/2);
+        northWest.focus = focus;
+
+        CollisionBox ne = new CollisionBox(x + (w/2), y, w/2, h/2);
         northEast = new QuadTree(ne, capacity);
-        CollisionBox sw = new CollisionBox(x - w/2, y + h/2, w/2, h/2);
+        northEast.focus = focus;
+
+        CollisionBox sw = new CollisionBox(x, y + (h/2), w/2, h/2);
         southWest = new QuadTree(sw, capacity);
-        CollisionBox se = new CollisionBox(x + w/2, y + h/2, w/2, h/2);
-        southEast = new QuadTree(se, capacity);*/
+        southWest.focus = focus;
+
+        CollisionBox se = new CollisionBox(x + (w/2), y + (h/2), w/2, h/2);
+        southEast = new QuadTree(se, capacity);
+        southEast.focus = focus;*/
+
         this.divided = true;
     }
 
     public List<GameObject> query(GameObject target) {
         List<GameObject> found = new ArrayList<>();
-        if (!this.boundary.collidesWith(target)) {
-            return found;
-        } else {
+
+        if (this.boundary.collidesWith(target)) {
             for (GameObject gameObject : gameObjects) {
                 if (target.equals(gameObject)) {
                     continue;
@@ -108,15 +112,15 @@ public class QuadTree {
                 found.addAll(this.southEast.query(target));
             }
 
-            return found;
         }
+
+        return found;
     }
 
     public List<GameObject> query(GameObject target, CollisionBox box) {
         List<GameObject> found = new ArrayList<>();
-        if (!this.boundary.collidesWith(box)) {
-            return found;
-        } else {
+
+        if (this.boundary.collidesWith(box)) {
             for (GameObject gameObject : gameObjects) {
                 if (target.equals(gameObject)) {
                     continue;
@@ -134,8 +138,9 @@ public class QuadTree {
                 found.addAll(this.southEast.query(target, box));
             }
 
-            return found;
         }
+
+        return found;
     }
 
     public GameObject querySingle(GameObject target) {

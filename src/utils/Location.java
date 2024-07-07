@@ -3,8 +3,8 @@ package utils;
 import main.Game;
 
 public class Location {
-    double locX;
-    double locY;
+    protected double locX;
+    protected double locY;
 
     public Location(double locX, double locY) {
         this.locX = locX;

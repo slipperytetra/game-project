@@ -266,7 +266,7 @@ public class Level {
         System.out.println(getActualWidth() + ", " + getActualHeight());
         gameObjects.addAll(getEntities());
 
-        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 6);
+        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
         this.qtree.insert(getPlayer());
         for (Entity entity : getEntities()) {
             this.qtree.insert(entity);
@@ -281,7 +281,7 @@ public class Level {
             }
         }
 
-        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 6);
+        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
         createImage();
     }
 
@@ -544,11 +544,11 @@ public class Level {
         this.backgroundMusic = backgroundMusic;
     }
 
-    public double getActualWidth() {
+    public int getActualWidth() {
         return getWidth() * Game.BLOCK_SIZE;
     }
 
-    public double getActualHeight() {
+    public int getActualHeight() {
         return getHeight() * Game.BLOCK_SIZE;
     }
 
@@ -589,7 +589,7 @@ public class Level {
     }
 
     private void updateQuadTree(double dt) {
-        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 6);
+        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
         this.qtree.focus = getPlayer();
 
         this.qtree.insert(getPlayer());

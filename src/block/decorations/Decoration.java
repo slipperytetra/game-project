@@ -7,21 +7,31 @@ import utils.Location;
 import utils.Texture;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 
 public class Decoration extends GameObject {
 
     private DecorationTypes type;
+    protected BufferedImage texture;
 
     public Decoration(Level level, Location loc, DecorationTypes type) {
         super(level, loc);
         this.type = type;
         setScale(type.getScale());
+        updateTexture();
 
         setCollisionBox(new CollisionBox(getLocation().getX(), getLocation().getY() - getHeight() + Game.BLOCK_SIZE, getWidth(), getHeight()));
     }
 
     public void render(Camera cam) {
-        cam.game.drawImage(getFrame().getImage(), cam.toScreenX(getLocation().getX()), (cam.toScreenY(getLocation().getY()) - getHeight() + Game.BLOCK_SIZE), getWidth(), getHeight());
+        //BufferedImage texture = getFrame().getImage();
+        Graphics2D g2d = cam.game.mGraphics;
+        AffineTransform oldTrans = g2d.getTransform();
+        g2d.translate((int)cam.toScreenX(getLocation().getX()), (int)cam.toScreenY(getLocation().getY() - getHeight() + Game.BLOCK_SIZE));
+        g2d.drawImage(texture, 0, 0, null);
+        g2d.setTransform(oldTrans);
 
         if (cam.debugMode) {
             cam.game.changeColor(Color.GREEN);
@@ -64,5 +74,14 @@ public class Decoration extends GameObject {
                 }
             }
         }
+    }
+
+    public void updateTexture() {
+        Texture text = getLevel().getManager().getEngine().getTextureBank().getTexture(getType().toString().toLowerCase());
+        texture = text.getImage().getSubimage(0, 0, text.getImage().getWidth(), text.getImage().getHeight());
+
+        AffineTransform tx = AffineTransform.getScaleInstance(getScale(), getScale());
+        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        texture = op.filter(texture, null);
     }
 }

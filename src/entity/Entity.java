@@ -177,7 +177,7 @@ public abstract class Entity extends GameObject {
                 }
             }
 
-            getLocation().setX(Math.round(nextLocX * 2) / 2.0);
+            getLocation().setX(Math.round(nextLocX * 2) / 2.0f);
             updateCollisionBox();
         }
     }
@@ -190,7 +190,7 @@ public abstract class Entity extends GameObject {
                 num = -1;
             }
 
-            double nextLocY = Math.round((getLocation().getY() + (moveIncre * num)) * 2) / 2.0;
+            float nextLocY = Math.round((getLocation().getY() + (moveIncre * num)) * 2) / 2.0f;
             CollisionBox cBox = new CollisionBox(getCollisionBox().getLocation().getX(), getCollisionBox().getLocation().getY() + num + (num), getCollisionBox().getWidth(), getCollisionBox().getHeight());
             if (nextLocY <= 0 || nextLocY >= getLevel().getActualHeight() - getHitboxHeight()) { //Make sure the object can't go outside the level
                 return;

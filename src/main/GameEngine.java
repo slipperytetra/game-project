@@ -22,7 +22,7 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     JFrame mFrame;
     GamePanel mPanel;
     int mWidth, mHeight;
-    Graphics2D mGraphics;
+    public Graphics2D mGraphics;
     boolean initialised = false;
 
     //-------------------------------------------------------

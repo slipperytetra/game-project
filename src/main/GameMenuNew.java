@@ -3,12 +3,14 @@ package main;
 import level.Level;
 import level.LevelManager;
 import utils.Location;
+import utils.WaveEffect;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +31,11 @@ public class GameMenuNew extends GameEngine {
     private JPanel selectLevel;
     protected LevelLoadPanel dataPanel;
     protected Image backgroundImage;
+    protected BufferedImage backgroundTree;
+    BufferedImage distortedImage;
+
+    WaveEffect waveEffect;
+    double treeWaveTime;
 
 
     //protected AudioClip menuMusic;
@@ -52,16 +59,11 @@ public class GameMenuNew extends GameEngine {
 
     public void init() {
         this.setWindowSize(1280, 720);
-
-
-
-
-
-
-
+        waveEffect = new WaveEffect(2, 20, 0, 1, 40, Math.PI / 4, 0.5, 1);
 
         try {
             this.backgroundImage = ImageIO.read(new File("resources/images/backgrounds/title_background.png"));
+            this.backgroundTree = ImageIO.read(new File("resources/images/backgrounds/title_background_tree.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -167,13 +169,36 @@ public class GameMenuNew extends GameEngine {
 
     @Override
     public void update(double dt) {
+        if (backgroundTree != null) {
+            int width = backgroundTree.getWidth();
+            int height = backgroundTree.getHeight();
+            distortedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    double offset = waveEffect.getOffset(x, (double)y / height, treeWaveTime);  // Pass y as a fraction
+                    int newY = (int) Math.round(y + offset);
+                    if (newY >= 0 && newY < height) {
+                        distortedImage.setRGB(x, y, backgroundTree.getRGB(x, newY));
+                    }
+                }
+            }
+
+            treeWaveTime += 1 * dt;
+        }
     }
 
     @Override
     public void paintComponent() {
         if (backgroundImage != null) {
             drawImage(backgroundImage, 0, 0, width(), height());
+        }
+
+        if (distortedImage != null) {
+            //mGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+            //mGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            drawImage(distortedImage, 0, 0, width(), height());
         }
 
         if (levelEditorPanel.isVisible()) {

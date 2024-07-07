@@ -40,8 +40,8 @@ public class Camera {
     private int DEBUG_DECORATIONS_ON_SCREEN;
     private int DEBUG_PARTICLES_ON_SCREEN;
 
-    double camWidth;
-    double camHeight;
+    int camWidth;
+    int camHeight;
     double boundsX;
     double boundsY;
     double tempLocX;
@@ -388,10 +388,6 @@ public class Camera {
 
         if (debugMode) {
             game.changeColor(Color.BLUE);
-            for (GameObject gameObjectX : getPlayer().getCollisionsY()) {
-                game.drawRectangle(toScreenX(gameObjectX.getLocation().getX()), toScreenY(gameObjectX.getLocation().getY()),
-                        gameObjectX.getWidth(), gameObjectX.getHeight());
-            }
             for (GameObject gameObjectY : getPlayer().getCollisionsY()) {
                 game.drawRectangle(toScreenX(gameObjectY.getLocation().getX()), toScreenY(gameObjectY.getLocation().getY()),
                         gameObjectY.getWidth(), gameObjectY.getHeight());
@@ -431,13 +427,13 @@ public class Camera {
 
     private void drawParallaxImage(Texture bg, double paraZoom) {
         if (bg != null) {
-            double scaleX = game.getActiveLevel().getActualWidth() / bg.getWidth(); //remember to do this only once somewhere else
-            double scaleY = game.getActiveLevel().getActualHeight() / bg.getHeight();
+            double scaleX = (double) game.getActiveLevel().getActualWidth() / bg.getWidth(); //remember to do this only once somewhere else
+            double scaleY = (double) game.getActiveLevel().getActualHeight() / bg.getHeight();
 
-            double camBotLeftX = (0 + ((0 + getCollisionBox().getLocation().getX()) * paraZoom)) / scaleX;
-            double camBotLeftY = (0 + ((0 + getCollisionBox().getLocation().getY()) * paraZoom)) / scaleY;
-            double camTopRightX = (game.getActiveLevel().getActualWidth() - ((game.getActiveLevel().getActualWidth() - getCollisionBox().getCorner().getX()) * paraZoom)) / scaleX;
-            double camTopRightY = (game.getActiveLevel().getActualHeight() - ((game.getActiveLevel().getActualHeight() - getCollisionBox().getCorner().getY()) * paraZoom)) / scaleY;
+            double camBotLeftX = Math.round((0 + ((0 + getCollisionBox().getLocation().getX()) * paraZoom)) / scaleX);
+            double camBotLeftY = Math.round((0 + ((0 + getCollisionBox().getLocation().getY()) * paraZoom)) / scaleY);
+            double camTopRightX = Math.round((game.getActiveLevel().getActualWidth() - ((game.getActiveLevel().getActualWidth() - getCollisionBox().getCorner().getX()) * paraZoom)) / scaleX);
+            double camTopRightY = Math.round((game.getActiveLevel().getActualHeight() - ((game.getActiveLevel().getActualHeight() - getCollisionBox().getCorner().getY()) * paraZoom)) / scaleY);
 
             int width = (int) ((camTopRightX - camBotLeftX));
             int height = (int) ((camTopRightY - camBotLeftY));
@@ -516,11 +512,11 @@ public class Camera {
     }
 
     public double toScreenX(double worldX) {
-        return worldX - loc.getX();
+        return Math.round(worldX) - loc.getX();
     }
 
     public double toScreenY(double worldY) {
-        return worldY - loc.getY();
+        return Math.round(worldY) - loc.getY();
     }
 
     public double toWorldX(double screenX) {

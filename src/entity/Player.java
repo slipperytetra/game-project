@@ -16,6 +16,8 @@ import utils.TextureAnimated;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -150,8 +152,8 @@ public class Player extends EntityLiving {
 
     @Override
     public void render(Camera cam) {
-        double playerOffsetX = cam.toScreenX(getLocation().getX());
-        double playerOffsetY = cam.toScreenY(getLocation().getY());
+        double playerOffsetX = getLocation().getX();
+        double playerOffsetY = getLocation().getY();
         Game game = getLevel().getManager().getEngine();
 
         if (isAttacking()) {
@@ -159,7 +161,16 @@ public class Player extends EntityLiving {
             playerOffsetY = playerOffsetY - 8;
         }
 
-        game.drawImage(getActiveFrame().getImage(), playerOffsetX , playerOffsetY , getWidth() , getHeight() );
+        BufferedImage texture = getActiveFrame().getImage();
+        Graphics2D g2d = cam.game.mGraphics;
+        AffineTransform oldTrans = g2d.getTransform();
+
+        g2d.translate((int) cam.toScreenX(playerOffsetX), (int) cam.toScreenY(playerOffsetY));
+        g2d.scale(getScale(), getScale());
+        g2d.drawImage(texture, 0, 0, null);
+        g2d.setTransform(oldTrans);
+
+        //game.drawImage(, playerOffsetX , playerOffsetY , getWidth() , getHeight() );
 
         if (cam.debugMode) {
             game.changeColor(Color.magenta);
