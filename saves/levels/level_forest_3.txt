@@ -1,4 +1,4 @@
-name: FOREST_2
+name: FOREST_3
 background: resources/images/backgrounds/forest_background.png
 midground: resources/images/backgrounds/forest_midground.png
 foreground: resources/images/backgrounds/forest_foreground.png

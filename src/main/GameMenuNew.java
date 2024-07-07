@@ -8,11 +8,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+
+import static com.sun.java.accessibility.util.AWTEventMonitor.addActionListener;
 
 
 public class GameMenuNew extends GameEngine {
@@ -33,6 +36,17 @@ public class GameMenuNew extends GameEngine {
 
 
     public ArrayList<BufferedImage> icons = new ArrayList<>();
+
+    @Override
+    public void keyPressed(KeyEvent event) {
+
+
+        if (event.getKeyCode() == 27) {
+            cl.show(this.contextPanel, "Home");
+
+
+        }}
+
 
 
 
@@ -222,6 +236,7 @@ class LevelLoadPanel extends JPanel {
         levelsComboBox.setPreferredSize(new Dimension(200, 30));
         GridBagConstraints gbcComboBox = new GridBagConstraints();
         gbcComboBox.gridy = 0;
+
         add(levelsComboBox, gbcComboBox);
 
         loadLevels();
@@ -243,14 +258,14 @@ class LevelLoadPanel extends JPanel {
                      continue; // Skip files that are not level files
                  }
 
-                 // Load icon image for the level
+                 levelsComboBox.addItem(file.getName());
+
                  BufferedImage levelImg = defaultImg;
                  File levelImgFile = new File(folder.getPath() + "/" + file.getName().replaceAll(".txt", "") + "_icon.png");
                  if (levelImgFile.exists()) {
                      levelImg = loadImage(levelImgFile.getPath());
                  }
 
-                 // Create button for the level
                  JButton button = new JButton();
                  button.setIcon(new ImageIcon(levelImg));
                  button.setOpaque(false);
@@ -275,6 +290,8 @@ class LevelLoadPanel extends JPanel {
                      }
                  });
                  levelsPanel.add(button);
+
+
                  //menu.icons.add(GameUtils.makeRoundedCorner(levelImg, 30));
 
 
@@ -283,10 +300,18 @@ class LevelLoadPanel extends JPanel {
              }
          }
 
+         add(new BackButton(menu.cl, menu.contextPanel, "Home"));
+
+
+
+
+
+
          // Refresh the UI to reflect changes
          revalidate();
          repaint();
      }
+
 
 
 
@@ -299,7 +324,9 @@ class LevelLoadPanel extends JPanel {
         }
         return null;
     }
+
 }
+
 
 
 class SettingsMenu extends JPanel {

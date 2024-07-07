@@ -153,7 +153,7 @@ public class Game extends GameEngine {
             if (keysPressed.contains(87)) {//W
                 camera.tempLocY = camera.tempLocY - Game.BLOCK_SIZE;
             }
-            if (keysPressed.contains(65)) {//A
+            if (keysPressed.contains(65)) {//
                 camera.tempLocX = camera.tempLocX - Game.BLOCK_SIZE;
             }
             if (keysPressed.contains(83)) {//S
