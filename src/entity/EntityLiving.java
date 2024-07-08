@@ -5,6 +5,9 @@ import main.*;
 import utils.Location;
 import utils.TextureAnimated;
 
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+
 public abstract class EntityLiving extends Entity {
 
     private int hitDamage;
@@ -14,6 +17,7 @@ public abstract class EntityLiving extends Entity {
     private SoundType soundAttack;
 
     private AttackTimer attackTimer;
+    public DeathAnimationTimer deathTimer;
 
     private double attackCounter;
     private double attackCooldown;
@@ -30,6 +34,7 @@ public abstract class EntityLiving extends Entity {
 
         //System.out.println("New attack timer for " + type.toString());
         setAttackTimer(new AttackTimer(this));
+        setDeathAnimationTimer(new DeathAnimationTimer(this));
     }
 
     @Override
@@ -66,6 +71,11 @@ public abstract class EntityLiving extends Entity {
         if (attackTimer.isRunning()) {
             System.out.println("stopped");
             attackTimer.stop();
+        }
+
+        if (!deathTimer.isRunning()) {
+            System.out.println("death started");
+            deathTimer.start();
         }
     }
 
@@ -198,6 +208,9 @@ public abstract class EntityLiving extends Entity {
     public void setAttackTimer(AttackTimer timer) {
         this.attackTimer = timer;
     }
+    public void setDeathAnimationTimer(DeathAnimationTimer timer) {
+        this.deathTimer = timer;
+    }
 
     public double getAttackRange() {
         return attackRange;
@@ -205,5 +218,37 @@ public abstract class EntityLiving extends Entity {
 
     public void setAttackRange(double range) {
         this.attackRange = range;
+    }
+
+
+
+    @Override
+    public void render(Camera cam) {
+        if (deathTimer.isRunning()) {
+            Graphics2D g2d = cam.game.mGraphics;
+            AffineTransform oldTrans = g2d.getTransform();
+            g2d.translate((int)cam.toScreenX(getLocation().getX()), (int)cam.toScreenY(getLocation().getY()));
+            g2d.rotate(getRotation(), getWidth()/2, getHeight()/2);
+            g2d.scale(getScale(), getScale());
+            g2d.drawImage(getActiveFrame().getImage(), 0, 0, null);
+            g2d.setTransform(oldTrans);
+            return;
+        }
+
+        cam.game.drawImage(getActiveFrame().getImage(), cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY()), getWidth(), getHeight());
+
+        if (cam.debugMode) {
+            cam.game.changeColor(getHitboxColor());
+            cam.game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()), cam.toScreenY(getCollisionBox().getLocation().getY()), getCollisionBox().getWidth() , getCollisionBox().getHeight() );
+        }
+    }
+
+    @Override
+    public boolean isActive() {
+        if (deathTimer.isRunning()) {
+            return true;
+        }
+
+        return super.isActive();
     }
 }

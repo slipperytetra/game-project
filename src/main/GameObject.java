@@ -17,6 +17,7 @@ public class GameObject {
     private double width, height;
     private double hitboxWidth, hitboxHeight;
     private double hitboxOffsetX, hitboxOffsetY;
+    private double rotation;
     private final UUID uuid;
 
     private final Level level;
@@ -230,5 +231,13 @@ public class GameObject {
 
     public double getCenterY() {
         return getLocation().getY() + (getHitboxHeight() / 2);
+    }
+
+    public double getRotation() {
+        return rotation;
+    }
+
+    public void setRotation(double rotation) {
+        this.rotation = rotation;
     }
 }

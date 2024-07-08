@@ -4,6 +4,7 @@ import level.Level;
 import level.ParticleTypes;
 import main.Camera;
 import main.Game;
+import utils.ConfigAttribute;
 import utils.Location;
 import utils.WaveEffect;
 
@@ -34,7 +35,11 @@ public class DecorationTree extends Decoration {
     @Override
     public void render(Camera cam) {
         //super.render(cam);
-        cam.game.drawImage(distortedImage, cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY() - getHeight() + Game.BLOCK_SIZE));
+        if ((Boolean) getLevel().getManager().getEngine().getConfig().getItem(ConfigAttribute.TITLE_SETTINGS_GRAPHICS_SHADERS)) {
+            cam.game.drawImage(distortedImage, cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY() - getHeight() + Game.BLOCK_SIZE));
+        } else {
+            cam.game.drawImage(texture, cam.toScreenX(getLocation().getX()), cam.toScreenY(getLocation().getY() - getHeight() + Game.BLOCK_SIZE));
+        }
     }
 
     public void update(double dt) {
@@ -50,21 +55,22 @@ public class DecorationTree extends Decoration {
             particleCounter = 0;
         }
 
-        int width = texture.getWidth();
-        int height = texture.getHeight();
-        distortedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        if ((Boolean) getLevel().getManager().getEngine().getConfig().getItem(ConfigAttribute.TITLE_SETTINGS_GRAPHICS_SHADERS)) {
+            int width = texture.getWidth();
+            int height = texture.getHeight();
+            distortedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                double offset = waveEffect.getOffset(x, (double)y / height, time);  // Pass y as a fraction
-                int newY = (int) Math.round(y + offset);
-                if (newY >= 0 && newY < height) {
-                    distortedImage.setRGB(x, y, texture.getRGB(x, newY));
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    double offset = waveEffect.getOffset(x, (double) y / height, time);  // Pass y as a fraction
+                    int newY = (int) Math.round(y + offset);
+                    if (newY >= 0 && newY < height) {
+                        distortedImage.setRGB(x, y, texture.getRGB(x, newY));
+                    }
                 }
             }
+
+            time += 1 * dt;
         }
-
-        time += 1 * dt;
-
     }
 }

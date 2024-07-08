@@ -89,7 +89,7 @@ public abstract class Entity extends GameObject {
             move(dt);
         }
 
-        if (getHealth() <= 0) {
+        if (getHealth() <= 0 && !isDead) {
             kill();
         }
     }
@@ -248,13 +248,14 @@ public abstract class Entity extends GameObject {
     public void kill() {
         this.setActive(false);
         this.setIsDead(true);
+
         if (this instanceof EntityLiving living && living.getAttackTimer().isRunning()) {
             living.getAttackTimer().stop();
         }
     }
 
     public boolean canMove() {
-        return canMove;
+        return canMove && !isDead();
     }
 
     public void setCanMove(boolean canMove) {

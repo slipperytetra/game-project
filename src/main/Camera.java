@@ -5,6 +5,7 @@ import block.BlockTypes;
 import block.decorations.Decoration;
 import block.decorations.FakeLightSpot;
 import entity.Entity;
+import entity.EntityLiving;
 import entity.EntityType;
 import entity.Player;
 import level.Particle;
@@ -259,20 +260,18 @@ public class Camera {
     public void renderEntities() {
         DEBUG_ENTITIES_ON_SCREEN = 0;
         for (Entity entity : game.getActiveLevel().getEntities()) {
-            if (!entity.isActive()) {
-                continue;
-            }
+            if (entity.isActive() || (entity instanceof EntityLiving living && living.deathTimer.isRunning())) {
+                if (entity.getCollisionBox().collidesWith(this.getCollisionBox())) {
+                    entity.render(this);
+                    double offsetX = toScreenX(entity.getLocation().getX());
+                    double offsetY = toScreenY(entity.getLocation().getY());
 
-            if (entity.getCollisionBox().collidesWith(this.getCollisionBox())) {
-                entity.render(this);
-                double offsetX = toScreenX(entity.getLocation().getX());
-                double offsetY = toScreenY(entity.getLocation().getY());
+                    if (entity.getHealth() < entity.getMaxHealth() && !entity.isDead()) {
+                        drawHealthBar(entity, offsetX, offsetY - 20);
+                    }
 
-                if(entity.getHealth() < entity.getMaxHealth()){
-                    drawHealthBar(entity, offsetX, offsetY - 20);
+                    DEBUG_ENTITIES_ON_SCREEN++;
                 }
-
-                DEBUG_ENTITIES_ON_SCREEN++;
             }
         }
     }

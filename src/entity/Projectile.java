@@ -69,20 +69,7 @@ public class Projectile extends Entity {
             }
 
             kill();
-            if (hasImpactSound()) {
-                getLevel().playSound(getImpactSound());
-            }
-            //setCanMove(false);
-
-            if (gameObject instanceof EntityLiving living && living.getHealth() > 0) {
-                living.damage(getDamage(), false);
-                getLevel().spawnParticle(ParticleTypes.IMPACT, getCenterX(), getCenterY());
-            } else {
-                for (int i = 0; i < rand.nextInt(5, 10); i++) {
-                    getLevel().spawnParticle(ParticleTypes.DIRT, getCenterX() + rand.nextDouble(-4, 4) , getCenterY() + rand.nextDouble(-4, 4) - 2,
-                            rand.nextDouble(-2, 2), rand.nextDouble(-1, 4));
-                }
-            }
+            onHit(gameObject);
             break;
         }
 
@@ -233,5 +220,22 @@ public class Projectile extends Entity {
 
     public boolean isWater(GameObject block) {
         return block instanceof BlockLiquid;
+    }
+
+    public void onHit(GameObject hitObject) {
+        if (hasImpactSound()) {
+            getLevel().playSound(getImpactSound());
+        }
+        //setCanMove(false);
+
+        if (hitObject instanceof EntityLiving living && living.getHealth() > 0) {
+            living.damage(getDamage(), false);
+            getLevel().spawnParticle(ParticleTypes.IMPACT, getCenterX(), getCenterY());
+        } else {
+            for (int i = 0; i < rand.nextInt(5, 10); i++) {
+                getLevel().spawnParticle(ParticleTypes.DIRT, getCenterX() + rand.nextDouble(-4, 4) , getCenterY() + rand.nextDouble(-4, 4) - 2,
+                        rand.nextDouble(-2, 2), rand.nextDouble(-1, 4));
+            }
+        }
     }
 }

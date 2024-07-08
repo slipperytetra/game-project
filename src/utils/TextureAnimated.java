@@ -34,6 +34,7 @@ public class TextureAnimated extends Texture {
         if (Game.isPaused) {
             return;
         }
+
         if (frameCounter < maxFrames) {
             frameCounter += (frameRate * dt);
             if (frameCounter > maxFrames) {

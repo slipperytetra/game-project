@@ -101,7 +101,7 @@ public class BlockCracked extends BlockActive {
         return getState() < getMaxStates() - 1;
     }
 
-    private void breakBlock() {
+    public void breakBlock() {
         hasCracked = true;
         getLevel().playSound(SoundType.STONE_CRUMBLE);
 

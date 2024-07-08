@@ -26,6 +26,7 @@ public class GameMenuNew extends GameEngine {
     protected JPanel mainPanel;
     protected JPanel buttonsPanel;
     protected JPanel titlePanel;
+    public SettingsMenu sMenu;
     public JPanel contextPanel;
     private JPanel levelEditorPanel;
     private JPanel selectLevel;
@@ -93,7 +94,7 @@ public class GameMenuNew extends GameEngine {
         contextPanel.add(selectMenu, "Select");
 
 
-        SettingsMenu sMenu = new SettingsMenu(this);
+        sMenu = new SettingsMenu(this);
         sMenu.showContainer("Settings");
         contextPanel.add(sMenu, "Settings");
 
@@ -169,7 +170,7 @@ public class GameMenuNew extends GameEngine {
 
     @Override
     public void update(double dt) {
-        if (backgroundTree != null) {
+        if (backgroundTree != null && this.sMenu.shaders.isSelected()) {
             int width = backgroundTree.getWidth();
             int height = backgroundTree.getHeight();
             distortedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -194,11 +195,13 @@ public class GameMenuNew extends GameEngine {
             drawImage(backgroundImage, 0, 0, width(), height());
         }
 
-        if (distortedImage != null) {
+        if (distortedImage != null && sMenu.shaders.isSelected()) {
             //mGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
             //mGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             drawImage(distortedImage, 0, 0, width(), height());
+        } else {
+            drawImage(backgroundTree, 0, 0, width(), height());
         }
 
         if (levelEditorPanel.isVisible()) {
@@ -361,6 +364,7 @@ class SettingsMenu extends JPanel {
     private JPanel buttonsPanel;
     private JPanel volumePanel;
     private JPanel graphicsPanel;
+    public JCheckBox shaders;
 
     public SettingsMenu(GameMenuNew menu) {
         cl = new CardLayout();
@@ -394,7 +398,8 @@ class SettingsMenu extends JPanel {
 
         graphicsPanel = new JPanel();
         graphicsPanel.setOpaque(false);
-        graphicsPanel.add(new JButton("Enable RTX"));
+        shaders = new JCheckBox("Shaders");
+        graphicsPanel.add(shaders);
         graphicsPanel.add(new BackButton(cl, this, "Settings"));
         add(graphicsPanel, "Graphics");
 

@@ -22,7 +22,7 @@ public class Decoration extends GameObject {
         setScale(type.getScale());
         updateTexture();
 
-        setCollisionBox(new CollisionBox(getLocation().getX(), getLocation().getY() - getHeight() + Game.BLOCK_SIZE, getWidth(), getHeight()));
+        setCollisionBox(new CollisionBox((int)getLocation().getX(), (int)(getLocation().getY() - getHeight() + Game.BLOCK_SIZE), getWidth(), getHeight()));
     }
 
     public void render(Camera cam) {
@@ -30,7 +30,12 @@ public class Decoration extends GameObject {
         Graphics2D g2d = cam.game.mGraphics;
         AffineTransform oldTrans = g2d.getTransform();
         g2d.translate((int)cam.toScreenX(getLocation().getX()), (int)cam.toScreenY(getLocation().getY() - getHeight() + Game.BLOCK_SIZE));
-        g2d.drawImage(texture, 0, 0, null);
+        if (getType().getFrames() > 0) {
+            g2d.scale(getScale(), getScale());
+            g2d.drawImage(getFrame().getImage(), 0, 0, null);
+        } else {
+            g2d.drawImage(texture, 0, 0, null);
+        }
         g2d.setTransform(oldTrans);
 
         if (cam.debugMode) {
@@ -83,5 +88,11 @@ public class Decoration extends GameObject {
         AffineTransform tx = AffineTransform.getScaleInstance(getScale(), getScale());
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         texture = op.filter(texture, null);
+    }
+
+    @Override
+    public void setScale(double scale) {
+        super.setScale(scale);
+        updateTexture();
     }
 }

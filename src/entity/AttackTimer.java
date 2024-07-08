@@ -1,5 +1,7 @@
 package entity;
 
+import main.Game;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,15 +12,17 @@ public class AttackTimer extends Timer {
 
     public AttackTimer(EntityLiving entity) {
         super((int) (entity.getAttackCooldown() * 1000), null);
+        System.out.println("New atack timer for " + entity.getType());
         this.entity = entity;
         this.setInitialDelay(0);
 
         addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (entity.getLevel().isEditMode() || entity.getLevel().getManager().getEngine().isPaused) {
+                if (entity.getLevel().isEditMode() || Game.isPaused) {
                     return;
                 }
+
                 //System.out.println(entity.getType().toString() + " running attackTimer");
                 if (entity.getType() != EntityType.PLAYER) {
                     if (entity.getAttackSound() != null) {
@@ -30,7 +34,7 @@ public class AttackTimer extends Timer {
 
                 entity.findTarget();
 
-                if (entity.getTarget() == null) {
+                if (entity.getTarget() == null || entity.isDead()) {
                     entity.setAttackTicks(entity.getAttackCooldown());
                     stop();
                     return;
@@ -44,6 +48,6 @@ public class AttackTimer extends Timer {
     @Override
     public void stop() {
         super.stop();
-        System.out.println("Stopping for " + entity.getType());
+        System.out.println("Stopping attack for " + entity.getType());
     }
 }

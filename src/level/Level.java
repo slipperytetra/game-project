@@ -355,7 +355,7 @@ public class Level {
         getPlayer().setLocation(getSpawnPoint().getX(), getSpawnPoint().getY());
         getPlayer().setHealth(getPlayer().getMaxHealth());
         for(Entity entity: getEntities()){
-            if(!entity.isActive()){
+            if (!entity.isActive()){
                 entity.reset();
             }
         }
@@ -460,6 +460,7 @@ public class Level {
             Random rand = new Random();
             deco.getLocation().setY(loc.getY() + rand.nextDouble(0, 16));
             deco.setScale(rand.nextDouble(deco.getScale() * 0.75, deco.getScale() * 1.25));
+            deco.updateCollisionBox();
         }
 
         decorations.add(deco);

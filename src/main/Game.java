@@ -38,6 +38,7 @@ public class Game extends GameEngine {
 
     private ConfigManager configManager;
     private LevelEditor levelEditor;
+    private static GameMenuNew titleMenu;
 
     LevelManager lvlManager;
     private Level activeLevel;
@@ -46,7 +47,8 @@ public class Game extends GameEngine {
     Location tempLoc;
 
     public static void main(String[] args) {
-        createGame(new GameMenuNew(),  60);
+        titleMenu = new GameMenuNew();
+        createGame(titleMenu,  60);
         //SwingUtilities.invokeLater(GameMenuNew::new);
     }
 
@@ -75,6 +77,10 @@ public class Game extends GameEngine {
         this.configManager = new ConfigManager();
         for (ConfigAttribute att : ConfigAttribute.values()) {
             configManager.addItem(att, att.getDefaultValue());
+        }
+
+        if (titleMenu != null && titleMenu.sMenu != null) {
+            configManager.addItem(ConfigAttribute.TITLE_SETTINGS_GRAPHICS_SHADERS, titleMenu.sMenu.shaders.isSelected());
         }
     }
 

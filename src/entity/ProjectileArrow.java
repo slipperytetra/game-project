@@ -1,8 +1,10 @@
 package entity;
 
+import block.BlockCracked;
 import level.Level;
 import level.ParticleTypes;
 import main.Game;
+import main.GameObject;
 import main.SoundType;
 import utils.Location;
 import utils.Vector;
@@ -31,5 +33,15 @@ public class ProjectileArrow extends Projectile {
 
         // Need to add formula to calculate intersection of collisions so i can get exactly where it hit the block/entity.
         //getLevel().spawnParticle(ParticleTypes.CLOUD, getLocation().getX(), getLocation().getY());
+    }
+
+    @Override
+    public void onHit(GameObject hitObject) {
+        super.onHit(hitObject);
+
+        if (hitObject instanceof BlockCracked blockCracked) {
+            blockCracked.breakBlock();
+            blockCracked.setState(blockCracked.getMaxStates());
+        }
     }
 }

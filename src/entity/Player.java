@@ -5,10 +5,7 @@ import block.BlockClimbable;
 import block.BlockTypes;
 import level.Level;
 import level.ParticleTypes;
-import level.item.Inventory;
-import level.item.InventoryItem;
-import level.item.InventoryItemSlot;
-import level.item.ItemType;
+import level.item.*;
 import main.*;
 import utils.Location;
 import utils.Texture;
@@ -60,7 +57,9 @@ public class Player extends EntityLiving {
         init();
 
         getBackPack().addItem(ItemType.SWORD, 1);
+        getBackPack().addItem(ItemType.TEST_SWORD, 1);
         getBackPack().addItem(ItemType.BOW, 1);
+        getBackPack().addItem(ItemType.TEST_BOW, 1);
         getBackPack().addItem(ItemType.ARROW, 32);
 
         File file = new File("saves/player_save.txt");
@@ -262,9 +261,9 @@ public class Player extends EntityLiving {
             }
 
             if (keysPressed.contains(81)) {
-                if (getItemInHand() != null && getItemInHand().getItemType() == ItemType.SWORD) {
+                if (getItemInHand() != null && getItemInHand().getItemType().getCategory() == ItemTypeCategory.SWORD) {
                     attemptAttack(false);
-                } else if (getItemInHand() != null && getItemInHand().getItemType() == ItemType.BOW) {
+                } else if (getItemInHand() != null && getItemInHand().getItemType().getCategory() == ItemTypeCategory.BOW) {
                     attemptAttack(true);
                 }
             }
