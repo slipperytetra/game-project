@@ -13,6 +13,7 @@ public enum ItemType {
     private final ItemTypeCategory typeCategoery;
     private final int damage;
 
+
     ItemType(String filePath, ItemTypeCategory typeCategoery) {
         this.filePath = filePath;
         this.typeCategoery = typeCategoery;
