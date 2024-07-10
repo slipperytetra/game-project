@@ -33,7 +33,6 @@ public class Projectile extends Entity {
         super(type, level, loc.clone());
         this.shooter = shooter;
         this.rotationOffset = 90;
-        this.speed = speed;
         this.particleTrail = null;
         setMaxHealth(1);
         setHealth(1);

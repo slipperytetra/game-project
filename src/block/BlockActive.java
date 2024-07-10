@@ -20,10 +20,6 @@ public abstract class BlockActive extends Block {
     }
 
     public void setState(int state) {
-        if (state > getMaxStates() - 1) {
-            this.state = getMaxStates() - 1;
-            return;
-        }
 
         this.state = state;
     }

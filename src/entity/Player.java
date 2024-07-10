@@ -294,7 +294,7 @@ public class Player extends EntityLiving {
                 ProjectileArrow proj = new ProjectileArrow(this, getLevel(), spawnLoc, getLevel().getManager().getEngine().mouseX, getLevel().getManager().getEngine().mouseY);
                 proj.setLocation(getLocation().getX() + (getHitboxWidth() / 2) - (proj.getWidth() / 2), getLocation().getY());
                 proj.offsetTrajectory(32);
-                proj.setDamage(getDamage());
+                proj.setDamage((int)getDamage());
                 getLevel().addEntity(proj);
                 getLevel().getManager().getEngine().getAudioBank().playSound(SoundType.STINGER_SHOOT);
                 setAttackTicks(0);
@@ -406,7 +406,7 @@ public class Player extends EntityLiving {
             return getMaxHealth();
         }
 
-        return health;
+        return (int) getAttributeValue(AttributeTypes.HEALTH);
     }
 
     public int getArrows() {

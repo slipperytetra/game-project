@@ -49,24 +49,24 @@ public class QuadTree {
     }
 
     public void subdivide() {
-        double x = boundary.getLocation().getX();
-        double y = boundary.getLocation().getY();
+        double x = boundary.getLocation().getX() - 1;
+        double y = boundary.getLocation().getY() - 1;
         double w = boundary.getWidth();
         double h = boundary.getHeight();
 
-        CollisionBox nw = new CollisionBox(x, y, w/2, h/2);
+        CollisionBox nw = new CollisionBox(x, y, (w/2) + 2, (h/2) + 2);
         northWest = new QuadTree(nw, capacity);
         northWest.focus = focus;
 
-        CollisionBox ne = new CollisionBox(x + (w/2), y, w/2, h/2);
+        CollisionBox ne = new CollisionBox(x + (w/2), y, (w/2) + 2, (h/2) + 2);
         northEast = new QuadTree(ne, capacity);
         northEast.focus = focus;
 
-        CollisionBox sw = new CollisionBox(x, y + (h/2), w/2, h/2);
+        CollisionBox sw = new CollisionBox(x, y + (h/2), (w/2) + 2, (h/2) + 2);
         southWest = new QuadTree(sw, capacity);
         southWest.focus = focus;
 
-        CollisionBox se = new CollisionBox(x + (w/2), y + (h/2), w/2, h/2);
+        CollisionBox se = new CollisionBox(x + (w/2), y + (h/2), (w/2) + 2, (h/2) + 2);
         southEast = new QuadTree(se, capacity);
         southEast.focus = focus;
 

@@ -10,19 +10,14 @@ import java.awt.geom.AffineTransform;
 
 public abstract class EntityLiving extends Entity {
 
-    private int hitDamage;
     private EntityLiving target;
-
     private SoundType soundHit;
     private SoundType soundAttack;
-
     private AttackTimer attackTimer;
     public DeathAnimationTimer deathTimer;
 
+    private int hitDamage;
     private double attackCounter;
-    private double attackCooldown;
-    private double attackRange;
-
     public double attackSearchTicks;
     public double ATTACK_SEARCH_COOLDOWN = 1.0;
 
@@ -30,7 +25,6 @@ public abstract class EntityLiving extends Entity {
         super(type, level, loc);
         setAttackCooldown(1.0); //Default attack cooldown
         setShouldRespawn(true);
-        this.attackRange = Game.BLOCK_SIZE * 2.5;
 
         //System.out.println("New attack timer for " + type.toString());
         setAttackTimer(new AttackTimer(this));
@@ -52,7 +46,7 @@ public abstract class EntityLiving extends Entity {
     public void update(double dt) {
         super.update(dt);
 
-        if (attackCounter < attackCooldown) {
+        if (attackCounter < getAttackCooldown()) {
             attackCounter += 1 * dt;
         }
     }
@@ -79,17 +73,17 @@ public abstract class EntityLiving extends Entity {
         }
     }
 
-    public int getDamage() {
+    public double getDamage() {
         if (this instanceof Player p) {
             if (p.getItemInHand() != null) {
                 return p.getItemInHand().getItemType().getDamage();
             }
         }
-        return hitDamage;
+        return getAttributeValue(AttributeTypes.ATTACK_DAMAGE);
     }
 
     public void setDamage(int maxDamage) {
-        hitDamage = maxDamage;
+        setAttribute(AttributeTypes.ATTACK_DAMAGE, maxDamage);
     }
 
     public EntityLiving getTarget() {
@@ -150,7 +144,7 @@ public abstract class EntityLiving extends Entity {
     }
 
     public double getAttackCooldown() {
-        return attackCooldown;
+        return getAttributeValue(AttributeTypes.ATTACK_SPEED);
     }
 
     public boolean isAttacking() {
@@ -184,21 +178,12 @@ public abstract class EntityLiving extends Entity {
     }
 
     public void setAttackCooldown(double cooldown) {
-        this.attackCooldown = cooldown;
+        setAttribute(AttributeTypes.ATTACK_SPEED, cooldown);
         this.ATTACK_SEARCH_COOLDOWN = cooldown;
         setAttackTicks(getAttackCooldown() - 0.01);
         if (attackTimer != null) {
             attackTimer.setDelay((int) getAttackCooldown() * 1000);
         }
-    }
-
-
-    public boolean isInRange(Entity entity) {
-        if (entity == null) {
-            return false;
-        }
-
-        return getLocation().calculateDistance(entity.getLocation()) < 64;
     }
 
     public AttackTimer getAttackTimer() {
@@ -213,11 +198,11 @@ public abstract class EntityLiving extends Entity {
     }
 
     public double getAttackRange() {
-        return attackRange;
+        return getAttributeValue(AttributeTypes.ATTACK_RANGE);
     }
 
     public void setAttackRange(double range) {
-        this.attackRange = range;
+        this.setAttribute(AttributeTypes.ATTACK_RANGE, range);
     }
 
 

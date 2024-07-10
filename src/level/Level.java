@@ -159,7 +159,7 @@ public class Level {
                     Block block = new Block(this, spawnLoc, blockKeyMap.get(key));
                     if (type == BlockTypes.FOREST_GROUND) {
                         block = new BlockSet(this, spawnLoc, type);
-                    } else if (type == BlockTypes.FOREST_GROUND_CRACKED) {
+                    } else if (type == BlockTypes.FOREST_GROUND_CRACKED || type == BlockTypes.FOREST_CRACKED_WALL) {
                         block = new BlockCracked(this, spawnLoc, type);
                     } else if (type == BlockTypes.LADDER) {
                         block = new BlockClimbable(this, spawnLoc, type);
@@ -266,6 +266,7 @@ public class Level {
         System.out.println(getActualWidth() + ", " + getActualHeight());
         gameObjects.addAll(getEntities());
 
+        /*
         this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
         this.qtree.insert(getPlayer());
         for (Entity entity : getEntities()) {
@@ -279,9 +280,9 @@ public class Level {
                     this.qtree.insert(blk);
                 }
             }
-        }
+        }*/
 
-        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
+        //this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
         createImage();
     }
 

@@ -64,6 +64,10 @@ public class Decoration extends GameObject {
 
     @Override
     public void updateCollisionBox() {
+        if (getCollisionBox() == null) {
+            return;
+        }
+
         this.getCollisionBox().setLocation(getLocation().getX(), getLocation().getY() - getHeight() + Game.BLOCK_SIZE);
         this.getCollisionBox().setSize(getWidth(), getHeight());
     }

@@ -43,7 +43,7 @@ public class BlockCracked extends BlockActive {
 
     @Override
     public void update(double dt) {
-        if (getState() >= getMaxStates() - 1) {
+        if (getState() >= getMaxStates() - 1 || getType() != BlockTypes.FOREST_GROUND_CRACKED) {
             return;
         }
 
@@ -98,7 +98,7 @@ public class BlockCracked extends BlockActive {
 
     @Override
     public boolean isCollidable() {
-        return getState() < getMaxStates() - 1;
+        return (getMaxStates() == 1 && getState() <= 0) || getState() < getMaxStates() - 1;
     }
 
     public void breakBlock() {

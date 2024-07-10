@@ -18,29 +18,23 @@ public abstract class Entity extends GameObject {
     private EntityType type;
 
     private final double GRAVITY = 32 * Game.BLOCK_SIZE;
-    private final double FRICTION = 32 * Game.BLOCK_SIZE;
-    protected int health;
-    private int maxHealth;
+
     private boolean isDead;
     public CollisionBox tempBoxX;
 
     private boolean isOnGround;
 
-    private Vector direction;
     private Vector velocity;
     private List<GameObject> collisionsX;
     private List<GameObject> collisionsY;
     private HashMap<AttributeTypes, Double> attributes;
-
-    double speed = 384; // pixels per second / 12 blocks per second
 
     private boolean isFlipped;
     private boolean canMove;
     private boolean shouldRespawn;
     private boolean hasGravity;
 
-    public double MAX_SPEED = Game.BLOCK_SIZE * 11;
-    public double ACCELERATION = MAX_SPEED / 2;
+    public double ACCELERATION;
     public double[] locs = new double[4];
 
     public Entity(EntityType type, Level level, Location loc) {
@@ -50,10 +44,7 @@ public abstract class Entity extends GameObject {
         this.attributes = new HashMap<>();
         this.setScale(2);
         this.velocity = new Vector(0, 0);
-        this.direction = new Vector(0, 0);
         this.shouldRespawn = false;
-        this.health = 10;
-        setMaxHealth(10);
         this.canMove = true;
 
         setHitboxWidth(getIdleFrame().getWidth());
@@ -63,9 +54,12 @@ public abstract class Entity extends GameObject {
     }
 
     public void initAttributes() {
+        attributes.put(AttributeTypes.FRICTION, AttributeTypes.FRICTION.getDefaultValue());
         attributes.put(AttributeTypes.HEALTH, AttributeTypes.HEALTH.getDefaultValue());
         attributes.put(AttributeTypes.MAX_HEALTH, AttributeTypes.MAX_HEALTH.getDefaultValue());
         attributes.put(AttributeTypes.MOVEMENT_SPEED, AttributeTypes.MOVEMENT_SPEED.getDefaultValue());
+
+        ACCELERATION = getAttributeValue(AttributeTypes.MOVEMENT_SPEED) / 2;
     }
 
     public void render(Camera cam) {
@@ -198,7 +192,7 @@ public abstract class Entity extends GameObject {
 
             tempBoxX = cBox;
 
-            this.collisionsY = getLevel().getQuadTree().query(this, cBox);
+            this.collisionsY = getLevel().getQuadTree().query(this, tempBoxX);
             if (!collisionsY.isEmpty()) {
                 for (GameObject gameObject : collisionsY) {
                     if (!gameObject.isSolid()) {
@@ -208,8 +202,8 @@ public abstract class Entity extends GameObject {
                     double gObjY1 = gameObject.getCollisionBox().getLocation().getY() - 2;
                     double gObjY2 = gameObject.getCollisionBox().getCorner().getY() + 2;
 
-                    double eObjY1 = cBox.getLocation().getY();
-                    double eObjY2 = cBox.getCorner().getY();
+                    double eObjY1 = tempBoxX.getLocation().getY();
+                    double eObjY2 = tempBoxX.getCorner().getY();
 
                     boolean intersects = !((gObjY2 < eObjY1) || (eObjY2 < gObjY1));
                     if (intersects) {
@@ -238,10 +232,10 @@ public abstract class Entity extends GameObject {
 
     public double getFriction() {
         if (canClimb()) {
-            return FRICTION * 1.5;
+            return getAttributeValue(AttributeTypes.FRICTION) * 1.5;
         }
 
-        return FRICTION;
+        return getAttributeValue(AttributeTypes.FRICTION);
     }
 
 
@@ -344,30 +338,31 @@ public abstract class Entity extends GameObject {
     }
 
     public int getHealth() {
-        return health;
+        return (int) getAttributeValue(AttributeTypes.HEALTH);
     }
 
-    public void setHealth(int health) {
+    public void setHealth(double health) {
         if (health < 0) {
             health = 0;
         }
-        if (health >= maxHealth){
-            health = maxHealth;
+
+        if (health >= getMaxHealth()) {
+            health = getMaxHealth();
         }
 
-        this.health = health;
+        setAttribute(AttributeTypes.HEALTH, health);
     }
 
     public int getMaxHealth() {
-        return maxHealth;
+        return (int) getAttributeValue(AttributeTypes.MAX_HEALTH);
     }
 
     public void setMaxHealth(int maxHealth) {
-        if(getHealth() > maxHealth) {
+        if (getHealth() > maxHealth) {
             setHealth(maxHealth);
         }
 
-        this.maxHealth = maxHealth;
+        setAttribute(AttributeTypes.MAX_HEALTH, maxHealth);
     }
 
     public boolean isFlipped() {

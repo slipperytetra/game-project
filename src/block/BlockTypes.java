@@ -8,6 +8,7 @@ public enum BlockTypes {
     BARRIER("resources/images/blocks/dirt.png"),
     FOREST_GROUND("resources/images/blocks/forest_ground/forest_ground", true, 16),
     FOREST_GROUND_CRACKED("resources/images/blocks/forest_ground/forest_ground_cracked", true, 5),
+    FOREST_CRACKED_WALL("resources/images/blocks/forest_ground/forest_cracked_wall", true, 1),
     LADDER("resources/images/blocks/ladder.png", false),
     ROPE("resources/images/blocks/rope.png", false),
     WATER_TOP("resources/images/blocks/waterTop.png"),
