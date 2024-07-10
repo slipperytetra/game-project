@@ -39,6 +39,14 @@ public class CollisionBox {
         return corner;
     }
 
+    public double getX() {
+        return getLocation().getX();
+    }
+
+    public double getY() {
+        return getLocation().getY();
+    }
+
     public double getWidth() {
         return width;
     }

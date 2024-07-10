@@ -6,7 +6,6 @@ import block.decorations.Decoration;
 import block.decorations.FakeLightSpot;
 import entity.Entity;
 import entity.EntityLiving;
-import entity.EntityType;
 import entity.Player;
 import level.Particle;
 import level.TextMessage;
@@ -17,6 +16,9 @@ import utils.Texture;
 import utils.Vector;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 /*
@@ -230,27 +232,45 @@ public class Camera {
      * */
     private void renderBlocks() {
         DEBUG_BLOCKS_ON_SCREEN = 0;
-        for (int x = 0; x < game.getActiveLevel().getBlockGrid().getWidth(); x++) {
-            for (int y = 0; y < game.getActiveLevel().getBlockGrid().getHeight(); y++) { //Iterating over all the blocks
-                Block b = game.getActiveLevel().getBlockGrid().getBlocks()[x][y]; //Getting the block from the grid based on the coordinates
-                if (b.getType() == BlockTypes.VOID) {
+
+        int startX = getPoint1().getTileX();
+        int startY = getPoint1().getTileY();
+        int endX = getPoint2().getTileX();
+        int endY = getPoint2().getTileY();
+        if (endX < game.getActiveLevel().getBlockGrid().getWidth()) {
+            endX += 1;
+        }
+        if (endY < game.getActiveLevel().getBlockGrid().getHeight()) {
+            endY += 1;
+        }
+
+        HashMap<BlockTypes, List<Block>> renderMap = game.getActiveLevel().getBlockGrid().getRenderMap();
+        for (int x = startX; x < endX; x++) {
+            for (int y = startY; y < endY; y++) { //Iterating over all the blocks
+                Block b = game.getActiveLevel().getBlockGrid().getBlockAt(x, y); //Getting the block from the grid based on the coordinates
+                if (b == null || b.getType() == BlockTypes.VOID) {
                     continue;
                 }
 
-                if (b.getLocation().isBlockBetween(getPoint1(), getPoint2())) {
-                    /*
-                     *   Here we have to convert the blocks coordinates to be relative to the camera.
-                     *   Basically in update(dt) we calculate the centerOffset by getting the center of the screen and then subtracting
-                     *   the players location from it.
-                     *
-                     *   Then in here, we get the block's location and add the centerOffset to it.
-                     * */
-
-                    b.render(this);
-                    DEBUG_BLOCKS_ON_SCREEN++;
+                if (renderMap.containsKey(b.getType())) {
+                    renderMap.get(b.getType()).add(b);
+                } else {
+                    List<Block> listLoc = new ArrayList<>();
+                    listLoc.add(b);
+                    renderMap.put(b.getType(), listLoc);
                 }
+
+                DEBUG_BLOCKS_ON_SCREEN++;
             }
         }
+
+        for (BlockTypes type : renderMap.keySet()) {
+            for (Block block : renderMap.get(type)) {
+                block.render(this);
+            }
+        }
+
+        renderMap.clear();
     }
 
 

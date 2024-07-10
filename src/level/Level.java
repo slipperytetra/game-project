@@ -161,6 +161,9 @@ public class Level {
                         block = new BlockSet(this, spawnLoc, type);
                     } else if (type == BlockTypes.FOREST_GROUND_CRACKED || type == BlockTypes.FOREST_CRACKED_WALL) {
                         block = new BlockCracked(this, spawnLoc, type);
+                        if (type == BlockTypes.FOREST_GROUND_CRACKED) {
+                            ((BlockCracked) block).setIsPressureSensitive(true);
+                        }
                     } else if (type == BlockTypes.LADDER) {
                         block = new BlockClimbable(this, spawnLoc, type);
                     } else if (type == BlockTypes.ROPE) {
@@ -174,7 +177,7 @@ public class Level {
                     } else if (type == BlockTypes.PLAYER_SPAWN) {
                         block = new BlockSpawnPoint(this, spawnLoc);
                         spawnPoint = new Location(block.getLocation());
-                        spawnPoint.setY(spawnPoint.getY() - getManager().getEngine().getTextureBank().getTexture("player").getHeight() + Game.BLOCK_SIZE);
+                        spawnPoint.setY(spawnPoint.getY() - getManager().getEngine().getTextureBank().getTexture("player").getHeight());
                     }
 
                     //System.out.println("Set block at " + x + ", " + y + " to " + block.getType().toString());
@@ -593,7 +596,7 @@ public class Level {
 
     private void updateQuadTree(double dt) {
         this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
-        //this.qtree.focus = getPlayer();
+        this.qtree.focus = getPlayer();
 
         this.qtree.insert(getPlayer());
 
@@ -607,11 +610,11 @@ public class Level {
             for (int by = 0; by < getBlockGrid().getHeight(); by++) {
                 Block blk = getBlockGrid().getBlockAt(bx, by);
 
-                if (blk.isCollidable()) {
-                    if (blk.getType() == BlockTypes.FOREST_GROUND_CRACKED) {
-                        blk.update(dt);
-                    }
+                if (blk instanceof BlockActive activeBlock) {
+                    activeBlock.update(dt);
+                }
 
+                if (blk.isCollidable()) {
                     this.qtree.insert(blk);
                 }
             }

@@ -20,6 +20,9 @@ public class LevelEditorBlocks extends LevelEditor {
         super.render(cam);
 
         Block block = getSelectedBlock();
+        if (block == null) {
+            return;
+        }
         cam.game.drawText(cam.game.width() - 150, 30, "Block: " + block.getType().toString(), 15);
         cam.game.drawText(cam.game.width() - 150, 45, "Pos: (" + getTileX() + ", " + getTileY() + ")", 15);
 
@@ -58,13 +61,17 @@ public class LevelEditorBlocks extends LevelEditor {
 
         if (getLevel()!= null && getLevel().isEditMode()) {
             if (type.toString().contains("FOREST_GROUND")) {
-                if (type.toString().contains("CRACKED")) {
+                if (type.toString().endsWith("CRACKED")) {
                     BlockCracked b = new BlockCracked(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
+                    b.setIsPressureSensitive(true);
                     getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
                 } else {
                     BlockSet b = new BlockSet(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
                     getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
                 }
+            } else if (type == BlockTypes.FOREST_CRACKED_WALL) {
+                BlockCracked b = new BlockCracked(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
+                getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
             } else {
                 Block b = new Block(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
                 getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);

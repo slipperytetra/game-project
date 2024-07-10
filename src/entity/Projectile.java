@@ -61,7 +61,7 @@ public class Projectile extends Entity {
             kill();
         }
 
-        List<GameObject> collisions = getLevel().getQuadTree().query(this.getCollisionBox());
+        List<GameObject> collisions = getLevel().getQuadTree().retrieve(this.getCollisionBox());
         for (GameObject gameObject : collisions) {
             if (!gameObject.isCollidable() || gameObject.equals(this) || gameObject.equals(getShooter()) || isWater(gameObject)) {
                 continue;

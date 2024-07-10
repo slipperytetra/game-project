@@ -4,15 +4,21 @@ import level.Level;
 import main.Game;
 import utils.Location;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class BlockGrid {
 
     int width, height;
     Block[][] blocks;
 
+    private HashMap<BlockTypes, List<Block>> renderMap;
+
     public BlockGrid(Level level, int width, int height) {
         this.width = width;
         this.height = height;
         this.blocks = new Block[width][height];
+        this.renderMap = new HashMap<>();
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -74,5 +80,9 @@ public class BlockGrid {
                 }
             }
         }
+    }
+
+    public HashMap<BlockTypes, List<Block>> getRenderMap() {
+        return renderMap;
     }
 }

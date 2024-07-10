@@ -151,7 +151,7 @@ public abstract class Entity extends GameObject {
                 return;
             }
 
-            collisionsX = getLevel().getQuadTree().query(cBox);
+            collisionsX = getLevel().getQuadTree().retrieve(cBox);
             if (!collisionsX.isEmpty()) {
                 for (GameObject gameObject : collisionsX) {
                     if (!gameObject.isSolid()) {
@@ -193,14 +193,7 @@ public abstract class Entity extends GameObject {
 
             tempBoxX = cBox;
 
-            this.collisionsY = getLevel().getQuadTree().query(tempBoxX);
-            /*if (this instanceof Player) {
-                int count = 0;
-                for (GameObject gobj : collisionsY) {
-                    System.out.println(count + ": " + gobj);
-                    count++;
-                }
-            }*/
+            this.collisionsY = getLevel().getQuadTree().retrieve(tempBoxX);
             if (!collisionsY.isEmpty()) {
                 for (GameObject gameObject : collisionsY) {
                     if (!gameObject.isSolid()) {

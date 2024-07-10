@@ -41,7 +41,7 @@ public class ProjectileArrow extends Projectile {
 
         if (hitObject instanceof BlockCracked blockCracked) {
             blockCracked.breakBlock();
-            blockCracked.setState(blockCracked.getMaxStates());
+            //blockCracked.setState(blockCracked.getMaxStates());
         }
     }
 }

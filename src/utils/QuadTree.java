@@ -9,14 +9,14 @@ import java.util.List;
 
 public class QuadTree {
     private static final int MAX_OBJECTS = 4;
-    private static final int MAX_LEVELS = 5;
+    private static final int MAX_LEVELS = 150;
 
     private int level;
     private List<GameObject> objects;
     private CollisionBox bounds;
     private QuadTree[] nodes;
+    private boolean divided;
     public GameObject focus;
-    public boolean divided;
 
     public QuadTree(CollisionBox bounds, int level) {
         this.level = level;
@@ -38,9 +38,10 @@ public class QuadTree {
     private void split() {
         int subWidth = (int) (bounds.getWidth() / 2);
         int subHeight = (int) (bounds.getHeight() / 2);
-        int x = (int) bounds.getLocation().getX();
-        int y = (int) bounds.getLocation().getY();
+        int x = (int) bounds.getX();
+        int y = (int) bounds.getY();
 
+        divided = true;
         nodes[0] = new QuadTree(new CollisionBox(x + subWidth, y, subWidth, subHeight), level + 1);
         nodes[0].focus = focus;
         nodes[1] = new QuadTree(new CollisionBox(x, y, subWidth, subHeight), level + 1);
@@ -49,25 +50,23 @@ public class QuadTree {
         nodes[2].focus = focus;
         nodes[3] = new QuadTree(new CollisionBox(x + subWidth, y + subHeight, subWidth, subHeight), level + 1);
         nodes[3].focus = focus;
-        divided = true;
     }
 
-    private int getIndex(GameObject gameObject) {
-        CollisionBox rect = gameObject.getCollisionBox();
+    private int getIndex(CollisionBox pRect) {
         int index = -1;
-        double verticalMidpoint = bounds.getLocation().getX() + (bounds.getWidth() / 2);
-        double horizontalMidpoint = bounds.getLocation().getY() + (bounds.getHeight() / 2);
+        double verticalMidpoint = bounds.getX() + (bounds.getWidth() / 2);
+        double horizontalMidpoint = bounds.getY() + (bounds.getHeight() / 2);
 
-        boolean topQuadrant = (rect.getLocation().getY() < horizontalMidpoint && rect.getLocation().getY() + rect.getHeight() < horizontalMidpoint);
-        boolean bottomQuadrant = (rect.getLocation().getY() > horizontalMidpoint);
+        boolean topQuadrant = (pRect.getY() < horizontalMidpoint && pRect.getY() + pRect.getHeight() < horizontalMidpoint);
+        boolean bottomQuadrant = (pRect.getY() > horizontalMidpoint);
 
-        if (rect.getLocation().getX() < verticalMidpoint && rect.getLocation().getX() + rect.getWidth() < verticalMidpoint) {
+        if (pRect.getX() < verticalMidpoint && pRect.getX() + pRect.getWidth() < verticalMidpoint) {
             if (topQuadrant) {
                 index = 1;
             } else if (bottomQuadrant) {
                 index = 2;
             }
-        } else if (rect.getLocation().getX() > verticalMidpoint) {
+        } else if (pRect.getX() > verticalMidpoint) {
             if (topQuadrant) {
                 index = 0;
             } else if (bottomQuadrant) {
@@ -78,42 +77,17 @@ public class QuadTree {
         return index;
     }
 
-    private int getIndex(CollisionBox rect) {
-        int index = -1;
-        double verticalMidpoint = bounds.getLocation().getX() + (bounds.getWidth() / 2);
-        double horizontalMidpoint = bounds.getLocation().getY() + (bounds.getHeight() / 2);
-
-        boolean topQuadrant = (rect.getLocation().getY() < horizontalMidpoint && rect.getLocation().getY() + rect.getHeight() < horizontalMidpoint);
-        boolean bottomQuadrant = (rect.getLocation().getY() > horizontalMidpoint);
-
-        if (rect.getLocation().getX() < verticalMidpoint && rect.getLocation().getX() + rect.getWidth() < verticalMidpoint) {
-            if (topQuadrant) {
-                index = 1;
-            } else if (bottomQuadrant) {
-                index = 2;
-            }
-        } else if (rect.getLocation().getX() > verticalMidpoint) {
-            if (topQuadrant) {
-                index = 0;
-            } else if (bottomQuadrant) {
-                index = 3;
-            }
-        }
-
-        return index;
-    }
-
-    public void insert(GameObject rect) {
+    public void insert(GameObject gameObject) {
         if (nodes[0] != null) {
-            int index = getIndex(rect);
+            int index = getIndex(gameObject.getCollisionBox());
 
             if (index != -1) {
-                nodes[index].insert(rect);
+                nodes[index].insert(gameObject);
                 return;
             }
         }
 
-        objects.add(rect);
+        objects.add(gameObject);
 
         if (objects.size() > MAX_OBJECTS && level < MAX_LEVELS) {
             if (nodes[0] == null) {
@@ -122,7 +96,7 @@ public class QuadTree {
 
             int i = 0;
             while (i < objects.size()) {
-                int index = getIndex(objects.get(i));
+                int index = getIndex(objects.get(i).getCollisionBox());
                 if (index != -1) {
                     nodes[index].insert(objects.remove(i));
                 } else {
@@ -132,36 +106,63 @@ public class QuadTree {
         }
     }
 
-    public List<GameObject> query(CollisionBox rect) {
-        List<GameObject> returnObjects = new ArrayList<>();
-        query(returnObjects, rect);
-
+    public List<GameObject> retrieve(GameObject target) {
         List<GameObject> found = new ArrayList<>();
-        for (GameObject gameObject : returnObjects) {
-            if (rect.collidesWith(gameObject.getCollisionBox())) {
-                found.add(gameObject);
+
+        if (this.bounds.collidesWith(target)) {
+            for (GameObject gameObject : objects) {
+                if (target.equals(gameObject) || !target.getCollisionBox().collidesWith(bounds)) {
+                    continue;
+                }
+
+                if (target.getCollisionBox().collidesWith(gameObject)) {
+                    found.add(gameObject);
+                }
             }
+
+            if (divided) {
+                found.addAll(this.nodes[0].retrieve(target));
+                found.addAll(this.nodes[1].retrieve(target));
+                found.addAll(this.nodes[2].retrieve(target));
+                found.addAll(this.nodes[3].retrieve(target));
+            }
+
         }
+
         return found;
     }
 
-    private void query(List<GameObject> returnObjects, CollisionBox rect) {
-        int index = getIndex(rect);
-        if (index != -1 && nodes[0] != null) {
-            nodes[index].query(returnObjects, rect);
+    public List<GameObject> retrieve(CollisionBox target) {
+        List<GameObject> found = new ArrayList<>();
+
+        if (this.bounds.collidesWith(target)) {
+            for (GameObject gameObject : objects) {
+                if (target.equals(gameObject.getCollisionBox()) || !target.collidesWith(bounds)) {
+                    continue;
+                }
+
+                if (target.collidesWith(gameObject)) {
+                    found.add(gameObject);
+                }
+            }
+
+            if (divided) {
+                found.addAll(this.nodes[0].retrieve(target));
+                found.addAll(this.nodes[1].retrieve(target));
+                found.addAll(this.nodes[2].retrieve(target));
+                found.addAll(this.nodes[3].retrieve(target));
+            }
+
         }
 
-        returnObjects.addAll(objects);
+        return found;
     }
 
     public void render(Camera cam) {
-        //System.out.println(level + " - " + bounds.getLocation().getX() + ", " + bounds.getLocation().getY());
         cam.game.changeColor(Color.MAGENTA);
 
-        if (focus != null) {
-            if (focus.isCollidable() && focus.getCollisionBox().collidesWith(bounds)) {
-                cam.game.changeColor(Color.orange);
-            }
+        if (focus != null && focus.getCollisionBox().collidesWith(bounds)) {
+            cam.game.changeColor(Color.ORANGE);
         }
 
         //System.out.println(cam.toScreenX(boundary.getLocation().getX()) + ", " + cam.toScreenY(boundary.getLocation().getY()));
@@ -170,10 +171,11 @@ public class QuadTree {
                 bounds.getWidth(),
                 bounds.getHeight());
 
-        for (int i = 0; i < 4; i++) {
-            if (this.nodes[i] != null) {
-                this.nodes[i].render(cam);
-            }
+        if (divided) {
+            this.nodes[0].render(cam);
+            this.nodes[1].render(cam);
+            this.nodes[2].render(cam);
+            this.nodes[3].render(cam);
         }
     }
 }

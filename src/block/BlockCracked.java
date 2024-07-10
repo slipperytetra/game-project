@@ -6,12 +6,15 @@ import entity.Player;
 import level.Level;
 import level.Particle;
 import level.ParticleTypes;
+import main.Camera;
+import main.Game;
 import main.GameObject;
 import main.SoundType;
 import utils.CollisionBox;
 import utils.Location;
 import utils.Texture;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -21,76 +24,81 @@ public class BlockCracked extends BlockActive {
     private double crackCooldown = 0.5;
     private double crackTimer;
     private boolean cracking;
+    private boolean respawn;
     boolean hasCracked;
     private Random rand;
     private CollisionBox triggerBox;
+    private boolean isPressureSensitive;
+
+    private final int respawnCooldown = 7;
+    private double respawnTicks;
+    private double scale = 1;
 
     public BlockCracked(Level level, Location loc, BlockTypes type) {
         super(level, loc, type);
 
         this.rand = new Random();
         this.hasCracked = false;
+        this.respawn = true;
         this.triggerBox = new CollisionBox(getCollisionBox().getLocation().getX(), getCollisionBox().getLocation().getY() - 4,
                 getCollisionBox().getWidth(), getCollisionBox().getHeight() + 4);
         setCollidable(true);
         setIsSolid(true);
-
-        /*
-        this.setHitboxWidth(getHitboxWidth() + 4);
-        this.setHitboxHeight(getHitboxHeight() + 4);
-        setHitboxOffsetX(-2);
-        setHitboxOffsetY(-2);*/
     }
 
     @Override
     public void update(double dt) {
-        if (getState() >= getMaxStates() - 1 || getType() != BlockTypes.FOREST_GROUND_CRACKED) {
+        if (getState() >= getMaxStates() - 1 && getType() == BlockTypes.FOREST_GROUND_CRACKED) {
             return;
         }
 
         if (hasCracked) {
-            return;
+            if (!isRespawn()) {
+                return;
+            }
+
+            if (respawnTicks < respawnCooldown) {
+                respawnTicks += 1 * dt;
+                return;
+            } else {
+                reset();
+            }
         }
 
-        if (cracking) {
-            if (crackTimer < crackCooldown) {
-                crackTimer += 1 * dt;
+        if (isPressureSensitive) {
+            if (cracking) {
+                if (crackTimer < crackCooldown) {
+                    crackTimer += 1 * dt;
+                } else {
+                    crackTimer = 0;
+                    setState(getState() + 1);
+                    for (int i = 0; i < rand.nextInt(0, 3); i++) {
+                        getLevel().spawnParticle(ParticleTypes.DIRT, getCenterX() + rand.nextDouble(-14, 14), getCenterY() + rand.nextDouble(-14, 14),
+                                rand.nextDouble(-0.5, 0.5), rand.nextDouble(-1, 1));
+                    }
+
+                    if (getState() >= getMaxStates() - 1) {
+                        breakBlock();
+                    }
+                }
             } else {
-                crackTimer = 0;
-                setState(getState() + 1);
-                for (int i = 0; i < rand.nextInt(0, 3); i++) {
-                    getLevel().spawnParticle(ParticleTypes.DIRT, getCenterX() + rand.nextDouble(-14, 14) , getCenterY() + rand.nextDouble(-14, 14),
-                            rand.nextDouble(-0.5, 0.5), rand.nextDouble(-1, 1));
-                }
+                List<GameObject> collisions = getLevel().getQuadTree().retrieve(triggerBox);
 
-                if (getState() >= getMaxStates() - 1) {
-                    breakBlock();
-                }
-            }
-        } else {
-            List<GameObject> collisions = getLevel().getQuadTree().query(triggerBox);
-
-            if (!collisions.isEmpty()) {
-                for (GameObject obj : collisions) {
-                    if (obj instanceof EntityLiving) {
-                        cracking = true;
-                        getLevel().playSound(SoundType.STONE_CRACK);
+                if (!collisions.isEmpty()) {
+                    for (GameObject obj : collisions) {
+                        if (obj instanceof EntityLiving) {
+                            cracking = true;
+                            getLevel().playSound(SoundType.STONE_CRACK);
+                        }
                     }
                 }
             }
-
-            /*
-            Player p = getLevel().getPlayer();
-            if ((p.getLocation().getY() >= getLocation().getY() - p.getHitboxHeight() - 16 && p.getLocation().getY() <= getLocation().getY()) && (p.getLocation().getX() >= getLocation().getX() && p.getLocation().getX() <= getLocation().getX() + 32)) {
-                cracking = true;
-                getLevel().playSound(SoundType.STONE_CRACK);
-            }*/
         }
     }
 
     @Override
     public Texture getTexture() {
-        if (!isCollidable() && !getLevel().isEditMode()) {
+        if ((!isCollidable() && !getLevel().isEditMode())) {
             return null;
         }
 
@@ -99,11 +107,12 @@ public class BlockCracked extends BlockActive {
 
     @Override
     public boolean isCollidable() {
-        return (getMaxStates() == 1 && getState() <= 0) || getState() < getMaxStates() - 1;
+        return !hasCracked;
     }
 
     public void breakBlock() {
         hasCracked = true;
+        setState(0);
         getLevel().playSound(SoundType.STONE_CRUMBLE);
 
         for (int i = 0; i < 4; i++) {
@@ -117,5 +126,52 @@ public class BlockCracked extends BlockActive {
             particle.setTimeAlive(type.getTimeAlive() + rand.nextDouble(0, type.getTimeAlive()));
             getLevel().spawnParticle(particle);
         }
+    }
+
+    public void reset() {
+        hasCracked = false;
+        cracking = false;
+        respawnTicks = 0;
+        setState(0);
+        scale = 0;
+    }
+
+    public boolean isPressureSensitive() {
+        return isPressureSensitive;
+    }
+
+    public void setIsPressureSensitive(boolean isPressureSensitive) {
+        this.isPressureSensitive = isPressureSensitive;
+    }
+
+    @Override
+    public void render(Camera cam) {
+        if (getTexture() == null) {
+            return;
+        }
+
+        if (scale < 1) {
+            scale += 0.1;
+            if (scale > 1) {
+                scale = 1;
+            }
+        }
+
+        double offset = 16 * (1 - scale);
+
+        cam.game.drawImage(getTexture().getImage(), cam.toScreenX(getLocation().getX() + offset) , cam.toScreenY(getLocation().getY() + offset) , Game.BLOCK_SIZE * scale, Game.BLOCK_SIZE * scale);
+
+        if (cam.debugMode) {
+            cam.game.changeColor(Color.GREEN);
+            cam.game.drawRectangle(cam.toScreenX(getCollisionBox().getLocation().getX()) , cam.toScreenY(getCollisionBox().getLocation().getY()) , getCollisionBox().getWidth() , getCollisionBox().getHeight() );
+        }
+    }
+
+    public boolean isRespawn() {
+        return respawn;
+    }
+
+    public void setRespawn(boolean isRespawn) {
+        this.respawn = isRespawn;
     }
 }
