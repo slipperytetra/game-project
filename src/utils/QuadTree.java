@@ -8,175 +8,172 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuadTree {
+    private static final int MAX_OBJECTS = 4;
+    private static final int MAX_LEVELS = 5;
 
-    private CollisionBox boundary;
-    private int capacity;
-    public List<GameObject> gameObjects;
-    private boolean divided;
-
-    private QuadTree northEast, northWest, southEast, southWest;
-
+    private int level;
+    private List<GameObject> objects;
+    private CollisionBox bounds;
+    private QuadTree[] nodes;
     public GameObject focus;
+    public boolean divided;
 
-    public QuadTree(CollisionBox boundary, int capacity) {
-        this.boundary = boundary;
-        this.capacity = capacity;
-        this.gameObjects = new ArrayList<>();
+    public QuadTree(CollisionBox bounds, int level) {
+        this.level = level;
+        this.objects = new ArrayList<>();
+        this.bounds = bounds;
+        this.nodes = new QuadTree[4];
     }
 
-    public boolean insert(GameObject gameObject) {
-        //if (!gameObject.getLocation().isBetween(boundary.getLocation(), boundary.getCorner())) {
-        if (!this.boundary.collidesWith(gameObject.getCollisionBox())) {
-            return false;
+    public void clear() {
+        objects.clear();
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] != null) {
+                nodes[i].clear();
+                nodes[i] = null;
+            }
+        }
+    }
+
+    private void split() {
+        int subWidth = (int) (bounds.getWidth() / 2);
+        int subHeight = (int) (bounds.getHeight() / 2);
+        int x = (int) bounds.getLocation().getX();
+        int y = (int) bounds.getLocation().getY();
+
+        nodes[0] = new QuadTree(new CollisionBox(x + subWidth, y, subWidth, subHeight), level + 1);
+        nodes[0].focus = focus;
+        nodes[1] = new QuadTree(new CollisionBox(x, y, subWidth, subHeight), level + 1);
+        nodes[1].focus = focus;
+        nodes[2] = new QuadTree(new CollisionBox(x, y + subHeight, subWidth, subHeight), level + 1);
+        nodes[2].focus = focus;
+        nodes[3] = new QuadTree(new CollisionBox(x + subWidth, y + subHeight, subWidth, subHeight), level + 1);
+        nodes[3].focus = focus;
+        divided = true;
+    }
+
+    private int getIndex(GameObject gameObject) {
+        CollisionBox rect = gameObject.getCollisionBox();
+        int index = -1;
+        double verticalMidpoint = bounds.getLocation().getX() + (bounds.getWidth() / 2);
+        double horizontalMidpoint = bounds.getLocation().getY() + (bounds.getHeight() / 2);
+
+        boolean topQuadrant = (rect.getLocation().getY() < horizontalMidpoint && rect.getLocation().getY() + rect.getHeight() < horizontalMidpoint);
+        boolean bottomQuadrant = (rect.getLocation().getY() > horizontalMidpoint);
+
+        if (rect.getLocation().getX() < verticalMidpoint && rect.getLocation().getX() + rect.getWidth() < verticalMidpoint) {
+            if (topQuadrant) {
+                index = 1;
+            } else if (bottomQuadrant) {
+                index = 2;
+            }
+        } else if (rect.getLocation().getX() > verticalMidpoint) {
+            if (topQuadrant) {
+                index = 0;
+            } else if (bottomQuadrant) {
+                index = 3;
+            }
         }
 
-        if (this.gameObjects.size() < this.capacity) {
-            this.gameObjects.add(gameObject);
-            return true;
-        } else {
-            if (!divided) {
-                this.subdivide();
+        return index;
+    }
+
+    private int getIndex(CollisionBox rect) {
+        int index = -1;
+        double verticalMidpoint = bounds.getLocation().getX() + (bounds.getWidth() / 2);
+        double horizontalMidpoint = bounds.getLocation().getY() + (bounds.getHeight() / 2);
+
+        boolean topQuadrant = (rect.getLocation().getY() < horizontalMidpoint && rect.getLocation().getY() + rect.getHeight() < horizontalMidpoint);
+        boolean bottomQuadrant = (rect.getLocation().getY() > horizontalMidpoint);
+
+        if (rect.getLocation().getX() < verticalMidpoint && rect.getLocation().getX() + rect.getWidth() < verticalMidpoint) {
+            if (topQuadrant) {
+                index = 1;
+            } else if (bottomQuadrant) {
+                index = 2;
+            }
+        } else if (rect.getLocation().getX() > verticalMidpoint) {
+            if (topQuadrant) {
+                index = 0;
+            } else if (bottomQuadrant) {
+                index = 3;
+            }
+        }
+
+        return index;
+    }
+
+    public void insert(GameObject rect) {
+        if (nodes[0] != null) {
+            int index = getIndex(rect);
+
+            if (index != -1) {
+                nodes[index].insert(rect);
+                return;
+            }
+        }
+
+        objects.add(rect);
+
+        if (objects.size() > MAX_OBJECTS && level < MAX_LEVELS) {
+            if (nodes[0] == null) {
+                split();
             }
 
-            if (this.northEast.insert(gameObject)) {
-                return true;
-            } else if (this.northWest.insert(gameObject)) {
-                return true;
-            } else if (this.southEast.insert(gameObject)) {
-                return true;
-            } else return this.southWest.insert(gameObject);
+            int i = 0;
+            while (i < objects.size()) {
+                int index = getIndex(objects.get(i));
+                if (index != -1) {
+                    nodes[index].insert(objects.remove(i));
+                } else {
+                    i++;
+                }
+            }
         }
     }
 
-    public void subdivide() {
-        double x = boundary.getLocation().getX() - 1;
-        double y = boundary.getLocation().getY() - 1;
-        double w = boundary.getWidth();
-        double h = boundary.getHeight();
+    public List<GameObject> query(CollisionBox rect) {
+        List<GameObject> returnObjects = new ArrayList<>();
+        query(returnObjects, rect);
 
-        CollisionBox nw = new CollisionBox(x, y, (w/2) + 2, (h/2) + 2);
-        northWest = new QuadTree(nw, capacity);
-        northWest.focus = focus;
-
-        CollisionBox ne = new CollisionBox(x + (w/2), y, (w/2) + 2, (h/2) + 2);
-        northEast = new QuadTree(ne, capacity);
-        northEast.focus = focus;
-
-        CollisionBox sw = new CollisionBox(x, y + (h/2), (w/2) + 2, (h/2) + 2);
-        southWest = new QuadTree(sw, capacity);
-        southWest.focus = focus;
-
-        CollisionBox se = new CollisionBox(x + (w/2), y + (h/2), (w/2) + 2, (h/2) + 2);
-        southEast = new QuadTree(se, capacity);
-        southEast.focus = focus;
-
-
-/*
-        CollisionBox nw = new CollisionBox(x, y, w/2, h/2);
-        northWest = new QuadTree(nw, capacity);
-        northWest.focus = focus;
-
-        CollisionBox ne = new CollisionBox(x + (w/2), y, w/2, h/2);
-        northEast = new QuadTree(ne, capacity);
-        northEast.focus = focus;
-
-        CollisionBox sw = new CollisionBox(x, y + (h/2), w/2, h/2);
-        southWest = new QuadTree(sw, capacity);
-        southWest.focus = focus;
-
-        CollisionBox se = new CollisionBox(x + (w/2), y + (h/2), w/2, h/2);
-        southEast = new QuadTree(se, capacity);
-        southEast.focus = focus;*/
-
-        this.divided = true;
-    }
-
-    public List<GameObject> query(GameObject target) {
         List<GameObject> found = new ArrayList<>();
-
-        if (this.boundary.collidesWith(target)) {
-            for (GameObject gameObject : gameObjects) {
-                if (target.equals(gameObject)) {
-                    continue;
-                }
-
-                if (target.getCollisionBox().collidesWith(gameObject)) {
-                    found.add(gameObject);
-                }
+        for (GameObject gameObject : returnObjects) {
+            if (rect.collidesWith(gameObject.getCollisionBox())) {
+                found.add(gameObject);
             }
-
-            if (divided) {
-                found.addAll(this.northWest.query(target));
-                found.addAll(this.northEast.query(target));
-                found.addAll(this.southWest.query(target));
-                found.addAll(this.southEast.query(target));
-            }
-
         }
-
         return found;
     }
 
-    public List<GameObject> query(GameObject target, CollisionBox box) {
-        List<GameObject> found = new ArrayList<>();
-
-        if (this.boundary.collidesWith(box)) {
-            for (GameObject gameObject : gameObjects) {
-                if (target.equals(gameObject)) {
-                    continue;
-                }
-
-                if (box.collidesWith(gameObject)) {
-                    found.add(gameObject);
-                }
-            }
-
-            if (divided) {
-                found.addAll(this.northWest.query(target, box));
-                found.addAll(this.northEast.query(target, box));
-                found.addAll(this.southWest.query(target, box));
-                found.addAll(this.southEast.query(target, box));
-            }
-
+    private void query(List<GameObject> returnObjects, CollisionBox rect) {
+        int index = getIndex(rect);
+        if (index != -1 && nodes[0] != null) {
+            nodes[index].query(returnObjects, rect);
         }
 
-        return found;
-    }
-
-    public GameObject querySingle(GameObject target) {
-        if (!this.boundary.collidesWith(target)) {
-            return null;
-        } else {
-            for (GameObject gameObject : gameObjects) {
-                if (target.getCollisionBox().collidesWith(gameObject)) {
-                    return gameObject;
-                }
-            }
-        }
-
-        return null;
+        returnObjects.addAll(objects);
     }
 
     public void render(Camera cam) {
+        //System.out.println(level + " - " + bounds.getLocation().getX() + ", " + bounds.getLocation().getY());
         cam.game.changeColor(Color.MAGENTA);
 
         if (focus != null) {
-            if (focus.isCollidable() && focus.getCollisionBox().collidesWith(boundary)) {
+            if (focus.isCollidable() && focus.getCollisionBox().collidesWith(bounds)) {
                 cam.game.changeColor(Color.orange);
             }
         }
 
         //System.out.println(cam.toScreenX(boundary.getLocation().getX()) + ", " + cam.toScreenY(boundary.getLocation().getY()));
-        cam.game.drawRectangle(cam.toScreenX(boundary.getLocation().getX()),
-                cam.toScreenY(boundary.getLocation().getY()),
-                boundary.getWidth(),
-                boundary.getHeight());
+        cam.game.drawRectangle(cam.toScreenX(bounds.getLocation().getX()),
+                cam.toScreenY(bounds.getLocation().getY()),
+                bounds.getWidth(),
+                bounds.getHeight());
 
-        if (divided) {
-            this.northWest.render(cam);
-            this.northEast.render(cam);
-            this.southWest.render(cam);
-            this.southEast.render(cam);
+        for (int i = 0; i < 4; i++) {
+            if (this.nodes[i] != null) {
+                this.nodes[i].render(cam);
+            }
         }
     }
 }

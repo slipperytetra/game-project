@@ -10,6 +10,7 @@ import utils.Location;
 import utils.Texture;
 import utils.Vector;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -150,7 +151,7 @@ public abstract class Entity extends GameObject {
                 return;
             }
 
-            this.collisionsX = getLevel().getQuadTree().query(this, cBox);
+            collisionsX = getLevel().getQuadTree().query(cBox);
             if (!collisionsX.isEmpty()) {
                 for (GameObject gameObject : collisionsX) {
                     if (!gameObject.isSolid()) {
@@ -192,7 +193,14 @@ public abstract class Entity extends GameObject {
 
             tempBoxX = cBox;
 
-            this.collisionsY = getLevel().getQuadTree().query(this, tempBoxX);
+            this.collisionsY = getLevel().getQuadTree().query(tempBoxX);
+            /*if (this instanceof Player) {
+                int count = 0;
+                for (GameObject gobj : collisionsY) {
+                    System.out.println(count + ": " + gobj);
+                    count++;
+                }
+            }*/
             if (!collisionsY.isEmpty()) {
                 for (GameObject gameObject : collisionsY) {
                     if (!gameObject.isSolid()) {

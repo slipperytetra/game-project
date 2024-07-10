@@ -313,6 +313,7 @@ public class Camera {
      *   It also displays all the debug information which is useful when making the game or testing features.
      * */
     public void renderUI() {
+        game.drawText(25, 120, "fps: " + currentFps, "Serif", 20);
         if (Game.isPaused) {
             game.changeColor(Color.orange);
             game.drawText((game.width() / 2) - 100, game.height() / 2, "Paused", 75);

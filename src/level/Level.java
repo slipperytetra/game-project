@@ -174,6 +174,7 @@ public class Level {
                     } else if (type == BlockTypes.PLAYER_SPAWN) {
                         block = new BlockSpawnPoint(this, spawnLoc);
                         spawnPoint = new Location(block.getLocation());
+                        spawnPoint.setY(spawnPoint.getY() - getManager().getEngine().getTextureBank().getTexture("player").getHeight() + Game.BLOCK_SIZE);
                     }
 
                     //System.out.println("Set block at " + x + ", " + y + " to " + block.getType().toString());
@@ -282,7 +283,7 @@ public class Level {
             }
         }*/
 
-        //this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
+        this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
         createImage();
     }
 
@@ -592,7 +593,7 @@ public class Level {
 
     private void updateQuadTree(double dt) {
         this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
-        this.qtree.focus = getPlayer();
+        //this.qtree.focus = getPlayer();
 
         this.qtree.insert(getPlayer());
 

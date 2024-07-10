@@ -12,6 +12,7 @@ import utils.CollisionBox;
 import utils.Location;
 import utils.Texture;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -67,7 +68,7 @@ public class BlockCracked extends BlockActive {
                 }
             }
         } else {
-            List<GameObject> collisions = getLevel().getQuadTree().query(this, triggerBox);
+            List<GameObject> collisions = getLevel().getQuadTree().query(triggerBox);
 
             if (!collisions.isEmpty()) {
                 for (GameObject obj : collisions) {
