@@ -13,6 +13,7 @@ public enum DecorationTypes {
     TALL_GRASS("resources/images/blocks/decorations/tall_grass.png"),
     FOG("resources/images/blocks/decorations/fog.png", 1),
     BUSH("resources/images/blocks/decorations/bush.png", 2),
+    LIGHT_SHAFT("resources/images/blocks/decorations/light_shaft.png", 1),
     TREE("resources/images/blocks/decorations/tree.png", 2),
     FIREFLIES("resources/images/blocks/decorations/fireflies/fireflies_", 0.75, 75, 75, 2, true, 90, 12),
     OLD_BRICK_WALL("resources/images/blocks/decorations/old_brick_wall.png", 2),

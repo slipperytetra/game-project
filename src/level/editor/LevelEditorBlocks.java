@@ -1,9 +1,6 @@
 package level.editor;
 
-import block.Block;
-import block.BlockCracked;
-import block.BlockSet;
-import block.BlockTypes;
+import block.*;
 import level.Level;
 import main.Camera;
 import main.SoundType;
@@ -69,8 +66,14 @@ public class LevelEditorBlocks extends LevelEditor {
                     BlockSet b = new BlockSet(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
                     getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
                 }
+            } else if (type == BlockTypes.FOREST_STONE) {
+                BlockSet b = new BlockSet(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
+                getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
             } else if (type == BlockTypes.FOREST_CRACKED_WALL) {
                 BlockCracked b = new BlockCracked(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
+                getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
+            } else if (type == BlockTypes.GEYSER) {
+                BlockGeyser b = new BlockGeyser(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
                 getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
             } else {
                 Block b = new Block(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);

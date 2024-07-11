@@ -2,9 +2,12 @@ package level;
 
 
 import main.Camera;
+import main.Game;
 import utils.Location;
 import utils.Texture;
+import utils.TextureAnimated;
 
+import java.awt.image.BufferedImage;
 import java.util.Random;
 
 
@@ -20,10 +23,15 @@ public class Particle {
     double opacity;
     double size;
     double offsetX, offsetY;
+    double forceX, forceY;
     double velX, velY;
-    final double speed = 32; //pixels per second
+    final double speed = 32; //pixels per secondw
     double initialSize;
     double scale;
+    double rotation;
+
+    private final double GRAVITY = 32 * Game.BLOCK_SIZE;
+
     public Particle(ParticleTypes type, Location spawnLoc, Level level){
         this.loc = spawnLoc;
         this.timeAlive = type.getTimeAlive();
@@ -34,8 +42,8 @@ public class Particle {
         this.isActive = true;
         this.ticksAlive = 0;
         this.opacity = 1.0;
-        this.velX = getType().getVelX();
-        this.velY = getType().getVelY();
+        this.velX = getType().getVelX() * Game.BLOCK_SIZE;
+        this.velY = getType().getVelY() * Game.BLOCK_SIZE;
         this.scale = 1.0;
         this.size = 32;
         if (type.getMinSize() > -1 && type.getMaxSize() > -1) {
@@ -59,6 +67,7 @@ public class Particle {
         this.initialSize = size;
         this.loc.setX(loc.getX() - ((image.getWidth() * scale) / 2));
         this.loc.setY(loc.getY() - ((image.getHeight() * scale) / 2));
+
     }
 
   public void update(double dt){
@@ -80,17 +89,16 @@ public class Particle {
             setActive(false);
         }
 
-        if (getVelX() != 0) {
-            this.loc.setX(loc.getX() + ((getVelX() * speed) * dt));
-        }
 
         if (getVelY() != 0 || type.hasGravity()) {
             if (type.hasGravity()) {
-                this.loc.setY(loc.getY() + ((getVelY() * speed + 128) * dt));
-            } else {
-                this.loc.setY(loc.getY() + ((getVelY() * speed) * dt));
+                setVelY(getVelY() + (GRAVITY * dt));
             }
         }
+
+
+          this.loc.setX(loc.getX() + (getVelX() * dt));
+          this.loc.setY(loc.getY() + (getVelY() * dt));
     }
 
     public void render(Camera cam){
@@ -101,9 +109,25 @@ public class Particle {
         image.setFlipped(isFlipped);
 
         if (type.isFadeOut()) {
-            cam.game.drawImage(image.getImage(), camLocX , camLocY , size , size , (float) opacity);
+            if (image instanceof TextureAnimated textA) {
+                BufferedImage img = textA.getFrame((int)ticksAlive);
+                if (img == null) {
+                    return;
+                }
+                cam.game.drawImage(img, camLocX, camLocY, size, size, (float) opacity);
+            } else {
+                cam.game.drawImage(image.getImage(), camLocX, camLocY, size, size, (float) opacity);
+            }
         } else {
-            cam.game.drawImage(image.getImage(), camLocX , camLocY , size , size );
+            if (image instanceof TextureAnimated textA) {
+                BufferedImage img = textA.getFrame((int)ticksAlive);
+                if (img == null) {
+                    return;
+                }
+                cam.game.drawImage(img, camLocX, camLocY, size, size);
+            } else {
+                cam.game.drawImage(image.getImage(), camLocX, camLocY, size, size);
+            }
         }
     }
 
@@ -127,12 +151,13 @@ public class Particle {
         this.timeAlive = timeAlive;
     }
 
+
     public double getVelX() {
         return velX;
     }
 
     public void setVelX(double velX) {
-        this.velX = velX;
+        this.velX = velX * Game.BLOCK_SIZE;
     }
 
     public double getVelY() {
@@ -149,5 +174,9 @@ public class Particle {
 
     public void setFlipped(boolean isFlipped) {
         this.isFlipped = isFlipped;
+    }
+
+    public Location getLocation() {
+        return loc;
     }
 }

@@ -73,4 +73,12 @@ public class TextureAnimated extends Texture {
     public void setFrameIndex(int index) {
         this.frameCounter = index;
     }
+
+    public BufferedImage getFrame(int frame) {
+        if (frame < 0 || frame >= getFrames().length) {
+            return null;
+        }
+
+        return frames[frame];
+    }
 }

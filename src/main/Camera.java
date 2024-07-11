@@ -426,9 +426,11 @@ public class Camera {
 
     public void renderFX(){
         DEBUG_PARTICLES_ON_SCREEN = 0;
-        for (Particle particle : game.getActiveLevel().getParticles()){
-            particle.render(this);
-            DEBUG_PARTICLES_ON_SCREEN++;
+        for (Particle particle : game.getActiveLevel().getParticles()) {
+            if (particle.getLocation().isBetween(getPoint1(), getPoint2())) {
+                particle.render(this);
+                DEBUG_PARTICLES_ON_SCREEN++;
+            }
         }
 
         if (game.getTextureBank().getTexture("overlay") != null) {

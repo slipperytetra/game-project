@@ -33,7 +33,7 @@ public class BlockSet extends Block {
                 block = grid.getBlockAt((int) tileX , (int) tileY);
             }
 
-            if (block == null || block.getType() == this.getType() || block.getType() == BlockTypes.FOREST_GROUND_CRACKED || block.getType() == BlockTypes.FOREST_CRACKED_WALL) {
+            if (block == null || block.getType() == this.getType() || block.getType() == BlockTypes.FOREST_GROUND_CRACKED || block.getType() == BlockTypes.FOREST_CRACKED_WALL || block.getType() == BlockTypes.FOREST_STONE) {
                 setState(getState() + dir.value());
             }
 

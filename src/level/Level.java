@@ -157,7 +157,7 @@ public class Level {
                 if (blockKeyMap.containsKey(key)) {
                     BlockTypes type = blockKeyMap.get(key);
                     Block block = new Block(this, spawnLoc, blockKeyMap.get(key));
-                    if (type == BlockTypes.FOREST_GROUND) {
+                    if (type == BlockTypes.FOREST_GROUND || type == BlockTypes.FOREST_STONE) {
                         block = new BlockSet(this, spawnLoc, type);
                     } else if (type == BlockTypes.FOREST_GROUND_CRACKED || type == BlockTypes.FOREST_CRACKED_WALL) {
                         block = new BlockCracked(this, spawnLoc, type);
@@ -174,6 +174,8 @@ public class Level {
                         block = new BlockLiquid(this, spawnLoc, type);
                     } else if (type == BlockTypes.LAVA) {
                         block = new BlockLiquid(this, spawnLoc, type);
+                    } else if (type == BlockTypes.GEYSER) {
+                        block = new BlockGeyser(this, spawnLoc, type);
                     } else if (type == BlockTypes.PLAYER_SPAWN) {
                         block = new BlockSpawnPoint(this, spawnLoc);
                         spawnPoint = new Location(block.getLocation());

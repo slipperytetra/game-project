@@ -37,7 +37,17 @@ public class TextureBank {
         }
 
         for (ParticleTypes particleType : ParticleTypes.values()) {
-            addTexture(particleType.toString().toLowerCase(), new Texture((BufferedImage) game.loadImage(particleType.getFilePath())));
+            if (particleType == ParticleTypes.SMOKE) {
+                addTexture("smoke",  new TextureAnimated(new BufferedImage[]{
+                        (BufferedImage) game.loadImage("resources/images/particles/smoke_0.png"),
+                        (BufferedImage) game.loadImage("resources/images/particles/smoke_1.png"),
+                        (BufferedImage) game.loadImage("resources/images/particles/smoke_2.png"),
+                        (BufferedImage) game.loadImage("resources/images/particles/smoke_3.png"),
+                        (BufferedImage) game.loadImage("resources/images/particles/smoke_4.png")
+                }, 1, true));
+            } else {
+                addTexture(particleType.toString().toLowerCase(), new Texture((BufferedImage) game.loadImage(particleType.getFilePath())));
+            }
         }
 
         for (ItemType itemType : ItemType.values()) {

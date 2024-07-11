@@ -4,6 +4,8 @@ public enum ParticleTypes {
 
     ARROW_TRAIL("resources/images/particles/arrow_trail.png", 0.75, 0.25, false),
     CLOUD("resources/images/particles/cloud.png", 1,0.5, 0.75, 4, true),
+    SMOKE("resources/images/particles/smoke.png", 5, 0.5,1, 4, true, 0, -1),
+    LAVA_BLOB("resources/images/particles/lava_blob.png", 1, 1, false),
     LEAF("resources/images/particles/leaf.png", 3,0.25, 0.5, 32, true, 0, 1),
     IMPACT("resources/images/particles/impact.png", 0.15, 1.5, false),
     DIRT("resources/images/particles/dirt.png", 0.75, 0.25, false),
@@ -97,11 +99,11 @@ public enum ParticleTypes {
 
     public boolean isShrink() {
         return this == ParticleTypes.ARROW_TRAIL || this == ParticleTypes.IMPACT || this == ParticleTypes.GROUND_CRACKED_0 || this == ParticleTypes.GROUND_CRACKED_1
-                || this == ParticleTypes.GROUND_CRACKED_2 || this == ParticleTypes.GROUND_CRACKED_3;
+                || this == ParticleTypes.GROUND_CRACKED_2 || this == ParticleTypes.GROUND_CRACKED_3 || this == LAVA_BLOB;
     }
 
     public boolean hasGravity() {
         return this == ParticleTypes.DIRT || this == ParticleTypes.GROUND_CRACKED_0 || this == ParticleTypes.GROUND_CRACKED_1
-                || this == ParticleTypes.GROUND_CRACKED_2 || this == ParticleTypes.GROUND_CRACKED_3;
+                || this == ParticleTypes.GROUND_CRACKED_2 || this == ParticleTypes.GROUND_CRACKED_3 || this == ParticleTypes.LAVA_BLOB;
     }
 }
