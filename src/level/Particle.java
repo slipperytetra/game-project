@@ -7,6 +7,8 @@ import utils.Location;
 import utils.Texture;
 import utils.TextureAnimated;
 
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
@@ -69,8 +71,7 @@ public class Particle {
         this.loc.setY(loc.getY() - ((image.getHeight() * scale) / 2));
 
     }
-
-  public void update(double dt){
+    public void update(double dt){
         if (!isActive) {
             return;
         }
@@ -97,8 +98,12 @@ public class Particle {
         }
 
 
-          this.loc.setX(loc.getX() + (getVelX() * dt));
-          this.loc.setY(loc.getY() + (getVelY() * dt));
+        if (getType() == ParticleTypes.SMOKE) {
+            rotation += 1.5 * dt;
+        }
+
+        this.loc.setX(loc.getX() + (getVelX() * dt));
+        this.loc.setY(loc.getY() + (getVelY() * dt));
     }
 
     public void render(Camera cam){
@@ -108,27 +113,32 @@ public class Particle {
 
         image.setFlipped(isFlipped);
 
-        if (type.isFadeOut()) {
-            if (image instanceof TextureAnimated textA) {
-                BufferedImage img = textA.getFrame((int)ticksAlive);
-                if (img == null) {
-                    return;
-                }
-                cam.game.drawImage(img, camLocX, camLocY, size, size, (float) opacity);
-            } else {
-                cam.game.drawImage(image.getImage(), camLocX, camLocY, size, size, (float) opacity);
-            }
-        } else {
-            if (image instanceof TextureAnimated textA) {
-                BufferedImage img = textA.getFrame((int)ticksAlive);
-                if (img == null) {
-                    return;
-                }
-                cam.game.drawImage(img, camLocX, camLocY, size, size);
-            } else {
-                cam.game.drawImage(image.getImage(), camLocX, camLocY, size, size);
-            }
+        BufferedImage img = image.getImage();
+        if (image instanceof TextureAnimated textA) {
+            img = textA.getFrame((int)ticksAlive);
         }
+
+        if (img == null) {
+            return;
+        }
+
+        Graphics2D g2d = cam.game.mGraphics;
+        AffineTransform oldTrans = g2d.getTransform();
+        g2d.translate(camLocX, camLocY);
+        if (rotation != 0) {
+            g2d.rotate(rotation, size / 2, size / 2);
+        }
+        //g2d.scale(scale, scale);
+        //g2d.drawImage(img, 0, 0, null);
+
+        if (type.isFadeOut()) {
+            drawImage(g2d, img, (float) opacity);
+            //cam.game.drawImage(img, camLocX, camLocY, size, size, (float) opacity);
+        } else {
+            drawImage(g2d, img, 1f);
+            //cam.game.drawImage(img, camLocX, camLocY, size, size);
+        }
+        g2d.setTransform(oldTrans);
     }
 
     public ParticleTypes getType() {
@@ -178,5 +188,22 @@ public class Particle {
 
     public Location getLocation() {
         return loc;
+    }
+
+
+    private void drawImage(Graphics2D g2d, BufferedImage img, float opacity) {
+        if (opacity < 0) {
+            opacity = 0;
+        }
+
+        if (opacity < 1) {
+            AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity);
+            g2d.setComposite(ac);
+            g2d.drawImage(img, 0, 0, (int)size, (int)size, null,null);
+            ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
+            g2d.setComposite(ac);
+        } else {
+            g2d.drawImage(img, 0, 0, (int)size, (int)size, null,null);
+        }
     }
 }

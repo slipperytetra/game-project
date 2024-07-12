@@ -34,18 +34,17 @@ public class BlockGeyser extends BlockActive {
         this.rand = new Random();
         this.triggerBox = new CollisionBox(getCollisionBox().getLocation().getX() - ((double)Game.BLOCK_SIZE / 2), getCollisionBox().getLocation().getY() - (Game.BLOCK_SIZE * 4),
                 getCollisionBox().getWidth() + Game.BLOCK_SIZE, getCollisionBox().getHeight() + (Game.BLOCK_SIZE * 3));
+        this.eruptTicks = rand.nextInt(0, (int)eruptRate);
     }
 
     @Override
     public void update(double dt) {
-        if (eruptingCounter <= 0) {
             if (particleTicks < particleRate) {
                 particleTicks += 1 * dt;
             } else {
                 getLevel().spawnParticle(ParticleTypes.SMOKE, getCenterX(), getLocation().getY() + 16);
                 particleTicks = 0;
             }
-        }
 
         if (eruptTicks < eruptRate) {
             eruptTicks += 1 * dt;

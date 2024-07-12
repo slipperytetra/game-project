@@ -9,10 +9,10 @@ public enum ParticleTypes {
     LEAF("resources/images/particles/leaf.png", 3,0.25, 0.5, 32, true, 0, 1),
     IMPACT("resources/images/particles/impact.png", 0.15, 1.5, false),
     DIRT("resources/images/particles/dirt.png", 0.75, 0.25, false),
-    GROUND_CRACKED_0("resources/images/particles/ground_cracked_0.png", 0.75, 1,1, 0, false, -1, -1),
-    GROUND_CRACKED_1("resources/images/particles/ground_cracked_1.png", 0.75, 1,1, 0, false, 1, -1),
-    GROUND_CRACKED_2("resources/images/particles/ground_cracked_2.png", 0.75, 1,1, 0, false, -1, 1),
-    GROUND_CRACKED_3("resources/images/particles/ground_cracked_3.png", 0.75, 1,1, 0, false, 1, 1);
+    GROUND_CRACKED_0("resources/images/particles/ground_cracked_0.png", 0.75, 1,1, 0, false, -1, 0),
+    GROUND_CRACKED_1("resources/images/particles/ground_cracked_1.png", 0.75, 1,1, 0, false, 1, 0),
+    GROUND_CRACKED_2("resources/images/particles/ground_cracked_2.png", 0.75, 1,1, 0, false, -1, 0),
+    GROUND_CRACKED_3("resources/images/particles/ground_cracked_3.png", 0.75, 1,1, 0, false, 1, 0);
 
     private final String filePath;
     private final double timeAlive;

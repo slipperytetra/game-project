@@ -2,11 +2,14 @@ package entity;
 
 import level.Level;
 import main.*;
+import org.w3c.dom.Text;
 import utils.Location;
+import utils.Texture;
 import utils.TextureAnimated;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 public abstract class EntityLiving extends Entity {
 
@@ -20,6 +23,11 @@ public abstract class EntityLiving extends Entity {
     private double attackCounter;
     public double attackSearchTicks;
     public double ATTACK_SEARCH_COOLDOWN = 1.0;
+
+    public final Color tint = new Color(255, 85, 85);
+
+    private final double hurtCooldown = 0.25;
+    private double hurtTicks;
 
     public EntityLiving(EntityType type, Level level, Location loc) {
         super(type, level, loc);
@@ -48,6 +56,10 @@ public abstract class EntityLiving extends Entity {
 
         if (attackCounter < getAttackCooldown()) {
             attackCounter += 1 * dt;
+        }
+
+        if (getHurtTicks() > 0) {
+            hurtTicks -= 1 * dt;
         }
     }
 
@@ -164,17 +176,29 @@ public abstract class EntityLiving extends Entity {
     }
 
     public void damage(EntityLiving attacker, boolean playSound) {
+        if (getHurtTicks() > 0) {
+            return;
+        }
+
         setHealth(getHealth() - attacker.getDamage());
         if (getHitSound() != null && playSound) {
             getLevel().getManager().getEngine().getAudioBank().playSound(getHitSound());
         }
+
+        setHurtTicks(getHurtCooldown());
     }
 
     public void damage(int damage, boolean playSound) {
+        if (getHurtTicks() > 0) {
+            return;
+        }
+
         setHealth(getHealth() - damage);
         if (getHitSound() != null && playSound) {
             getLevel().getManager().getEngine().getAudioBank().playSound(getHitSound());
         }
+
+        setHurtTicks(getHurtCooldown());
     }
 
     public void setAttackCooldown(double cooldown) {
@@ -235,5 +259,58 @@ public abstract class EntityLiving extends Entity {
         }
 
         return super.isActive();
+    }
+
+    @Override
+    public Texture getActiveFrame() {
+        if (getHurtTicks() < getHurtCooldown()) {
+            Texture texture = getIdleFrame();
+            int width = texture.getWidth();
+            int height = texture.getHeight();
+
+            // Create a new BufferedImage with the same dimensions and type as the original
+            BufferedImage tintedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+            // Manipulate pixels to apply tint
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    // Get RGB color of the pixel
+                    int rgb = tintedImage.getRGB(x, y);
+
+                    // Apply tinting by combining the pixel's color with the tint color
+                    int red = (rgb >> 16) & 0xFF; // Red component
+                    int green = (rgb >> 8) & 0xFF; // Green component
+                    int blue = rgb & 0xFF; // Blue component
+
+                    // Tint calculation
+                    red = (int) (red * tint.getRed() / 255.0);
+                    green = (int) (green * tint.getGreen() / 255.0);
+                    blue = (int) (blue * tint.getBlue() / 255.0);
+
+                    // Update RGB value with tint
+                    rgb = (rgb & 0xFF000000) | (red << 16) | (green << 8) | blue;
+
+                    // Set the updated pixel color in tintedImage
+                    tintedImage.setRGB(x, y, rgb);
+                }
+            }
+
+            //System.out.println("returning tinted img");
+            return new Texture(tintedImage);
+        }
+
+        return getIdleFrame();
+    }
+
+    public double getHurtTicks() {
+        return hurtTicks;
+    }
+
+    public void setHurtTicks(double hurtTicks) {
+        this.hurtTicks = hurtTicks;
+    }
+
+    public double getHurtCooldown() {
+        return hurtCooldown;
     }
 }
