@@ -207,6 +207,8 @@ public class Level {
                         entity = new EnemyBee(this, spawnLoc);
                     } else if (type == EntityType.ARROW_BUNDLE) {
                         entity = new ItemArrowBundle(this, spawnLoc);
+                    } else if (type == EntityType.MUSHROOM_SPAWN) {
+                        entity = new EntityMushroomSpawn(this, spawnLoc);
                     } else if (type == EntityType.KEY) {
                         keyLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
                         entity = new ItemKey(this, spawnLoc);
@@ -352,6 +354,16 @@ public class Level {
                 spotLight.update(dt);
             } else {
                 iterLight.remove();
+            }
+        }
+
+        for (int x = getCamera().getPoint1().getTileX(); x < getCamera().getPoint2().getTileX(); x++) {
+            for (int y = getCamera().getPoint1().getTileY(); y < getCamera().getPoint2().getTileY(); y++) {
+                Block block = getBlockGrid().getBlockAt(x, y);
+
+                if (block != null && block.isActive()) {
+                    block.update(dt);
+                }
             }
         }
 
@@ -612,10 +624,6 @@ public class Level {
             for (int by = 0; by < getBlockGrid().getHeight(); by++) {
                 Block blk = getBlockGrid().getBlockAt(bx, by);
 
-                if (blk instanceof BlockActive activeBlock) {
-                    activeBlock.update(dt);
-                }
-
                 if (blk.isCollidable()) {
                     this.qtree.insert(blk);
                 }
@@ -709,5 +717,9 @@ public class Level {
                 break;
             }
         }
+    }
+
+    public Camera getCamera() {
+        return getManager().getEngine().getCamera();
     }
 }

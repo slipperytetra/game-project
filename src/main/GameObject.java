@@ -74,6 +74,10 @@ public class GameObject {
         return location;
     }
 
+    public void setLocation(Location newLoc) {
+        this.location = newLoc;
+    }
+
     public void setLocation(double x, double y) {
         getLocation().setX(x);
         getLocation().setY(y);
@@ -183,6 +187,18 @@ public class GameObject {
     }
 
     public boolean isOnScreen() {
+        if (getLevel() == null) {
+            return false;
+        }
+
+        if (getLevel().getManager().getEngine().getCamera() == null) {
+            return false;
+        }
+
+        if (getCollisionBox() == null) {
+            return false;
+        }
+
         return getCollisionBox().collidesWith(getLevel().getManager().getEngine().getCamera().getCollisionBox());
     }
 
@@ -192,7 +208,7 @@ public class GameObject {
 
     public boolean isInsideWorld() {
         if (getCollisionBox() == null) {
-            setCollisionBox(new CollisionBox((int) location.getX(), (int) location.getY(), Game.BLOCK_SIZE, Game.BLOCK_SIZE));
+            return false;
         }
 
         return getCollisionBox().collidesWith(getLevel().getBounds());

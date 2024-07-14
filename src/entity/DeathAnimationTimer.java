@@ -31,7 +31,7 @@ public class DeathAnimationTimer extends Timer {
                 }
                 entity.setScale(scale);
 
-                if (entity.getRotation() > Math.PI * 2) {
+                if (entity.getRotation() > Math.PI * 2 || scale <= 0.05) {
                     entity.setScale(originalScale);
                     entity.setRotation(0);
                     stop();

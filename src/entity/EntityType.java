@@ -13,7 +13,9 @@ public enum EntityType {
     GOLD_COIN("resources/images/objects/coins/gold_coin_", 6, 8),
     PLANT_MONSTER("resources/images/characters/plant/plant_monster.png"),
     STONE_DOOR("resources/images/blocks/stoneDoor.png"),
-    HEART("resources/images/characters/heart_", 6, 6);
+    HEART("resources/images/characters/heart_", 6, 6),
+    MUSHROOM_SPAWN("resources/images/characters/mushroom/mushroom_spawn.png"),
+    MUSHROOM_MONSTER("resources/images/characters/mushroom/mushroom_spawn.png");
 
 
     private final String filePath;

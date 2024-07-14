@@ -23,6 +23,7 @@ public abstract class EntityLiving extends Entity {
     private double attackCounter;
     public double attackSearchTicks;
     public double ATTACK_SEARCH_COOLDOWN = 1.0;
+    private boolean isInvulnerable;
 
     public final Color tint = new Color(255, 85, 85);
 
@@ -176,7 +177,7 @@ public abstract class EntityLiving extends Entity {
     }
 
     public void damage(EntityLiving attacker, boolean playSound) {
-        if (getHurtTicks() > 0) {
+        if (getHurtTicks() > 0 || isInvulnerable()) {
             return;
         }
 
@@ -312,5 +313,13 @@ public abstract class EntityLiving extends Entity {
 
     public double getHurtCooldown() {
         return hurtCooldown;
+    }
+
+    public boolean isInvulnerable() {
+        return isInvulnerable;
+    }
+
+    public void setInvulnerable(boolean invulnerable) {
+        isInvulnerable = invulnerable;
     }
 }

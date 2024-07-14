@@ -137,6 +137,8 @@ public class TextureBank {
 
         addTexture("spot_light",  new Texture((BufferedImage) game.loadImage("resources/images/blocks/decorations/spot_light.png")));
 
+        addTexture("mushroom_spawn_dead",  new Texture((BufferedImage) game.loadImage("resources/images/characters/mushroom/mushroom_spawn_dead.png")));
+
         for (EntityType type : EntityType.values()) {
             if (type.getFrames() > 0 && type.getFrameRate() > 0) {
                 BufferedImage[] frames = new BufferedImage[type.getFrames()];
