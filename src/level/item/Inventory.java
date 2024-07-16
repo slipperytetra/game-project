@@ -90,6 +90,7 @@ public class Inventory {
                 InventoryItem invItem = getItemAt(i).getItem();
                 if (invItem.getItemType() == type) {
                     invItem.setAmount(invItem.getAmount() + amount);
+                    update();
                     return;
                 }
             }
@@ -166,7 +167,7 @@ public class Inventory {
                 }
 
                 if (item != null) {
-                    //if (item.getAmount() > 1) {
+                    if (item.getAmount() > 1) {
                         double txtX = cam.toScreenX(locX + (x * slotSize) + slotSize - 8);
                         double txtY = cam.toScreenY(locY + (y * slotSize));
 
@@ -174,7 +175,7 @@ public class Inventory {
                         cam.game.drawBoldText(txtX, txtY, "" + item.getAmount(), 15);
                         cam.game.changeColor(Color.WHITE);
                         cam.game.drawBoldText(txtX, txtY, "" + item.getAmount(), 13);
-                   // }
+                    }
                 }
 
                 InventoryItemSlot slotItem = getItemAt(slot);

@@ -257,11 +257,21 @@ public class Player extends EntityLiving {
                 }
             }
 
-            if (keysPressed.contains(81)) {
-                if (getItemInHand() != null && getItemInHand().getItemType().getCategory() == ItemTypeCategory.SWORD) {
+            if (keysPressed.contains(81)) {//Q
+                if (getItemInHand() == null) {
+                    return;
+                }
+
+                if (getItemInHand().getItemType().getCategory() == ItemTypeCategory.SWORD) {
                     attemptAttack(false);
-                } else if (getItemInHand() != null && getItemInHand().getItemType().getCategory() == ItemTypeCategory.BOW) {
+                } else if (getItemInHand().getItemType().getCategory() == ItemTypeCategory.BOW) {
                     attemptAttack(true);
+                } else if (getItemInHand().getItemType() == ItemType.POTION) {
+                    getLevel().playSound(SoundType.COLLECT_HEALTH);
+                    getItemInHand().setAmount(getItemInHand().getAmount() - 1);
+                    getBackPack().update();
+
+                    setHealth(getHealth() + 25);
                 }
             }
             keyPressTimer = 0;

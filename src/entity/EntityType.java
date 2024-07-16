@@ -16,7 +16,7 @@ public enum EntityType {
     HEART("resources/images/characters/heart_", 6, 6),
     HEALTH_POTION("resources/images/items/potion_",4,10),
     MUSHROOM_SPAWN("resources/images/characters/mushroom/mushroom_spawn.png"),
-    MUSHROOM_MONSTER("resources/images/characters/mushroom/mushroom_boss_idle.png");
+    MUSHROOM_MONSTER("resources/images/characters/mushroom/mushroom_boss_idle_", 4, 3);
 
 
 

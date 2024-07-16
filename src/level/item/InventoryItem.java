@@ -28,6 +28,10 @@ public class InventoryItem {
         }
 
         this.amount = amount;
+
+        if (this.amount == 0) {
+            itemType = ItemType.EMPTY;
+        }
     }
 
     public void incrementAmount(int amount) {
