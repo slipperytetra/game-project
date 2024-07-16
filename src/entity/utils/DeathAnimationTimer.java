@@ -1,5 +1,6 @@
-package entity;
+package entity.utils;
 
+import entity.EntityLiving;
 import main.Game;
 
 import javax.swing.*;

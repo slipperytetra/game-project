@@ -1,8 +1,7 @@
 package entity;
 
-import block.Block;
-import block.BlockClimbable;
 import block.BlockTypes;
+import entity.utils.AttributeTypes;
 import level.Level;
 import level.ParticleTypes;
 import level.item.*;
@@ -17,9 +16,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -44,7 +40,7 @@ public class Player extends EntityLiving {
 
     public Player(Level level, Location loc) {
         super(EntityType.PLAYER, level, loc);
-        this.backPack = new Inventory(5, 1);
+        this.backPack = new Inventory(5, 2);
         setHitboxColor(Color.cyan);
         setAttackCooldown(0.5);
         setMaxHealth(100);
@@ -52,6 +48,7 @@ public class Player extends EntityLiving {
         setHealth(getMaxHealth());
         setAttackRange(Game.BLOCK_SIZE * 2.5);
         setCollidable(true);
+        setScale(2);
         setHitboxWidth(14);
         setHitboxOffsetX(4);
         init();

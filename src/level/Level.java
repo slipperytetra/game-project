@@ -3,6 +3,7 @@ package level;
 import block.*;
 import block.decorations.*;
 import entity.*;
+import entity.utils.BossBar;
 import level.item.Inventory;
 import main.*;
 import org.w3c.dom.Text;
@@ -63,6 +64,7 @@ public class Level {
     public HashMap<Character, DecorationTypes> decorationKeyMap;
 
     private QuadTree qtree;
+    private BossBar bossBar;
 
     /*
     *   The purpose of the level class is to extract and store data from level.txt files.
@@ -164,6 +166,8 @@ public class Level {
                         if (type == BlockTypes.FOREST_GROUND_CRACKED) {
                             ((BlockCracked) block).setIsPressureSensitive(true);
                         }
+                    } else if (type == BlockTypes.CHEST) {
+                        block = new BlockChest(this, spawnLoc, type);
                     } else if (type == BlockTypes.LADDER) {
                         block = new BlockClimbable(this, spawnLoc, type);
                     } else if (type == BlockTypes.ROPE) {
@@ -194,8 +198,7 @@ public class Level {
                         System.out.println("Found");
                         doorLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
                         System.out.println("Loc");
-                        Door door = new Door(this, spawnLoc);
-                        entity = door;
+                        entity = new Door(this, spawnLoc);
                         System.out.println("Assigned");
                     } else if (type == EntityType.HEART) {
                         entity = new ItemHeart(this, spawnLoc);
@@ -532,6 +535,49 @@ public class Level {
         getParticles().add(particle);
     }
 
+    public void spawnEntity(EntityType type, Location spawnLoc) {
+        Entity entity = null;
+        spawnLoc = spawnLoc.clone();
+
+        if (type == EntityType.DOOR) {
+            doorLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
+            entity = new Door(this, spawnLoc);
+        } else if (type == EntityType.HEART) {
+            entity = new ItemHeart(this, spawnLoc);
+        } else if (type == EntityType.GOLD_COIN) {
+            entity = new ItemGoldCoin(this, spawnLoc);
+        } else if (type == EntityType.PLANT_MONSTER) {
+            entity = new EnemyPlant(this, spawnLoc);
+        } else if (type == EntityType.BEE) {
+            entity = new EnemyBee(this, spawnLoc);
+        } else if (type == EntityType.ARROW_BUNDLE) {
+            entity = new ItemArrowBundle(this, spawnLoc);
+        } else if (type == EntityType.MUSHROOM_SPAWN) {
+            entity = new EntityMushroomSpawn(this, spawnLoc);
+        } else if (type == EntityType.KEY) {
+            keyLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
+            entity = new ItemKey(this, spawnLoc);
+        }
+
+        if (entity != null) {
+            double heightDiff = entity.getLocation().getY() - (entity.getCollisionBox().getHeight() - Game.BLOCK_SIZE);
+            entity.setLocation(entity.getLocation().getX(), heightDiff);
+            entities.add(entity);
+        }
+    }
+
+    public void spawnEntity(Entity entity) {
+        if (entities.contains(entity)) {
+            return;
+        }
+
+
+        double heightDiff = entity.getLocation().getY() - (entity.getCollisionBox().getHeight() - Game.BLOCK_SIZE);
+        entity.setLocation(entity.getLocation().getX(), heightDiff);
+
+        entities.add(entity);
+    }
+
     private void assignKeyToMap(char key, String input) {
         input = input.toUpperCase();
         for (BlockTypes type : BlockTypes.values()) {
@@ -721,5 +767,13 @@ public class Level {
 
     public Camera getCamera() {
         return getManager().getEngine().getCamera();
+    }
+
+    public BossBar getBossBar() {
+        return bossBar;
+    }
+
+    public void setBossBar(BossBar bossBar) {
+        this.bossBar = bossBar;
     }
 }

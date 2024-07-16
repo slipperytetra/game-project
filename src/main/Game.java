@@ -99,7 +99,8 @@ public class Game extends GameEngine {
         this.activeLevel.init();
         level.load();
         this.camera = new Camera(this, level.getPlayer());
-        getCamera().setFocusObject(level.getPlayer());
+        getCamera().setFocusPoint(level.getPlayer().getLocation());
+        this.camera.setFocusObject(level.getPlayer());
     }
 
 
@@ -120,7 +121,9 @@ public class Game extends GameEngine {
         this.activeLevel = level;
         this.activeLevel.init();
         level.load();
+        level.setEditMode(editMode);
         this.camera = new Camera(this, level.getPlayer());
+        getCamera().setFocusObject(level.getPlayer());
     }
 
     public void update(double dt) {
@@ -220,9 +223,10 @@ public class Game extends GameEngine {
         if (getActiveLevel() != null) {
             for (Inventory inv : getActiveLevel().getOpenInventories()) {
                 for (InventoryItemSlot slot : inv.getItems()) {
-                    if (slot.getItem() == null) {
+                    if (slot == null || slot.getItem() == null) {
                         continue;
                     }
+
                     if (mouseBox.collidesWith(slot.getCollisionBox())) {
                         inv.setSelectedSlot(slot.getSlot());
                         getActiveLevel().playSound(SoundType.MENU_NAVIGATE);

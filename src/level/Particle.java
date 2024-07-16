@@ -26,7 +26,7 @@ public class Particle extends GameObject {
     private double timeAlive, ticksAlive;
     private double velX, velY;
     private double initialSize;
-    private final double GRAVITY = 32 * Game.BLOCK_SIZE;
+    public double GRAVITY = Game.BLOCK_SIZE * 4;
 
     public Particle(ParticleTypes type, Location spawnLoc, Level level) {
         super(level, spawnLoc);

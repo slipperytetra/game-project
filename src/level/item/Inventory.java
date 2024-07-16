@@ -19,9 +19,11 @@ public class Inventory {
         this.width = width;
         this.height = height;
         this.items = new InventoryItemSlot[getSize()];
+        int slot = 0;
         for (int x = 0; x < getWidth(); x++) {
             for (int y = 0; y < getHeight(); y++) {
-                items[x + y] = new InventoryItemSlot(this, null, x, y);
+                items[slot] = new InventoryItemSlot(this, null, x, y);
+                slot++;
             }
         }
         this.selectedSlot = 0;
@@ -143,11 +145,12 @@ public class Inventory {
 
         renderFrame(cam, locX, locY);
         TextureBank bank = cam.game.getTextureBank();
+        int slot = 0;
         for (int x = 0; x < getWidth(); x++) {
             for (int y = 0; y < getHeight(); y++) {
                 cam.game.drawImage(bank.getTexture("ui_inventory_4").getImage(), cam.toScreenX(locX + (x * slotSize)), cam.toScreenY(locY + (y * slotSize)), slotSize, slotSize, opacity);
-                boolean isSelected = getSelectedSlot() == x + y;
-                InventoryItem item = getItemAt(x + y).getItem();
+                boolean isSelected = getSelectedSlot() == slot;
+                InventoryItem item = getItemAt(slot).getItem();
                 if (item != null) {
                     if (isSelected) {
                         cam.game.drawImage(bank.getTexture("ui_inventory_filled_selected").getImage(), cam.toScreenX(locX + (x * slotSize) - 4), cam.toScreenY(locY + (y * slotSize) - 4), slotSize + 8, slotSize + 8, opacity);
@@ -163,7 +166,7 @@ public class Inventory {
                 }
 
                 if (item != null) {
-                    if (item.getAmount() > 1) {
+                    //if (item.getAmount() > 1) {
                         double txtX = cam.toScreenX(locX + (x * slotSize) + slotSize - 8);
                         double txtY = cam.toScreenY(locY + (y * slotSize));
 
@@ -171,15 +174,16 @@ public class Inventory {
                         cam.game.drawBoldText(txtX, txtY, "" + item.getAmount(), 15);
                         cam.game.changeColor(Color.WHITE);
                         cam.game.drawBoldText(txtX, txtY, "" + item.getAmount(), 13);
-                    }
+                   // }
                 }
 
-                InventoryItemSlot slotItem = getItemAt(x + y);
+                InventoryItemSlot slotItem = getItemAt(slot);
                 slotItem.getCollisionBox().setLocation(locX + (x * slotSize), locY + (y * slotSize));
                 if (cam.debugMode) {
                     cam.game.changeColor(Color.GREEN);
                     cam.game.drawRectangle(cam.toScreenX(slotItem.getCollisionBox().getLocation().getX()), cam.toScreenY(slotItem.getCollisionBox().getLocation().getY()), getItemAt(x + y).getCollisionBox().getWidth() , getItemAt(x + y).getCollisionBox().getHeight() );
                 }
+                slot++;
             }
         }
     }

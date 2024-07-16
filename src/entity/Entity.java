@@ -3,6 +3,7 @@ package entity;
 import block.Block;
 import block.BlockClimbable;
 import block.BlockLiquid;
+import entity.utils.AttributeTypes;
 import level.Level;
 import main.*;
 import utils.CollisionBox;
@@ -10,7 +11,6 @@ import utils.Location;
 import utils.Texture;
 import utils.Vector;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -43,7 +43,7 @@ public abstract class Entity extends GameObject {
         this.type = type;
         this.hasGravity = true;
         this.attributes = new HashMap<>();
-        this.setScale(2);
+        this.setScale(1);
         this.velocity = new Vector(0, 0);
         this.shouldRespawn = false;
         this.canMove = true;

@@ -1,8 +1,10 @@
 package entity;
 
+import entity.utils.BossBar;
 import level.Level;
 import level.ParticleTypes;
 import main.Camera;
+import main.Game;
 import main.SoundType;
 import utils.CollisionBox;
 import utils.Location;
@@ -20,6 +22,7 @@ public class EntityMushroomSpawn extends EntityLiving {
     private double sporeSpawnTicks, sporeSpawnTimer = 0.25;
 
     private Random rand;
+    private EnemyMushroomBoss mushroomBoss;
 
     public EntityMushroomSpawn(Level level, Location loc) {
         super(EntityType.MUSHROOM_SPAWN, level, loc);
@@ -36,6 +39,10 @@ public class EntityMushroomSpawn extends EntityLiving {
     public void update(double dt) {
         super.update(dt);
 
+        if (getBoss() != null) {
+            return;
+        }
+
         if (isDormant()) {
             long currentTime = System.currentTimeMillis();
             long elapsedTime = currentTime - startTime;
@@ -51,6 +58,11 @@ public class EntityMushroomSpawn extends EntityLiving {
                 } else {
                     getLevel().spawnParticle(ParticleTypes.MUSHROOM_SPORES, getCenterX() + getWidth()/2, getCenterY() + getHeight()/2, rand.nextDouble(-1, 1), rand.nextDouble(-1.5, 0.25));
                 }
+            } else if (getBoss() == null) {
+                setBoss(new EnemyMushroomBoss(getLevel(), getLocation().clone()));
+                getBoss().setLocation(getLocation().getX() - (getBoss().getWidth() / 2), getBoss().getLocation().getY());
+                getLevel().spawnEntity(getBoss());
+                getLevel().setBossBar(new BossBar(getBoss()));
             }
         }
     }
@@ -105,6 +117,12 @@ public class EntityMushroomSpawn extends EntityLiving {
     public void kill() {
         setDormant(false);
         setInvulnerable(true);
+
+        Location fixedLoc = getLocation().clone();
+        fixedLoc.setY(fixedLoc.getY() - (Game.BLOCK_SIZE * 6));
+        getLevel().getCamera().setFocusObject(null);
+        getLevel().getCamera().setFocusPoint(fixedLoc);
+        //getLevel().getCamera().setFixed(true);
     }
 
     @Override
@@ -114,5 +132,13 @@ public class EntityMushroomSpawn extends EntityLiving {
         }
 
         return super.getHealth();
+    }
+
+    public EnemyMushroomBoss getBoss() {
+        return mushroomBoss;
+    }
+
+    public void setBoss(EnemyMushroomBoss mushroomBoss) {
+        this.mushroomBoss = mushroomBoss;
     }
 }

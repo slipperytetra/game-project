@@ -75,6 +75,9 @@ public class LevelEditorBlocks extends LevelEditor {
             } else if (type == BlockTypes.GEYSER) {
                 BlockGeyser b = new BlockGeyser(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
                 getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
+            } else if (type == BlockTypes.CHEST) {
+                BlockChest b = new BlockChest(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
+                getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);
             } else {
                 Block b = new Block(getLevel(), getLevel().getBlockGrid().getBlockAt(getTileX(), getTileY()).getLocation(), type);
                 getLevel().getBlockGrid().setBlock(getTileX(), getTileY(), b);

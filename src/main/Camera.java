@@ -7,6 +7,7 @@ import block.decorations.FakeLightSpot;
 import entity.Entity;
 import entity.EntityLiving;
 import entity.Player;
+import entity.utils.BossBar;
 import level.Particle;
 import level.TextMessage;
 import level.item.Inventory;
@@ -37,6 +38,7 @@ public class Camera {
 
     public boolean debugMode;
     public boolean isShaking;
+    private boolean isFixed;
     private double shakeTicks, shakeCooldown;
     private int DEBUG_ENTITIES_ON_SCREEN;
     private int DEBUG_BLOCKS_ON_SCREEN;
@@ -91,7 +93,7 @@ public class Camera {
          * */
 
         this.velocity = new Vector(0, 0);
-        setFocusPoint(getPlayer().getLocation());
+        setFocusObject(getPlayer());
         loc.setX(getFocusPoint().getX() - (camWidth / 2.0));
         loc.setY(getFocusPoint().getY() - (camHeight / 2.0));
         this.collisionBox = new CollisionBox(loc.getX(), loc.getY(), camWidth, camHeight);
@@ -112,10 +114,14 @@ public class Camera {
             return;
         }
 
-        if (!game.getActiveLevel().isEditMode()) {
-            setFocusPoint(getPlayer().getLocation());
-        }
-        trackFocus(dt);
+        //if (!isFixed()) {
+            if (!game.getActiveLevel().isEditMode()) {
+                //setFocusPoint(getPlayer().getLocation());
+                updateFocusPoint();
+            }
+
+            trackFocus(dt);
+        //}
 
         //deadZoneX = getFocusPoint().getX() - deadZoneSize + (getPlayer().getWidth() / 2);
         //deadZoneY = getFocusPoint().getY() - deadZoneSize + (getPlayer().getHeight() / 2);
@@ -134,10 +140,12 @@ public class Camera {
             double offsetX = 0;
             double offsetY = 0;
 
-            if (getPlayer().getVelocity().getX() > 0 && !getPlayer().isAttacking()) {
-                offsetX = 0.025 * getPlayer().getVelocity().getX();
-            } else if (getPlayer().getVelocity().getX() < 0 && !getPlayer().isAttacking()) {
-                offsetX = -Math.abs(0.025 * getPlayer().getVelocity().getX());
+            if (getFocusObject() != null && getFocusObject().equals(getPlayer())) {
+                if (getPlayer().getVelocity().getX() > 0 && !getPlayer().isAttacking()) {
+                    offsetX = 0.025 * getPlayer().getVelocity().getX();
+                } else if (getPlayer().getVelocity().getX() < 0 && !getPlayer().isAttacking()) {
+                    offsetX = -Math.abs(0.025 * getPlayer().getVelocity().getX());
+                }
             }
 
             if (isShaking()) {
@@ -346,6 +354,13 @@ public class Camera {
             game.drawImage(game.getTextureBank().getTexture("key").getImage(), game.width() - 50, 20, 30, 30);
         }
 
+        if (game.getActiveLevel().getBossBar() != null) {
+            BossBar bossBar = game.getActiveLevel().getBossBar();
+            if (bossBar.getEntity() != null && !bossBar.getEntity().isDead()) {
+                bossBar.render(this);
+            }
+        }
+
         /*
         if (game.mouseBox != null) {
             game.changeColor(Color.ORANGE);
@@ -503,6 +518,10 @@ public class Camera {
     }
 
     public void drawHealthBar(Entity entity, double xPos, double yPos) {
+        if (game.getActiveLevel().getBossBar() != null && game.getActiveLevel().getBossBar().getEntity().equals(entity)) {
+            return;
+        }
+
         double difference = (double) 100 / entity.getMaxHealth();
         double barSize = entity.getHealth() * difference;
 
@@ -515,6 +534,16 @@ public class Camera {
     public Location getFocusPoint() {
         return focusPoint;
     }
+
+    public void updateFocusPoint() {
+        if (getFocusObject() == null) {
+            return;
+        }
+
+        this.focusPoint.setX(getFocusObject().getCenterX());
+        this.focusPoint.setY(getFocusObject().getCenterY());
+    }
+
 
     public void setFocusPoint(Location loc) {
         if (focusPoint == null) {
@@ -531,6 +560,10 @@ public class Camera {
 
     public void setFocusObject(GameObject object) {
         this.focusObj = object;
+
+        if (focusObj != null) {
+            setFocusPoint(object.getLocation());
+        }
     }
 
     public double toScreenX(double worldX) {
@@ -564,5 +597,13 @@ public class Camera {
 
     public double getCenterY() {
         return loc.getY() + (camHeight / 2.0);
+    }
+
+    public boolean isFixed() {
+        return isFixed;
+    }
+
+    public void setFixed(boolean fixed) {
+        isFixed = fixed;
     }
 }

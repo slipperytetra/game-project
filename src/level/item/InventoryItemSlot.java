@@ -9,6 +9,14 @@ public class InventoryItemSlot {
     private Inventory inv;
     private int posX, posY;
 
+    /*
+    public InventoryItemSlot(Inventory inv, InventoryItem item, int posX, int posY) {
+        this.inv = inv;
+        this.item = item;
+        this.posX = posX;
+        this.posY = posY;
+        cBox = new CollisionBox(posX * inv.getSlotSize(), posY * inv.getSlotSize(), inv.getSlotSize(), inv.getSlotSize());
+    }*/
     public InventoryItemSlot(Inventory inv, InventoryItem item, int posX, int posY) {
         this.inv = inv;
         this.item = item;

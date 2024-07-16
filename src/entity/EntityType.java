@@ -15,7 +15,7 @@ public enum EntityType {
     STONE_DOOR("resources/images/blocks/stoneDoor.png"),
     HEART("resources/images/characters/heart_", 6, 6),
     MUSHROOM_SPAWN("resources/images/characters/mushroom/mushroom_spawn.png"),
-    MUSHROOM_MONSTER("resources/images/characters/mushroom/mushroom_spawn.png");
+    MUSHROOM_MONSTER("resources/images/characters/mushroom/mushroom_boss_idle_", 4, 3);
 
 
     private final String filePath;

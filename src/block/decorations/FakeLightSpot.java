@@ -2,14 +2,15 @@ package block.decorations;
 
 import main.Camera;
 import main.Game;
+import main.GameObject;
 
 import java.util.Random;
 
 public class FakeLightSpot {
 
-    private Decoration parent;
+    private GameObject parent;
     private double offsetX, offsetY, width, height;
-    private double intensity;
+    private double intensity = 1.0;
     private Random random;
 
     private double flicker;
@@ -20,13 +21,15 @@ public class FakeLightSpot {
     private final double SPOT_LIGHT_SIZE = 75;
     private final double FLICKER_FREQUENCY = 0.1; //seconds
 
-    public FakeLightSpot(Decoration parent) {
+    public FakeLightSpot(GameObject parent) {
         this.parent = parent;
-        this.offsetX = parent.getType().getSpotLightOffsetX();
-        this.offsetY = parent.getType().getSpotLightOffsetY();
-        this.intensity = parent.getType().getSpotLightIntensity();
         this.flicker = 1.0;
-        this.shouldFlicker = parent.getType().shouldSpotLightFlicker();
+        if (parent instanceof Decoration deco) {
+            this.shouldFlicker = deco.getType().shouldSpotLightFlicker();
+            this.offsetX = deco.getType().getSpotLightOffsetX();
+            this.offsetY = deco.getType().getSpotLightOffsetY();
+            this.intensity = deco.getType().getSpotLightIntensity();
+        }
         this.isActive = true;
 
         this.width = SPOT_LIGHT_SIZE * (getIntensity() * getFlicker());
@@ -53,7 +56,7 @@ public class FakeLightSpot {
                 decoOffsetX , decoOffsetY , getWidth() , getHeight() );
     }
 
-    public Decoration getParent() {
+    public GameObject getParent() {
         return parent;
     }
 
@@ -61,8 +64,16 @@ public class FakeLightSpot {
         return intensity;
     }
 
+    public void setIntensity(double intensity) {
+        this.intensity = intensity;
+    }
+
     private double getFlicker() {
         return flicker;
+    }
+
+    public void setFlicker(double flicker) {
+        this.flicker = flicker;
     }
 
     public boolean isShouldFlicker() {

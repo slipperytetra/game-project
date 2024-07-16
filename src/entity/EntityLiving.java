@@ -1,8 +1,10 @@
 package entity;
 
+import entity.utils.AttackTimer;
+import entity.utils.AttributeTypes;
+import entity.utils.DeathAnimationTimer;
 import level.Level;
 import main.*;
-import org.w3c.dom.Text;
 import utils.Location;
 import utils.Texture;
 import utils.TextureAnimated;

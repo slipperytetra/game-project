@@ -1,4 +1,4 @@
-package entity;
+package entity.utils;
 
 import main.Game;
 

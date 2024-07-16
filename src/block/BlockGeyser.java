@@ -39,12 +39,13 @@ public class BlockGeyser extends BlockActive {
 
     @Override
     public void update(double dt) {
-            if (particleTicks < particleRate) {
-                particleTicks += 1 * dt;
-            } else {
-                getLevel().spawnParticle(ParticleTypes.SMOKE, getCenterX(), getLocation().getY() + 16);
-                particleTicks = 0;
-            }
+        System.out.println("test");
+        if (particleTicks < particleRate) {
+            particleTicks += 1 * dt;
+        } else {
+            getLevel().spawnParticle(ParticleTypes.SMOKE, getCenterX(), getLocation().getY() + 16);
+            particleTicks = 0;
+        }
 
         if (eruptTicks < eruptRate) {
             eruptTicks += 1 * dt;
@@ -52,7 +53,7 @@ public class BlockGeyser extends BlockActive {
             if (eruptingCounter < 2) {
                 eruptingCounter += 1 * dt;
                 getLevel().spawnParticle(ParticleTypes.LAVA_BLOB, getCenterX(), getLocation().getY() + 16,
-                        rand.nextDouble(-4, 4), -rand.nextDouble(Game.BLOCK_SIZE * 14, Game.BLOCK_SIZE * 16));
+                        rand.nextDouble(-4, 4), -rand.nextDouble(Game.BLOCK_SIZE * 2, Game.BLOCK_SIZE * 3));
 
                 if (attackTicks < attackRate) {
                     attackTicks += 1 * dt;

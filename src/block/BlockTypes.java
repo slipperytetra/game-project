@@ -6,6 +6,7 @@ public enum BlockTypes {
 
     VOID("resources/images/blocks/void.png", false),
     BARRIER("resources/images/blocks/dirt.png"),
+    CHEST("resources/images/blocks/dirt.png", false),
     FOREST_GROUND("resources/images/blocks/forest_ground/forest_ground", true, 16),
     FOREST_STONE("resources/images/blocks/forest_stone/forest_stone", true, 16),
     FOREST_GROUND_CRACKED("resources/images/blocks/forest_ground/forest_ground_cracked", true, 5),
