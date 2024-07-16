@@ -69,7 +69,7 @@ public class Game extends GameEngine {
         this.setWindowSize(1280, 720);
 
         this.lvlManager = new LevelManager(this);
-        setActiveLevel(lvlManager.FOREST_2);
+        setActiveLevel(lvlManager.FOREST);
         this.levelEditor = new LevelEditorBlocks(getActiveLevel());
         tempLoc = new Location(getActiveLevel().getActualWidth() / 2, getActiveLevel().getActualWidth() / 2);
         this.mouseBox = new CollisionBox(mouseX, mouseY, 2, 2);

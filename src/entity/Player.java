@@ -40,7 +40,7 @@ public class Player extends EntityLiving {
 
     public Player(Level level, Location loc) {
         super(EntityType.PLAYER, level, loc);
-        this.backPack = new Inventory(5, 2);
+        this.backPack = new Inventory(8, 1);
         setHitboxColor(Color.cyan);
         setAttackCooldown(0.5);
         setMaxHealth(100);
