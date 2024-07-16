@@ -7,7 +7,8 @@ public enum ItemType {
     SWORD("resources/images/items/sword.png", ItemTypeCategory.SWORD, 5),
     TEST_SWORD("resources/images/items/test_sword.png", ItemTypeCategory.SWORD, 20),
     TEST_BOW("resources/images/items/test_bow.png", ItemTypeCategory.BOW, 10),
-    BOW("resources/images/items/bow.png", ItemTypeCategory.BOW, 5);
+    BOW("resources/images/items/bow.png", ItemTypeCategory.BOW, 5),
+    POTION("resources/images/items/potion_0.png",ItemTypeCategory.RESOURCE);
 
     private final String filePath;
     private final ItemTypeCategory typeCategoery;

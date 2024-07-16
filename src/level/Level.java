@@ -215,6 +215,8 @@ public class Level {
                     } else if (type == EntityType.KEY) {
                         keyLoc = new Location(spawnLoc.getX(), spawnLoc.getY());
                         entity = new ItemKey(this, spawnLoc);
+                    }  else if (type == EntityType.HEALTH_POTION) {
+                        entity = new ItemHealthPotion(this, spawnLoc);
                     }
 
                     if (entity != null) {

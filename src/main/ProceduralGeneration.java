@@ -10,25 +10,24 @@ import java.util.Random;
 public class ProceduralGeneration {
 
     private static final int WIDTH = 50;
-    private static final int HEIGHT = 50;
+    private static final int HEIGHT = 50; // Adjusted height for platformer game
     private static final char WALL = '.';
     private static final char GROUND = 'G';
-    private static final char PLAYER = 'P';
-    private static final char DECO = 'D';
-    private static final char ROPE = 'R';
+    private static final char LADDER = 'L';
+    private static final char PLATFORM = 'P';
 
     private char[][] map;
     private Random random;
-    private List<Platform> platforms = new ArrayList<>();
+    private List<Polygon> polygons = new ArrayList<>();
 
     public ProceduralGeneration() {
         map = new char[WIDTH][HEIGHT];
         random = new Random();
         initializeMap();
-        generatePlatforms();
-        addDecos();
-        placePlayerSpawn();
-        placeRopes();
+        generatePolygons();
+        convertPolygonsToMap();
+        createLadders();
+        createHitboxes();
     }
 
     private void initializeMap() {
@@ -39,101 +38,91 @@ public class ProceduralGeneration {
         }
     }
 
-    private void addDecos() {
-        for (int x = 0; x < WIDTH; x++) {
+    private void generatePolygons() {
+        int polygonCount = 20; // Total number of polygons
+        int minVertices = 3; // Minimum vertices for a polygon (triangle)
+        int maxVertices = 5; // Maximum vertices for a polygon (pentagon)
+        int maxPolygonSize = 8; // Maximum size of the polygon (in terms of width or height)
+
+        for (int i = 0; i < polygonCount; i++) {
+            int verticesCount = random.nextInt(maxVertices - minVertices + 1) + minVertices;
+            List<Vertex> vertices = new ArrayList<>();
+
+            // Generate vertices within the map boundaries
+            for (int j = 0; j < verticesCount; j++) {
+                int x = random.nextInt(WIDTH);
+                int y = random.nextInt(HEIGHT);
+                vertices.add(new Vertex(x, y));
+            }
+
+            // Adjust polygon size based on vertex positions
+            int minX = vertices.stream().mapToInt(Vertex::getX).min().orElse(0);
+            int maxX = vertices.stream().mapToInt(Vertex::getX).max().orElse(0);
+            int minY = vertices.stream().mapToInt(Vertex::getY).min().orElse(0);
+            int maxY = vertices.stream().mapToInt(Vertex::getY).max().orElse(0);
+
+            int polygonWidth = maxX - minX;
+            int polygonHeight = maxY - minY;
+
+            // Scale down large polygons
+            if (polygonWidth > maxPolygonSize || polygonHeight > maxPolygonSize) {
+                double scaleRatio = 1.0;
+                if (polygonWidth > maxPolygonSize) {
+                    scaleRatio = (double) maxPolygonSize / polygonWidth;
+                }
+                if (polygonHeight > maxPolygonSize) {
+                    scaleRatio = Math.min(scaleRatio, (double) maxPolygonSize / polygonHeight);
+                }
+
+                // Apply scaling to vertices
+                for (Vertex vertex : vertices) {
+                    int scaledX = (int) (vertex.getX() * scaleRatio);
+                    int scaledY = (int) (vertex.getY() * scaleRatio);
+                    vertex.setX(scaledX);
+                    vertex.setY(scaledY);
+                }
+            }
+
+            polygons.add(new Polygon(vertices));
+        }
+    }
+
+    private void convertPolygonsToMap() {
+        for (Polygon polygon : polygons) {
             for (int y = 0; y < HEIGHT; y++) {
-                int chance = random.nextInt(100);
-                if (map[x][y] == GROUND && chance < 15) {
-                    map[x][y - 1] = DECO;
+                for (int x = 0; x < WIDTH; x++) {
+                    if (polygon.contains(new Vertex(x, y))) {
+                        map[x][y] = PLATFORM;
+                    }
                 }
             }
         }
     }
 
-    public double distance(double x1, double y1, double x2, double y2) {
-        // Calculate and return the distance
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    private void createLadders() {
+        // Create ladders between platforms if needed
+        // Implement logic as per your game's requirements
     }
 
-    private void generatePlatforms() {
-        int platformCount = 10;
-        int platformMinLength = 5;
-        int platformMaxLength = 15;
-
-        for (int i = 0; i < platformCount; i++) {
-            int platformLength = random.nextInt(platformMaxLength - platformMinLength) + platformMinLength;
-            int platformX = random.nextInt(WIDTH - platformLength);
-            int platformY = random.nextInt(HEIGHT - 10) + 5;
-
-            for (int x = platformX; x < platformX + platformLength; x++) {
-                map[x][platformY] = GROUND;
-            }
-
-            platforms.add(new Platform(platformX, platformY, platformX + platformLength, platformY + 1));
-        }
-    }
-
-    private void placePlayerSpawn() {
-        for (int y = HEIGHT - 1; y > 0; y--) {
-            for (int x = 0; x < WIDTH; x++) {
-                if (map[x][y] == GROUND && map[x][y + 1] == WALL) {
-                    map[x][y - 1] = PLAYER;
-                    return;
-                }
-            }
-        }
-        System.out.println("Player spawn point could not be placed.");
-    }
-
-    private void placeRopes() {
-        for (Platform p : platforms) {
-            Platform nearest = nearestPlatform(p);
-            double dist = distance(nearest.minX, nearest.minY, p.minX, p.minY);
-            System.out.println("Distance to nearest platform: " + dist);
-
-            if (dist > 4) {
-                map[nearest.minX][nearest.minY + 1] = ROPE;
-            }
-        }
-    }
-
-    private Platform nearestPlatform(Platform platform) {
-        Platform temp = null;
-
-        for (Platform p : platforms) {
-            if (p == platform) {
-                continue;
-            }
-
-            if (temp == null) {
-                temp = p;
-                continue;
-            }
-
-            double dist = distance(p.minX, p.minY, platform.minX, platform.minY);
-            double currentDist = distance(temp.minX, temp.minY, platform.minX, platform.minY);
-
-            if (dist < currentDist) {
-                temp = p;
-            }
-        }
-        return temp;
+    private void createHitboxes() {
+        // Create hitboxes around polygons for collision detection or other purposes
+        // Implement logic as per your game's requirements
     }
 
     public void saveMapToFile(String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             // Static lines
-            writer.write("name: FOREST1\n");
-            writer.write("background: resources/images/backgrounds/forest_background.png\n");
-            writer.write("midground: resources/images/backgrounds/forest_midground.png\n");
-            writer.write("foreground: resources/images/backgrounds/forest_foreground.png\n");
-            writer.write("background_music: resources/sounds/jungle_synthetic.wav\n");
-            writer.write("overlay: resources/images/night_filter.png\n");
-            writer.write("next_level: forest_2\n");
+            writer.write("name: LEVEL1\n");
+            writer.write("background: resources/images/backgrounds/level1_background.png\n");
+            writer.write("midground: resources/images/backgrounds/level1_midground.png\n");
+            writer.write("foreground: resources/images/backgrounds/level1_foreground.png\n");
+            writer.write("background_music: resources/sounds/level1_music.wav\n");
+            writer.write("overlay: resources/images/overlay.png\n");
+            writer.write("next_level: level2\n");
             writer.write("level_data:\n");
 
-            // Map data
-            for (int y = 0; y < HEIGHT; y++) {
+            // Map data (bottom to top)
+            for (int y = HEIGHT - 1; y >= 0; y--) {
                 for (int x = 0; x < WIDTH; x++) {
                     writer.write(map[x][y]);
                 }
@@ -142,34 +131,68 @@ public class ProceduralGeneration {
 
             // Keymap
             writer.write("keymap:\n");
-            writer.write("G: FOREST_GROUND\n");
-            writer.write("P: PLAYER_SPAWN\n");
+            writer.write("G: PLATFORM\n");
+            writer.write("L: LADDER\n");
             writer.write(".: WALL\n");
-            writer.write("D: TALL_GRASS\n");
-            writer.write("R: ROPE");
+            writer.write("P: PLATFORM\n");
+
+            System.out.println("Map saved to " + filename); // Print success message
 
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Print stack trace for any IOException
         }
     }
 
     public static void main(String[] args) {
         ProceduralGeneration pg = new ProceduralGeneration();
-        pg.saveMapToFile("saves/levels/level_forest_0.txt");
-        System.out.println("Map saved to generated_map.txt");
+        pg.saveMapToFile("saves/levels/level1.txt");
     }
-}
 
-class Platform {
-    int minX;
-    int minY;
-    int maxX;
-    int maxY;
+    static class Polygon {
+        private List<Vertex> vertices;
 
-    public Platform(int platformX, int platformY, int i, int i1) {
-        this.minX = platformX;
-        this.maxX = i;
-        this.minY = platformY;
-        this.maxY = i1;
+        public Polygon(List<Vertex> vertices) {
+            this.vertices = vertices;
+        }
+
+        public boolean contains(Vertex point) {
+            // Implement polygon containment logic (e.g., ray-casting algorithm)
+            // Return true if the point is inside the polygon
+            int i, j;
+            boolean c = false;
+            for (i = 0, j = vertices.size() - 1; i < vertices.size(); j = i++) {
+                if (((vertices.get(i).getY() > point.getY()) != (vertices.get(j).getY() > point.getY())) &&
+                        (point.getX() < (vertices.get(j).getX() - vertices.get(i).getX()) * (point.getY() - vertices.get(i).getY()) / (vertices.get(j).getY() - vertices.get(i).getY()) + vertices.get(i).getX())) {
+                    c = !c;
+                }
+            }
+            return c;
+        }
+    }
+
+    static class Vertex {
+        private int x;
+        private int y;
+
+        public Vertex(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public void setX(int x) {
+            this.x = x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public void setY(int y) {
+            this.y = y;
+        }
     }
 }

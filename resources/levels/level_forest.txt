@@ -119,5 +119,3 @@ keymap:
   Q: OLD_BRICK_WALL
   ~: FOG
   -: BEE
-  |: GEYSER
-  J: MUSHROOM_SPAWN
