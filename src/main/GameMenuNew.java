@@ -5,6 +5,7 @@ import level.LevelManager;
 import utils.Location;
 import utils.WaveEffect;
 
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -23,6 +24,8 @@ import static com.sun.java.accessibility.util.AWTEventMonitor.addActionListener;
 public class GameMenuNew extends GameEngine {
 
     public CardLayout cl;
+    private Clip menuMusic; // Clip for the menu music
+
     protected JPanel mainPanel;
     protected JPanel buttonsPanel;
     protected JPanel titlePanel;
@@ -34,6 +37,12 @@ public class GameMenuNew extends GameEngine {
     protected Image backgroundImage;
     protected BufferedImage backgroundTree;
     BufferedImage distortedImage;
+    private JPanel titleSequencePanel; // Panel for title sequence
+    private Timer titleTimer;
+    private JLabel titleTextLabel;
+    private JLabel est;
+
+    private float opacity = 0f;
 
     WaveEffect waveEffect;
     double treeWaveTime;
@@ -82,8 +91,10 @@ public class GameMenuNew extends GameEngine {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 1;
         mainPanel.add(contextPanel, gbc);
+        loadTitleSequencePanel();
+        cl.show(contextPanel, "TitleSequence");
 
-        loadTitlePanel();
+        //loadTitlePanel();
         loadButtonsPanel();
         SelectMenu selectMenu = new SelectMenu(this);
         JButton selectLevelButton = new JButton("Select Level");
@@ -123,11 +134,121 @@ public class GameMenuNew extends GameEngine {
         titlePanel = new JPanel();
         titlePanel.setOpaque(false);
 
-        JLabel label = new JLabel("<untitled game>");
+        JLabel label = new JLabel("<G game>");
         titlePanel.add(label);
 
         mainPanel.add(titlePanel);
     }
+
+    private void loadTitleSequencePanel() {
+        // Create the title sequence panel
+        titleSequencePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Draw a black background
+                g.setColor(Color.BLACK);
+                g.fillRect(0, 0, getWidth(), getHeight());
+
+                // Draw a background image (optional)
+                if (backgroundImage != null) {
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        };
+        titleSequencePanel.setLayout(null); // Absolute positioning for flexibility
+        titleSequencePanel.setOpaque(true);
+
+        // Set panel size to 1280 x 720
+        titleSequencePanel.setPreferredSize(new Dimension(1280, 720));
+        titleSequencePanel.setMinimumSize(new Dimension(1280, 720));
+        titleSequencePanel.setMaximumSize(new Dimension(1280, 720));
+
+        // Add image as a JLabel
+        JLabel imageLabel = new JLabel();
+        try {
+
+            BufferedImage logoImage = ImageIO.read(new File("resources/images/snowB.png")); // Replace with your image path
+            imageLabel.setIcon(new ImageIcon(logoImage));
+
+            // Dynamically center the logo
+            int logoWidth = logoImage.getWidth();
+            int logoHeight = logoImage.getHeight();
+            int logoX = (1280 - logoWidth) / 2;
+            int logoY = (720 - logoHeight) / 2 - 50; // Adjust Y for spacing between logo and text
+            imageLabel.setBounds(logoX, logoY, logoWidth, logoHeight);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        titleSequencePanel.add(imageLabel);
+
+        // Add text label for the title
+        titleTextLabel = new JLabel("Retard Studios", SwingConstants.CENTER);
+        est = new JLabel("© 1969", SwingConstants.CENTER);
+
+        titleTextLabel.setFont(new Font("Arial", Font.BOLD, 64));
+        titleTextLabel.setForeground(Color.WHITE); // Set text color to white
+        titleTextLabel.setBounds(0, 360, 1280, 100); // Center text horizontally
+        titleSequencePanel.add(titleTextLabel);
+        est.setFont(new Font("Arial", Font.BOLD, 64));
+        est.setForeground(Color.WHITE); // Set text color to white
+        est.setBounds(0, 560, 1280, 100); // Center text horizontally
+        titleSequencePanel.add(est);
+
+        // Add the title sequence panel to the contextPanel
+        contextPanel.add(titleSequencePanel, "TitleSequence");
+
+        // Start the animation
+        startTitleSequence();
+        playAudioOnce();
+    }
+
+
+
+    private void startTitleSequence() {
+        titleTimer = new Timer(30, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Gradually increase the opacity
+                opacity += 0.02f;
+                if (opacity > 1f) {
+                    opacity = 1f;
+                    ((Timer) e.getSource()).stop(); // Stop the timer
+                    // Show the main menu after a short delay
+                    Timer delayTimer = new Timer(3000, event -> cl.show(contextPanel, "Home"));
+                    delayTimer.setRepeats(false);
+                    delayTimer.start();
+                }
+                titleTextLabel.setForeground(new Color(255, 255, 255, (int) (opacity * 255)));
+                titleTextLabel.repaint();
+            }
+        });
+        titleTimer.start();
+    }
+    private void playAudioOnce() {
+        try {
+            // Load the audio file
+            File menuMusicFile = new File("resources/sounds/intro.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(menuMusicFile);
+            menuMusic = AudioSystem.getClip();
+            menuMusic.open(audioIn);
+
+            // Play the audio once
+            menuMusic.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 
     public void loadButtonsPanel() {
         buttonsPanel = new JPanel();

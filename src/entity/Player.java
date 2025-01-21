@@ -27,6 +27,8 @@ public class Player extends EntityLiving {
     private double keyPressTimer;
     private double KEY_PRESS_COOLDOWN = 0.05;
 
+    private double potionCooldown = 3;
+
     private double jumpTimer;
     private double jumpTimerCooldown;
 
@@ -93,6 +95,10 @@ public class Player extends EntityLiving {
         } else {
             //System.out.println("Test");
             keyPressTimer = 0;
+        }
+
+        if(potionCooldown < 3){
+            potionCooldown += 1 * dt;
         }
 
         if (jumpTimer < jumpTimerCooldown) {
@@ -266,10 +272,12 @@ public class Player extends EntityLiving {
                     attemptAttack(false);
                 } else if (getItemInHand().getItemType().getCategory() == ItemTypeCategory.BOW) {
                     attemptAttack(true);
-                } else if (getItemInHand().getItemType() == ItemType.POTION) {
+                } else if (getItemInHand() !=  null && getItemInHand().getItemType() == ItemType.POTION) {
                     getLevel().playSound(SoundType.COLLECT_HEALTH);
+                    potionCooldown = 0;
                     getItemInHand().setAmount(getItemInHand().getAmount() - 1);
                     getBackPack().update();
+
 
                     setHealth(getHealth() + 25);
                 }
@@ -388,6 +396,12 @@ public class Player extends EntityLiving {
             texture = getFallFrame();
         } else if (isMovingHorizontally()) {
             texture = getRunFrame();
+        } else if((getItemInHand() !=  null && getItemInHand().getItemType() == ItemType.POTION)){
+            texture= getLevel().getManager().getEngine().getTextureBank().getTexture("player_potion");
+        } else if(potionCooldown < 3){
+            texture= getLevel().getManager().getEngine().getTextureBank().getTexture("player_potion_animation");
+
+
         }
 
         texture.setFlipped(!isFlipped());

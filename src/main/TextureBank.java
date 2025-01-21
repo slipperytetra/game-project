@@ -138,6 +138,13 @@ public class TextureBank {
         addTexture("spot_light",  new Texture((BufferedImage) game.loadImage("resources/images/blocks/decorations/spot_light.png")));
 
         addTexture("mushroom_spawn_dead",  new Texture((BufferedImage) game.loadImage("resources/images/characters/mushroom/mushroom_spawn_dead.png")));
+        addTexture("player_potion", new Texture((BufferedImage) game.loadImage("resources/images/characters/idle-potion.png")));
+
+        addTexture("player_potion_animation",  new TextureAnimated(new BufferedImage[]{
+                (BufferedImage) game.loadImage("resources/images/characters/drink_0.png"),
+                (BufferedImage) game.loadImage("resources/images/characters/drink_1.png")
+
+        }, 3, false));
 
         for (EntityType type : EntityType.values()) {
             if (type.getFrames() > 0 && type.getFrameRate() > 0) {
