@@ -146,6 +146,11 @@ public class Game extends GameEngine {
     }
 
     @Override
+    public void paintUI() {
+        camera.renderUI();
+    }
+
+    @Override
     public void keyPressed(KeyEvent event) {
         this.keysPressed.add(event.getKeyCode());
 

@@ -25,16 +25,12 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     int mWidth, mHeight;
     public Graphics2D mGraphics;
     boolean initialised = false;
+    private double currentFPS = 0;
 
-    //TEMP
-    // Performance monitoring
-    private long statsStartNanos = System.nanoTime();
-
-    private int updateCount = 0;
-    private int paintCount = 0;
-
-    private long totalUpdateNanos = 0;
-    private long totalPaintNanos = 0;
+    private BufferedImage frameBuffer;
+    private final Object frameBufferLock = new Object();
+    private static final int VIRTUAL_WIDTH = 1280;
+    private static final int VIRTUAL_HEIGHT = 720;
 
     //-------------------------------------------------------
     // Time-Related functions
@@ -46,57 +42,40 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
         return System.currentTimeMillis();
     }
 
-    // Waits for ms milliseconds
-    public void sleep(double ms) {
-        try {
-            // Sleep
-            Thread.sleep((long)ms);
-        } catch(Exception e) {
-            // Do Nothing
-        }
-    }
-
-    //-------------------------------------------------------
-    // Functions to control the framerate
-    //-------------------------------------------------------
-    // Two variables to keep track of how much time has passed between frames
-    long time = 0, oldTime = 0;
-
-    // Returns the time passed since this function was last called.
-    public long measureTime() {
-        time = getTime();
-        if(oldTime == 0) {
-            oldTime = time;
-        }
-        long passed = time - oldTime;
-        oldTime = time;
-        return passed;
-    }
-
     //-------------------------------------------------------
     // Functions for setting up the window
     //-------------------------------------------------------
-    // Function to create the window and display it
     public void setupWindow(int width, int height) {
         mFrame = new JFrame();
         mPanel = new GamePanel();
 
+        /*mPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                resizeFrameBuffer(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+            }
+        });*/
+
         mWidth = width;
         mHeight = height;
 
-        mFrame.setSize(width, height);
-        mFrame.setLocation(200,200);
         mFrame.setTitle("Window");
         mFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mFrame.add(mPanel);
-        mFrame.setVisible(true);
+        mFrame.setResizable(true);
 
+        mPanel.setPreferredSize(new Dimension(width, height));
         mPanel.setDoubleBuffered(true);
         mPanel.addMouseListener(this);
         mPanel.addMouseMotionListener(this);
+        mPanel.setBackground(Color.BLACK);
 
-        // Register a key event dispatcher to get a turn in handling all
-        // key events, independent of which component currently has the focus
+        mFrame.add(mPanel);
+        mFrame.pack();
+        mFrame.setLocationRelativeTo(null);
+        mFrame.setVisible(true);
+
+        resizeFrameBuffer(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
                 .addKeyEventDispatcher(new KeyEventDispatcher() {
                     @Override
@@ -104,23 +83,17 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
                         switch (e.getID()) {
                             case KeyEvent.KEY_PRESSED:
                                 GameEngine.this.keyPressed(e);
-                                return false;
+                                break;
                             case KeyEvent.KEY_RELEASED:
                                 GameEngine.this.keyReleased(e);
-                                return false;
+                                break;
                             case KeyEvent.KEY_TYPED:
                                 GameEngine.this.keyTyped(e);
-                                return false;
-                            default:
-                                return false; // do not consume the event
+                                break;
                         }
+                        return false;
                     }
                 });
-
-        // Resize the window
-        mPanel.setPreferredSize(new Dimension(width, height));
-        mFrame.setResizable(false);
-        mFrame.pack();
     }
 
     public void setWindowSize(final int width, final int height) {
@@ -137,6 +110,22 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
         });
     }
 
+    private void resizeFrameBuffer(int width, int height) {
+        if (width <= 0 || height <= 0) return;
+
+        synchronized (frameBufferLock) {
+            if (frameBuffer != null
+                    && frameBuffer.getWidth() == width
+                    && frameBuffer.getHeight() == height) {
+                return;
+            }
+
+            frameBuffer = new BufferedImage(
+                    width, height, BufferedImage.TYPE_INT_ARGB
+            );
+        }
+    }
+
     // Return the width of the window
     public int getWidth() {
         return mWidth;
@@ -145,6 +134,14 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     // Return the height of the window
     public int getHeight() {
         return mHeight;
+    }
+
+    public int getViewportWidth() {
+        return mPanel.getWidth();
+    }
+
+    public int getViewportHeight() {
+        return mPanel.getHeight();
     }
 
     //-------------------------------------------------------
@@ -183,12 +180,12 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     // Create main.Game Function
     public static void createGame(GameEngine game, int framerate) {
         SwingUtilities.invokeLater(() -> {
-            // The constructor has already queued window creation.
-            // This task runs after that setup task on the EDT.
-            game.init();
+            Thread startupThread = new Thread(() -> {
+                game.init();
+                game.gameLoop(framerate);
+            }, "Game Startup");
 
-            // Start the game after initialisation.
-            game.gameLoop(framerate);
+            startupThread.start();
         });
     }
 
@@ -210,35 +207,58 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
         // This gets called any time the Operating System
         // tells the program to paint itself
         @Override
-        public void paintComponent(Graphics graphics) {
+        protected void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
 
-            long start = System.nanoTime();
+            synchronized (frameBufferLock) {
+                if (frameBuffer == null) {
+                    return;
+                }
 
-            synchronized (GameEngine.this) {
-                // Get the graphics object.
-                mGraphics = (Graphics2D) graphics;
+                int panelWidth = getWidth();
+                int panelHeight = getHeight();
 
-                // Reset all transforms.
-                mTransforms.clear();
-                mTransforms.push(mGraphics.getTransform());
-
-                // Rendering settings.
-                mGraphics.setRenderingHints(
-                        new RenderingHints(
-                                RenderingHints.KEY_ANTIALIASING,
-                                RenderingHints.VALUE_ANTIALIAS_ON
-                        )
+                double scale = Math.min(
+                        (double) panelWidth / VIRTUAL_WIDTH,
+                        (double) panelHeight / VIRTUAL_HEIGHT
                 );
 
-                // Paint the game.
-                if (initialised) {
-                    GameEngine.this.paintComponent();
+                int drawWidth = (int) (VIRTUAL_WIDTH * scale);
+                int drawHeight = (int) (VIRTUAL_HEIGHT * scale);
+
+                int x = (panelWidth - drawWidth) / 2;
+                int y = (panelHeight - drawHeight) / 2;
+
+                // Draw the low-resolution world.
+                graphics.drawImage(
+                        frameBuffer,
+                        x, y,
+                        drawWidth, drawHeight,
+                        null
+                );
+
+                // Draw UI separately at display resolution.
+                Graphics2D uiGraphics = (Graphics2D) graphics.create();
+
+                try {
+                    uiGraphics.translate(x, y);
+                    uiGraphics.scale(scale, scale);
+
+                    uiGraphics.setRenderingHint(
+                            RenderingHints.KEY_TEXT_ANTIALIASING,
+                            RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+                    );
+
+                    mGraphics = uiGraphics;
+
+                    if (initialised) {
+                        GameEngine.this.paintUI();
+                    }
+                } finally {
+                    mGraphics = null;
+                    uiGraphics.dispose();
                 }
             }
-
-            totalPaintNanos += System.nanoTime() - start;
-            paintCount++;
         }
     }
 
@@ -257,7 +277,6 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
 
         final long frameDuration = 1_000_000_000L / framerate;
 
-        int finalFramerate = framerate;
         gameThread = new Thread(() -> {
             long previousTime = System.nanoTime();
             long reportStart = System.nanoTime();
@@ -279,6 +298,9 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
                 synchronized (GameEngine.this) {
                     update(dt);
                 }
+
+                renderFrame();
+
                 totalUpdate += System.nanoTime() - updateStart;
 
                 // Measure work before waiting.
@@ -306,11 +328,13 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
                 if (frameEnd - reportStart >= 1_000_000_000L) {
                     double seconds =
                             (frameEnd - reportStart) / 1_000_000_000.0;
+                    currentFPS = frames / seconds;
 
                     System.out.printf(
                             "FPS: %.1f | Update: %.2f ms"
                                     + " | Pre-wait: %.2f ms | Wait: %.2f ms%n",
                             frames / seconds,
+
                             totalUpdate / 1_000_000.0 / frames,
                             totalBeforeWait / 1_000_000.0 / frames,
                             totalWait / 1_000_000.0 / frames
@@ -336,8 +360,56 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
         }
     }
 
+
+
+    private void renderFrame() {
+        synchronized (frameBufferLock) {
+            if (frameBuffer == null) {
+                return;
+            }
+
+            Graphics2D graphics = frameBuffer.createGraphics();
+
+            try {
+                mGraphics = graphics;
+
+                // Clear the entire off-screen buffer.
+                graphics.setColor(Color.BLACK);
+                graphics.fillRect(
+                        0, 0,
+                        frameBuffer.getWidth(),
+                        frameBuffer.getHeight()
+                );
+
+                // Reset the transform stack for this frame.
+                mTransforms.clear();
+                mTransforms.push(graphics.getTransform());
+
+                graphics.setRenderingHint(
+                        RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON
+                );
+
+                if (initialised) {
+                    paintComponent();
+                }
+            } finally {
+                graphics.dispose();
+                mGraphics = null;
+            }
+        }
+    }
+
+    public void paintUI() {
+        //
+    }
+
     public Graphics2D getGraphics() {
         return mGraphics;
+    }
+
+    public double getCurrentFPS() {
+        return currentFPS;
     }
 
     //-------------------------------------------------------

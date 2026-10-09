@@ -54,9 +54,6 @@ public class Camera {
     double shakeOffsetX;
     double shakeOffsetY;
 
-    private long lastFpsCheck = 0;
-    private int currentFps = 0;
-    private int totalFrames = 0;
     private CollisionBox collisionBox;
     private Location focusPoint;
     private GameObject focusObj;
@@ -109,7 +106,6 @@ public class Camera {
      *   This method constantly updates the points. This is needed because the players location always changes.
      * */
     public void update(double dt) {
-        calculateFPS();
         if (Game.isPaused) {
             return;
         }
@@ -201,7 +197,7 @@ public class Camera {
         renderTextMessages();
         renderFX();
         renderSpotLights();
-        renderUI();
+        // MOVED TO ITS OWN RENDER renderUI();
     }
 
 
@@ -341,7 +337,6 @@ public class Camera {
      *   It also displays all the debug information which is useful when making the game or testing features.
      * */
     public void renderUI() {
-        game.drawText(25, 120, "fps: " + currentFps, "Serif", 20);
         if (Game.isPaused) {
             game.changeColor(Color.orange);
             game.drawText((game.getWidth() / 2) - 100, game.getHeight() / 2, "Paused", 75);
@@ -384,7 +379,7 @@ public class Camera {
 
         if (debugMode) { //Press 'H' to enable
             game.changeColor(Color.cyan);
-            game.drawText(25, 120, "fps: " + currentFps, "Serif", 20);
+            game.drawText(25, 120, "fps: " + Math.round(game.getCurrentFPS()), "Serif", 20);
             game.drawText(25, 140, "entities on screen: " + DEBUG_ENTITIES_ON_SCREEN, "Serif", 20);
             game.drawText(25, 160, "blocks on screen: " + DEBUG_BLOCKS_ON_SCREEN, "Serif", 20);
             game.drawText(25, 180, "decorations on screen: " + DEBUG_DECORATIONS_ON_SCREEN, "Serif", 20);
@@ -506,15 +501,6 @@ public class Camera {
 
     public Location getPoint2() {
         return getCollisionBox().getCorner();
-    }
-
-    private void calculateFPS() {
-        totalFrames++;
-        if (System.nanoTime() > lastFpsCheck + 1000000000) {
-            lastFpsCheck = System.nanoTime();
-            currentFps = totalFrames;
-            totalFrames = 0;
-        }
     }
 
     public void drawHealthBar(Entity entity, double xPos, double yPos) {
