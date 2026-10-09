@@ -1,7 +1,5 @@
 package main;
 
-import level.Level;
-import level.LevelManager;
 import utils.Location;
 import utils.WaveEffect;
 
@@ -11,14 +9,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-
-import static com.sun.java.accessibility.util.AWTEventMonitor.addActionListener;
 
 
 public class GameMenuNew extends GameEngine {
@@ -183,8 +178,8 @@ public class GameMenuNew extends GameEngine {
         titleSequencePanel.add(imageLabel);
 
         // Add text label for the title
-        titleTextLabel = new JLabel("Retard Studios", SwingConstants.CENTER);
-        est = new JLabel("© 1969", SwingConstants.CENTER);
+        titleTextLabel = new JLabel("*Unnamed Studio*", SwingConstants.CENTER);
+        est = new JLabel("2024", SwingConstants.CENTER);
 
         titleTextLabel.setFont(new Font("Arial", Font.BOLD, 64));
         titleTextLabel.setForeground(Color.WHITE); // Set text color to white
@@ -200,7 +195,7 @@ public class GameMenuNew extends GameEngine {
 
         // Start the animation
         startTitleSequence();
-        playAudioOnce();
+        //playAudioOnce();
     }
 
 
@@ -313,16 +308,16 @@ public class GameMenuNew extends GameEngine {
     @Override
     public void paintComponent() {
         if (backgroundImage != null) {
-            drawImage(backgroundImage, 0, 0, width(), height());
+            drawImage(backgroundImage, 0, 0, getWidth(), getHeight());
         }
 
         if (distortedImage != null && sMenu.shaders.isSelected()) {
             //mGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
             //mGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            drawImage(distortedImage, 0, 0, width(), height());
+            drawImage(distortedImage, 0, 0, getWidth(), getHeight());
         } else {
-            drawImage(backgroundTree, 0, 0, width(), height());
+            drawImage(backgroundTree, 0, 0, getWidth(), getHeight());
         }
 
         if (levelEditorPanel.isVisible()) {

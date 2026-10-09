@@ -288,7 +288,7 @@ public class Camera {
     public void renderEntities() {
         DEBUG_ENTITIES_ON_SCREEN = 0;
         for (Entity entity : game.getActiveLevel().getEntities()) {
-            if (entity.isActive() || (entity instanceof EntityLiving living && living.deathTimer.isRunning())) {
+            if (entity.isActive() || (entity instanceof EntityLiving living && living.deathTimer != null && living.deathTimer.isRunning())) {
                 if (entity.getCollisionBox().collidesWith(this.getCollisionBox())) {
                     entity.render(this);
                     double offsetX = toScreenX(entity.getLocation().getX());
@@ -344,14 +344,14 @@ public class Camera {
         game.drawText(25, 120, "fps: " + currentFps, "Serif", 20);
         if (Game.isPaused) {
             game.changeColor(Color.orange);
-            game.drawText((game.width() / 2) - 100, game.height() / 2, "Paused", 75);
-            game.drawText((game.width() / 2) - 110, game.height() / 2 + 100, "Press 'Q' to Quit.", 40);
+            game.drawText((game.getWidth() / 2) - 100, game.getHeight() / 2, "Paused", 75);
+            game.drawText((game.getWidth() / 2) - 110, game.getHeight() / 2 + 100, "Press 'Q' to Quit.", 40);
 
             return;
         }
 
         if (game.getActiveLevel().getPlayer().hasKey()) {
-            game.drawImage(game.getTextureBank().getTexture("key").getImage(), game.width() - 50, 20, 30, 30);
+            game.drawImage(game.getTextureBank().getTexture("key").getImage(), game.getWidth() - 50, 20, 30, 30);
         }
 
         if (game.getActiveLevel().getBossBar() != null) {
@@ -375,9 +375,9 @@ public class Camera {
 
         Texture texture = game.getTextureBank().getTexture("arrow");
         //texture.setRotation(0);
-        game.drawImage(texture.getImageNoAffine(), game.width() - 75, 55, 35, 35);
+        game.drawImage(texture.getImageNoAffine(), game.getWidth() - 75, 55, 35, 35);
         game.changeColor(Color.WHITE);
-        game.drawBoldText(game.width() - 40, 80, "" + getPlayer().getArrows(), 22);
+        game.drawBoldText(game.getWidth() - 40, 80, "" + getPlayer().getArrows(), 22);
         game.changeColor(Color.ORANGE);
         game.drawBoldText(localXDiff + 20, localYDiff + 55, "" + getPlayer().getCoins(), 35);
 
@@ -449,13 +449,13 @@ public class Camera {
         }
 
         if (game.getTextureBank().getTexture("overlay") != null) {
-            game.drawImage(game.getTextureBank().getTexture("overlay").getImage(), 0, 0, game.width(), game.height());
+            game.drawImage(game.getTextureBank().getTexture("overlay").getImage(), 0, 0, game.getWidth(), game.getHeight());
         }
     }
 
     private void renderBackground() {
         if (textBg != null) {
-            game.drawImage(textBg.getImage(), 0, 0, game.width() , game.height() );
+            game.drawImage(textBg.getImage(), 0, 0, game.getWidth() , game.getHeight() );
         }
 
         drawParallaxImage(textMg, 0.5);
@@ -488,7 +488,7 @@ public class Camera {
                 height = bg.getImage().getHeight();
             }
 
-            game.drawImage(bg.getImage().getSubimage((int) camBotLeftX, (int) camBotLeftY, width, height), 0, 0, game.width(), game.height());
+            game.drawImage(bg.getImage().getSubimage((int) camBotLeftX, (int) camBotLeftY, width, height), 0, 0, game.getWidth(), game.getHeight());
         }
     }
 

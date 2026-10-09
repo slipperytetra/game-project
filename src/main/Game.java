@@ -57,7 +57,6 @@ public class Game extends GameEngine {
         initComboBoxes();
     }
 
-    @Override
     public void setupMenu() {
         mPanel.add(editingPanel);
         this.mFrame.addWindowListener(new SaveGameListener(getActiveLevel()));
@@ -91,7 +90,7 @@ public class Game extends GameEngine {
     public void setActiveLevel(Level level) {
         if (activeLevel != null) {
             if (activeLevel.getBackgroundMusic() != null) {
-                stopAudioLoop(activeLevel.getBackgroundMusic());
+                //MUSIC stopAudioLoop(activeLevel.getBackgroundMusic());
             }
         }
 
@@ -114,7 +113,7 @@ public class Game extends GameEngine {
         Level level = new Level(lvlManager, 999, levelPath);
         if (activeLevel != null) {
             if (activeLevel.getBackgroundMusic() != null) {
-                stopAudioLoop(activeLevel.getBackgroundMusic());
+                //MUSIC stopAudioLoop(activeLevel.getBackgroundMusic());
             }
         }
 

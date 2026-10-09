@@ -34,6 +34,7 @@ public abstract class Entity extends GameObject {
     private boolean canMove;
     private boolean shouldRespawn;
     private boolean hasGravity;
+    private double timeAlive;
 
     public double ACCELERATION;
     public double[] locs = new double[4];
@@ -75,6 +76,8 @@ public abstract class Entity extends GameObject {
 
     public void update(double dt) {
         super.update(dt);
+
+        timeAlive += 1 * dt;
 
         if (!isActive()) {
             return;
@@ -471,5 +474,9 @@ public abstract class Entity extends GameObject {
 
     public boolean hasAttribute(AttributeTypes attribute) {
         return this.attributes.containsKey(attribute);
+    }
+
+    public double getTimeAlive() {
+        return timeAlive;
     }
 }

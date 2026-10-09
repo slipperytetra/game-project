@@ -27,7 +27,7 @@ public class Decoration extends GameObject {
 
     public void render(Camera cam) {
         //BufferedImage texture = getFrame().getImage();
-        Graphics2D g2d = cam.game.mGraphics;
+        Graphics2D g2d = cam.game.getGraphics();
         AffineTransform oldTrans = g2d.getTransform();
         g2d.translate((int)cam.toScreenX(getLocation().getX()), (int)cam.toScreenY(getLocation().getY() - getHeight() + Game.BLOCK_SIZE));
         if (getType().getFrames() > 0) {

@@ -21,12 +21,14 @@ public class Particle extends GameObject {
 
     private boolean isFlipped;
     private double opacity;
-    private double size;
+    //private double size;
     private double offsetX, offsetY;
     private double timeAlive, ticksAlive;
     private double velX, velY;
     private double initialSize;
     public double GRAVITY = Game.BLOCK_SIZE * 4;
+
+    private double size = 32;
 
     public Particle(ParticleTypes type, Location spawnLoc, Level level) {
         super(level, spawnLoc);
@@ -38,9 +40,10 @@ public class Particle extends GameObject {
         this.opacity = 1.0;
         this.velX = getType().getVelX() * Game.BLOCK_SIZE;
         this.velY = getType().getVelY() * Game.BLOCK_SIZE;
-        this.size = 32;
-        setCollisionBox(null);
         setScale(1.0);
+        //setWidth(32);
+        //setHeight(32);
+        setCollisionBox(null);
 
         init();
     }
@@ -53,8 +56,12 @@ public class Particle extends GameObject {
                 Random rand = new Random();
                 setScale(rand.nextDouble(type.getMinSize(), type.getMaxSize()));
             }
-            this.size *= getScale();
         }
+
+        //this.size *= getScale();
+
+        //setWidth(image.getWidth() * getScale());
+        //setHeight(image.getHeight() * getScale());
 
         this.offsetX = 0;
         this.offsetY = 0;
@@ -64,13 +71,15 @@ public class Particle extends GameObject {
             this.offsetY = rand.nextDouble(-type.getOffset(), type.getOffset());
         }
 
-        this.initialSize = size;
+        this.initialSize = getScale();
         if (getType().isGrow()) {
-            size = 0;
+            //size = 0;
+            //setWidth(0);
+            //setHeight(0);
+            setScale(0);
         }
 
-        setLocation((getLocation().getX() + offsetX) - ((image.getWidth() * getScale()) / 2),
-                (getLocation().getY() + offsetY) - ((image.getHeight() * getScale()) / 2));
+        setLocation((getLocation().getX() - (getWidth() / 2)) + offsetX, (getLocation().getY() - (getHeight() / 2)) + offsetY);
     }
 
     public void update(double dt){
@@ -79,10 +88,16 @@ public class Particle extends GameObject {
         }
 
         opacity = opacity - ((1 / getTimeAlive()) * dt);
-        if (getType().isShrink()) {
-            size = size - ((initialSize / getTimeAlive()) * dt);
-        } else if (getType().isGrow() && size < initialSize) {
-            size = size + ((initialSize / getTimeAlive()) * dt);
+        if (getType().isShrink() && getScale() > 0) {
+            setScale(getScale() - ((initialSize / getTimeAlive()) * dt));
+            //setWidth(getWidth() - ((initialSize / getTimeAlive()) * dt));
+            //setHeight(getHeight() - ((initialSize / getTimeAlive()) * dt));
+            //size = size - ((initialSize / getTimeAlive()) * dt);
+        } else if (getType().isGrow() && getScale() < initialSize) {
+            setScale(getScale() + ((initialSize / getTimeAlive()) * dt));
+            //setWidth(getWidth() + ((initialSize / getTimeAlive()) * dt));
+            //setHeight(getHeight() + ((initialSize / getTimeAlive()) * dt));
+            //size = size + ((initialSize / getTimeAlive()) * dt);
         }
 
         if (ticksAlive < getTimeAlive()) {
@@ -110,7 +125,7 @@ public class Particle extends GameObject {
     }
 
     public void render(Camera cam){
-        double sizeDiff = (initialSize - size) / 2;
+        double sizeDiff = (initialSize - getWidth()) / 2;
         double camLocX = cam.toScreenX(getLocation().getX() + sizeDiff);
         double camLocY = cam.toScreenY(getLocation().getY() + sizeDiff);
 
@@ -125,11 +140,11 @@ public class Particle extends GameObject {
             return;
         }
 
-        Graphics2D g2d = cam.game.mGraphics;
+        Graphics2D g2d = cam.game.getGraphics();
         AffineTransform oldTrans = g2d.getTransform();
         g2d.translate(camLocX, camLocY);
         if (getRotation() != 0) {
-            g2d.rotate(getRotation(), size / 2, size / 2);
+            g2d.rotate(getRotation(), getWidth() / 2, getHeight() / 2);
         }
 
         if (type.isFadeOut()) {
@@ -186,11 +201,21 @@ public class Particle extends GameObject {
         if (opacity < 1) {
             AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity);
             g2d.setComposite(ac);
-            g2d.drawImage(img, 0, 0, (int)size, (int)size, null,null);
+            g2d.drawImage(img, 0, 0, (int)getWidth(), (int)getHeight(), null,null);
             ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
             g2d.setComposite(ac);
         } else {
-            g2d.drawImage(img, 0, 0, (int)size, (int)size, null,null);
+            g2d.drawImage(img, 0, 0, (int)getWidth(), (int)getHeight(), null,null);
         }
+    }
+
+    @Override
+    public double getWidth() {
+        return 32 * getScale();
+    }
+
+    @Override
+    public double getHeight() {
+        return 32 * getScale();
     }
 }

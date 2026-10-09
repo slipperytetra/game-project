@@ -19,7 +19,7 @@ public class BossBar {
     public BossBar(EntityLiving entity) {
         this.entity = entity;
 
-        this.barOffset = (getLevel().getManager().getEngine().width() / 2.0) - (barWidth / 2.0);
+        this.barOffset = (getLevel().getManager().getEngine().getWidth() / 2.0) - (barWidth / 2.0);
     }
 
     public EntityLiving getEntity() {
@@ -67,6 +67,6 @@ public class BossBar {
         cam.game.drawSolidRectangle(getPositionX(), getPositionY(), getProgress(), barHeight);
 
         cam.game.changeColor(Color.WHITE);
-        cam.game.drawBoldText(cam.game.width() / 2.0, getPositionY() - 10, getEntity().getType().name(), 13);
+        cam.game.drawBoldText(cam.game.getWidth() / 2.0, getPositionY() - 10, getEntity().getType().name(), 13);
     }
 }

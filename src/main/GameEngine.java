@@ -1,19 +1,20 @@
 package main;
 
-import java.awt.*;
-import java.awt.geom.*;
-
-import javax.swing.*;
-
-import java.awt.event.*;
-import java.awt.image.*;
-import java.io.*;
-
-import java.util.Stack;
-import java.util.Random;
-
-import javax.imageio.*;
+import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
+import java.util.Stack;
+import java.util.concurrent.locks.LockSupport;
 
 public abstract class GameEngine implements KeyListener, MouseListener, MouseMotionListener {
     //-------------------------------------------------------
@@ -24,6 +25,16 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     int mWidth, mHeight;
     public Graphics2D mGraphics;
     boolean initialised = false;
+
+    //TEMP
+    // Performance monitoring
+    private long statsStartNanos = System.nanoTime();
+
+    private int updateCount = 0;
+    private int paintCount = 0;
+
+    private long totalUpdateNanos = 0;
+    private long totalPaintNanos = 0;
 
     //-------------------------------------------------------
     // Time-Related functions
@@ -127,12 +138,12 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
     }
 
     // Return the width of the window
-    public int width() {
+    public int getWidth() {
         return mWidth;
     }
 
     // Return the height of the window
-    public int height() {
+    public int getHeight() {
         return mHeight;
     }
 
@@ -171,59 +182,26 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
 
     // Create main.Game Function
     public static void createGame(GameEngine game, int framerate) {
-        // Initialise main.Game
-        game.init();
+        SwingUtilities.invokeLater(() -> {
+            // The constructor has already queued window creation.
+            // This task runs after that setup task on the EDT.
+            game.init();
 
-        // Start the main.Game
-        game.gameLoop(framerate);
+            // Start the game after initialisation.
+            game.gameLoop(framerate);
+        });
     }
 
     public static void createGame(GameEngine game) {
-        // Call CreateGame
         createGame(game, 30);
     }
 
-    // main.Game Timer
-    protected class GameTimer extends Timer {
-        private static final long serialVersionUID = 1L;
-        private int framerate;
-
-        protected GameTimer(int framerate, ActionListener listener) {
-            super(1000/framerate, listener);
-            this.framerate = framerate;
-        }
-
-        protected void setFramerate(int framerate) {
-            if (framerate < 1) framerate = 1;
-            this.framerate = framerate;
-
-            int delay = 1000 / framerate;
-            setInitialDelay(0);
-            setDelay(delay);
-        }
-
-        protected int getFramerate() {
-            return framerate;
-        }
-    }
+    private volatile boolean running = false;
+    private Thread gameThread;
 
     // Main Loop of the game. Runs continuously
     // and calls all the updates of the game and
     // tells the game to display a new frame.
-    GameTimer timer = new GameTimer(30, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // Determine the time step
-            double passedTime = measureTime();
-            double dt = passedTime / 1000.;
-
-            // Update the main.Game
-            update(dt);
-
-            // Tell the main.Game to draw
-            mPanel.repaint();
-        }
-    });
 
     // The main.GameEngine main Panel
     protected class GamePanel extends JPanel {
@@ -231,33 +209,135 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
 
         // This gets called any time the Operating System
         // tells the program to paint itself
+        @Override
         public void paintComponent(Graphics graphics) {
-            // Get the graphics object
-            mGraphics = (Graphics2D)graphics;
+            super.paintComponent(graphics);
 
-            // Reset all transforms
-            mTransforms.clear();
-            mTransforms.push(mGraphics.getTransform());
+            long start = System.nanoTime();
 
-            // Rendering settings
-            mGraphics.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+            synchronized (GameEngine.this) {
+                // Get the graphics object.
+                mGraphics = (Graphics2D) graphics;
 
-            // Paint the game
-            if (initialised) {
-                GameEngine.this.paintComponent();
+                // Reset all transforms.
+                mTransforms.clear();
+                mTransforms.push(mGraphics.getTransform());
+
+                // Rendering settings.
+                mGraphics.setRenderingHints(
+                        new RenderingHints(
+                                RenderingHints.KEY_ANTIALIASING,
+                                RenderingHints.VALUE_ANTIALIAS_ON
+                        )
+                );
+
+                // Paint the game.
+                if (initialised) {
+                    GameEngine.this.paintComponent();
+                }
             }
+
+            totalPaintNanos += System.nanoTime() - start;
+            paintCount++;
         }
     }
 
     // Initialises and starts the game loop with the given framerate.
     public void gameLoop(int framerate) {
-        initialised = true; // assume init has been called or won't be called
+        if (framerate < 1) {
+            framerate = 1;
+        }
 
-        timer.setFramerate(framerate);
-        timer.setRepeats(true);
+        if (running) {
+            return;
+        }
 
-        // Main loop runs until program is closed
-        timer.start();
+        initialised = true;
+        running = true;
+
+        final long frameDuration = 1_000_000_000L / framerate;
+
+        int finalFramerate = framerate;
+        gameThread = new Thread(() -> {
+            long previousTime = System.nanoTime();
+            long reportStart = System.nanoTime();
+
+            long totalUpdate = 0;
+            long totalBeforeWait = 0;
+            long totalWait = 0;
+            int frames = 0;
+
+            while (running) {
+                long frameStart = System.nanoTime();
+
+                double dt = (frameStart - previousTime)
+                        / 1_000_000_000.0;
+                previousTime = frameStart;
+
+                // Measure update duration.
+                long updateStart = System.nanoTime();
+                synchronized (GameEngine.this) {
+                    update(dt);
+                }
+                totalUpdate += System.nanoTime() - updateStart;
+
+                // Measure work before waiting.
+                mPanel.repaint();
+                long beforeWait = System.nanoTime();
+                totalBeforeWait += beforeWait - frameStart;
+
+                long deadline = frameStart + frameDuration;
+                long remaining = deadline - System.nanoTime();
+
+// Sleep until approximately 1 ms before the deadline.
+                if (remaining > 4_000_000L) {
+                    LockSupport.parkNanos(remaining - 4_000_000L);
+                }
+
+// Precisely wait for the deadline.
+                while ((remaining = deadline - System.nanoTime()) > 0) {
+                    Thread.onSpinWait();
+                }
+
+                long frameEnd = System.nanoTime();
+                totalWait += frameEnd - beforeWait;
+                frames++;
+
+                if (frameEnd - reportStart >= 1_000_000_000L) {
+                    double seconds =
+                            (frameEnd - reportStart) / 1_000_000_000.0;
+
+                    System.out.printf(
+                            "FPS: %.1f | Update: %.2f ms"
+                                    + " | Pre-wait: %.2f ms | Wait: %.2f ms%n",
+                            frames / seconds,
+                            totalUpdate / 1_000_000.0 / frames,
+                            totalBeforeWait / 1_000_000.0 / frames,
+                            totalWait / 1_000_000.0 / frames
+                    );
+
+                    reportStart = frameEnd;
+                    totalUpdate = 0;
+                    totalBeforeWait = 0;
+                    totalWait = 0;
+                    frames = 0;
+                }
+            }
+        }, "Game Loop");
+
+        gameThread.start();
+    }
+
+    public void stopGameLoop() {
+        running = false;
+
+        if (gameThread != null) {
+            gameThread.interrupt();
+        }
+    }
+
+    public Graphics2D getGraphics() {
+        return mGraphics;
     }
 
     //-------------------------------------------------------

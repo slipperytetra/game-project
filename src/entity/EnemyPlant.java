@@ -37,7 +37,7 @@ public class EnemyPlant extends Enemy {
         double offsetY = cam.toScreenY(getLocation().getY());
 
         if (deathTimer.isRunning()) {
-            Graphics2D g2d = cam.game.mGraphics;
+            Graphics2D g2d = cam.game.getGraphics();
             AffineTransform oldTrans = g2d.getTransform();
             g2d.translate(offsetX, offsetY);
             g2d.rotate(getRotation(), getWidth()/2, getHeight()/2);

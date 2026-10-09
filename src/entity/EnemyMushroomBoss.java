@@ -3,10 +3,12 @@ package entity;
 import block.decorations.FakeLightSpot;
 import level.Level;
 import main.Camera;
+import main.Game;
 import main.SoundType;
 import utils.GameUtils;
 import utils.Location;
 import utils.Texture;
+import utils.TextureAnimated;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -47,7 +49,7 @@ public class EnemyMushroomBoss extends Enemy {
         double offsetY = cam.toScreenY(getLocation().getY());
 
         if (deathTimer.isRunning()) {
-            Graphics2D g2d = cam.game.mGraphics;
+            Graphics2D g2d = cam.game.getGraphics();
             AffineTransform oldTrans = g2d.getTransform();
             g2d.translate(offsetX, offsetY);
             g2d.rotate(getRotation(), getWidth()/2, getHeight()/2);
@@ -84,6 +86,11 @@ public class EnemyMushroomBoss extends Enemy {
     }
 
     @Override
+    public TextureAnimated getAttackFrame() {
+        return null;
+    }
+
+    @Override
     public boolean isFlipped() {
         if (getTarget() == null) {
             return false;
@@ -98,5 +105,24 @@ public class EnemyMushroomBoss extends Enemy {
 
         getLevel().getCamera().setFocusObject(getLevel().getPlayer());
         getLevel().getCamera().setFixed(false);
+    }
+
+    @Override
+    public void attack() {
+        if (getTarget() == null || getLevel().isEditMode() || Game.isPaused) {
+            return;
+        }
+
+        performAttackMove(0);
+    }
+
+    public void performAttackMove(int attackType) {
+        if (attackType == 0) {
+            for (int i = 0; i < 1; i++) {
+                EnemyMushroomSpore spore = new EnemyMushroomSpore(this, getLevel(), getLocation().clone());
+                spore.setLocation(getCenterX(), getCenterY() - (getHeight()));
+                getLevel().spawnEntity(spore);
+            }
+        }
     }
 }

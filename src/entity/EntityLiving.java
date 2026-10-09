@@ -140,7 +140,7 @@ public abstract class EntityLiving extends Entity {
     }
 
     public void attack() {
-        if (getTarget() == null || getLevel().isEditMode() || getLevel().getManager().getEngine().isPaused) {
+        if (getTarget() == null || getLevel().isEditMode() || Game.isPaused) {
             return;
         }
 
@@ -236,8 +236,8 @@ public abstract class EntityLiving extends Entity {
 
     @Override
     public void render(Camera cam) {
-        if (deathTimer.isRunning()) {
-            Graphics2D g2d = cam.game.mGraphics;
+        if (deathTimer != null && deathTimer.isRunning()) {
+            Graphics2D g2d = cam.game.getGraphics();
             AffineTransform oldTrans = g2d.getTransform();
             g2d.translate((int)cam.toScreenX(getLocation().getX()), (int)cam.toScreenY(getLocation().getY()));
             g2d.rotate(getRotation(), getWidth()/2, getHeight()/2);
@@ -257,7 +257,7 @@ public abstract class EntityLiving extends Entity {
 
     @Override
     public boolean isActive() {
-        if (deathTimer.isRunning()) {
+        if (deathTimer != null && deathTimer.isRunning()) {
             return true;
         }
 

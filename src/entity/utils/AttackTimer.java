@@ -30,7 +30,9 @@ public class AttackTimer extends Timer {
                     if (entity.getAttackSound() != null) {
                         entity.getLevel().getManager().getEngine().getAudioBank().playSound(entity.getAttackSound());
                     }
-                    entity.getAttackFrame().setFrameIndex(0);
+                    if (entity.getAttackFrame() != null) {
+                        entity.getAttackFrame().setFrameIndex(0);
+                    }
                     entity.setAttackTicks(0);
                 }
 

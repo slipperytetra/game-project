@@ -9,7 +9,7 @@ import utils.Texture;
 public class EnemyBee extends Enemy {
     public EnemyBee(Level level, Location loc) {
         super(EntityType.BEE, level, loc);
-
+        setScale(2);
         setTarget(getLevel().getPlayer());
         setAttackRange(Game.BLOCK_SIZE * 15);
 

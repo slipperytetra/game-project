@@ -23,6 +23,7 @@ public class Projectile extends Entity {
     public final double GRAVITY = 9.8 * Game.BLOCK_SIZE; // gravity constant
     double angle;
     protected double rotationOffset;
+    private boolean isTiltTowardsAngle;
 
     private ParticleTypes particleTrail;
     private double particleTimer;
@@ -41,6 +42,7 @@ public class Projectile extends Entity {
 
         setCollidable(false);
         setIsSolid(false);
+        setTiltTowardsAngle(true);
 
         angle = -(Math.atan2((loc.getY() + (getHeight() / 2)) - targetY, targetX - (loc.getX() + (getWidth() / 2))));
         this.velocity = new Vector(speed * Math.cos(angle), speed * Math.sin(angle));
@@ -171,7 +173,9 @@ public class Projectile extends Entity {
     public Texture getIdleFrame() {
         Texture texture = getLevel().getManager().getEngine().getTextureBank().getTexture(getType().toString().toLowerCase());
         texture.setFlipped(false);
-        texture.setRotation(angle + Math.toRadians(rotationOffset));
+        if (isTiltTowardsAngle()) {
+            texture.setRotation(angle + Math.toRadians(rotationOffset));
+        }
 
         return texture;
     }
@@ -236,5 +240,13 @@ public class Projectile extends Entity {
                         rand.nextDouble(-2, 2), rand.nextDouble(-1, 4));
             }
         }
+    }
+
+    public boolean isTiltTowardsAngle() {
+        return isTiltTowardsAngle;
+    }
+
+    public void setTiltTowardsAngle(boolean isTiltTowardsAngle) {
+        this.isTiltTowardsAngle = isTiltTowardsAngle;
     }
 }

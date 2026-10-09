@@ -110,6 +110,8 @@ public class Player extends EntityLiving {
 
         if (runParticleTimer < RUN_PARTICLE_FREQUENCY) {
             runParticleTimer += 1 * dt;
+
+           // getLevel().spawnParticle(ParticleTypes.MUSHROOM_SPORES, getCenterX(), getCenterY());
         }
 
         if  (runParticleTimer >= RUN_PARTICLE_FREQUENCY) {
@@ -164,7 +166,7 @@ public class Player extends EntityLiving {
         }
 
         BufferedImage texture = getActiveFrame().getImage();
-        Graphics2D g2d = cam.game.mGraphics;
+        Graphics2D g2d = cam.game.getGraphics();
         AffineTransform oldTrans = g2d.getTransform();
 
         g2d.translate((int) cam.toScreenX(playerOffsetX), (int) cam.toScreenY(playerOffsetY));

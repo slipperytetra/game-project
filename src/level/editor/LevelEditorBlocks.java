@@ -20,8 +20,8 @@ public class LevelEditorBlocks extends LevelEditor {
         if (block == null) {
             return;
         }
-        cam.game.drawText(cam.game.width() - 150, 30, "Block: " + block.getType().toString(), 15);
-        cam.game.drawText(cam.game.width() - 150, 45, "Pos: (" + getTileX() + ", " + getTileY() + ")", 15);
+        cam.game.drawText(cam.game.getWidth() - 150, 30, "Block: " + block.getType().toString(), 15);
+        cam.game.drawText(cam.game.getWidth() - 150, 45, "Pos: (" + getTileX() + ", " + getTileY() + ")", 15);
 
         if (getSelectedItem() instanceof BlockTypes type) {
             Texture texture = cam.game.getTextureBank().getTexture(type.toString());

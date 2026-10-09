@@ -23,8 +23,8 @@ public class LevelEditorDecorations extends LevelEditor {
         super.render(cam);
         
         Block block = getSelectedBlock();
-        cam.game.drawText(cam.game.width() - 150, 30, "Decoration: " + block.getType().toString(), 15);
-        cam.game.drawText(cam.game.width() - 150, 45, "Pos: (" + getTileX() + ", " + getTileY() + ")", 15);
+        cam.game.drawText(cam.game.getWidth() - 150, 30, "Decoration: " + block.getType().toString(), 15);
+        cam.game.drawText(cam.game.getWidth() - 150, 45, "Pos: (" + getTileX() + ", " + getTileY() + ")", 15);
         if (getSelectedItem() instanceof DecorationTypes decoType) {
             Texture texture = cam.game.getTextureBank().getTexture(decoType.toString().toLowerCase());
             if (texture != null) {
