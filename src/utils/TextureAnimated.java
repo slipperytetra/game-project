@@ -81,4 +81,11 @@ public class TextureAnimated extends Texture {
 
         return frames[frame];
     }
+
+    @Override
+    public void optimise() {
+        for (int i = 0; i < getFrames().length; i++) {
+            getFrames()[i] = GameUtils.toCompatibleImage(getFrames()[i]);
+        }
+    }
 }

@@ -40,38 +40,38 @@ public abstract class LevelEditor {
     }
 
     public void mouseMoved(MouseEvent event) {
-        game.mouseX = game.getCamera().toWorldX(event.getX());
-        game.mouseY = game.getCamera().toWorldY(event.getY());
+        game.setMouseX(game.getCamera().toWorldX(game.getVirtualMouseX(event.getX())));
+        game.setMouseY(game.getCamera().toWorldY(game.getVirtualMouseY(event.getY())));
         updateMouseBox();
     }
 
     public void mousePressed(MouseEvent event) {
-        game.mouseX = game.getCamera().toWorldX(event.getX());
-        game.mouseY = game.getCamera().toWorldY(event.getY());
+        game.setMouseX(game.getCamera().toWorldX(game.getVirtualMouseX(event.getX())));
+        game.setMouseY(game.getCamera().toWorldY(game.getVirtualMouseY(event.getY())));
         updateMouseBox();
         editObject(event);
     }
 
     public void mouseReleased(MouseEvent event) {
-        game.mouseX = game.getCamera().toWorldX(event.getX());
-        game.mouseY = game.getCamera().toWorldY(event.getY());
+        game.setMouseX(game.getCamera().toWorldX(game.getVirtualMouseX(event.getX())));
+        game.setMouseY(game.getCamera().toWorldY(game.getVirtualMouseY(event.getY())));
         updateMouseBox();
         //editObject(event);
     }
 
     public void mouseDragged(MouseEvent event) {
-        game.mouseX = game.getCamera().toWorldX(event.getX());
-        game.mouseY = game.getCamera().toWorldY(event.getY());
+        game.setMouseX(game.getCamera().toWorldX(game.getVirtualMouseX(event.getX())));
+        game.setMouseY(game.getCamera().toWorldY(game.getVirtualMouseY(event.getY())));
         updateMouseBox();
         editObject(event);
     }
 
     public int getTileX() {
-        return (int) game.mouseX / Game.BLOCK_SIZE;
+        return (int) game.getMouseX() / Game.BLOCK_SIZE;
     }
 
     public int getTileY() {
-        return (int) game.mouseY / Game.BLOCK_SIZE;
+        return (int) game.getMouseY() / Game.BLOCK_SIZE;
     }
 
     public abstract void editObject(MouseEvent event);
@@ -107,10 +107,10 @@ public abstract class LevelEditor {
     public void updateMouseBox() {
         Camera cam = getLevel().getManager().getEngine().getCamera();
         if (game.mouseBox == null) {
-            game.mouseBox = new CollisionBox(game.mouseX, game.mouseY, 4, 4);
+            game.mouseBox = new CollisionBox(game.getMouseX(), game.getMouseY(), 4, 4);
             return;
         }
 
-        game.mouseBox.setLocation(game.mouseX, game.mouseY);
+        game.mouseBox.setLocation(game.getMouseX(), game.getMouseY());
     }
 }

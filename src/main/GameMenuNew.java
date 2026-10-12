@@ -341,6 +341,7 @@ class LevelLoadPanel extends JPanel {
             // Get the reference to the frame containing the button
             JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(button);
             if (parentFrame != null) {
+                menu.stopGameLoop();
                 parentFrame.dispose();
             }
             new Game().startGame();

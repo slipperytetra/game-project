@@ -52,4 +52,32 @@ public class GameUtils {
         //System.out.println("returning tinted img");
         return new Texture(tintedImage);
     }
+
+
+    public static BufferedImage toCompatibleImage(BufferedImage source) {
+        if (source == null) {
+            return null;
+        }
+
+        GraphicsConfiguration gc = GraphicsEnvironment
+                        .getLocalGraphicsEnvironment()
+                        .getDefaultScreenDevice()
+                        .getDefaultConfiguration();
+
+        if (source.getColorModel().equals(gc.getColorModel())) {
+            return source;
+        }
+
+        BufferedImage compatible = gc.createCompatibleImage(
+                source.getWidth(),
+                source.getHeight(),
+                Transparency.TRANSLUCENT
+        );
+
+        Graphics2D g = compatible.createGraphics();
+        g.drawImage(source, 0, 0, null);
+        g.dispose();
+
+        return compatible;
+    }
 }

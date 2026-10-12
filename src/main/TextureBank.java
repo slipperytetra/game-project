@@ -5,15 +5,18 @@ import block.decorations.DecorationTypes;
 import entity.EntityType;
 import level.ParticleTypes;
 import level.item.ItemType;
+import utils.GameUtils;
 import utils.Texture;
 import utils.TextureAnimated;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.HashMap;
 
 public class TextureBank {
 
-    private Game game;
+    private final Game game;
     private HashMap<String, Texture> textures;
 
     public TextureBank(Game game) {
@@ -56,13 +59,15 @@ public class TextureBank {
 
 
         for (BlockTypes type : BlockTypes.values()) {
+
             if (type.getBlockSetAmount() > 0) {
                 for (int i = 0; i < type.getBlockSetAmount(); i++) {
                     String suffix = "_" + i;
-                    addTexture(type.toString() + suffix, new Texture((BufferedImage) game.loadImage(type.getFilePath() + suffix + ".png")));
+                    BufferedImage image = (BufferedImage) game.loadImage(type.getFilePath() + suffix + ".png");
+                    addTexture(type + suffix, new Texture(GameUtils.toCompatibleImage(image)));
                 }
             } else {
-                addTexture(type.toString(),  new Texture((BufferedImage) game.loadImage(type.getFilePath())));
+                addTexture(type.toString(),  new Texture(GameUtils.toCompatibleImage((BufferedImage) game.loadImage(type.getFilePath()))));
             }
         }
 
@@ -172,6 +177,7 @@ public class TextureBank {
     }
 
     public void addTexture(String name, Texture texture) {
+        texture.optimise();
         this.textures.put(name.toLowerCase(), texture);
     }
 

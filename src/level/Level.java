@@ -8,6 +8,7 @@ import level.item.Inventory;
 import main.*;
 import org.w3c.dom.Text;
 import utils.*;
+import utils.GameUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -31,13 +32,12 @@ public class Level {
     public int maxLines;
     public int loadCompletion;
     private boolean isEditMode;
+    private double scaleX = 1;
+    private double scaleY = 1;
 
     private String name;
     private String nextLevel;
     private String overlay;
-    private String backgroundImgFilePath;
-    private String midgroundImgFilePath;
-    private String foregroundImgFilePath;
     private String backgroundmusicFilePath;
     private GameEngine.AudioClip backgroundMusic;
     private CollisionBox bounds;
@@ -62,6 +62,7 @@ public class Level {
     public HashMap<Character, BlockTypes> blockKeyMap;
     public HashMap<Character, EntityType> entityKeyMap;
     public HashMap<Character, DecorationTypes> decorationKeyMap;
+    public HashMap<String, BackgroundLayer> bgLayerMap;
 
     private QuadTree qtree;
     private BossBar bossBar;
@@ -96,6 +97,7 @@ public class Level {
 
         this.entityKeyMap = new HashMap<>();
         this.decorationKeyMap = new HashMap<>();
+        this.bgLayerMap = new HashMap<>();
     }
 
     public void init() {
@@ -113,9 +115,9 @@ public class Level {
 
 
         name = lines.get(0).substring("name".length());
-        backgroundImgFilePath = lines.get(1).substring("background".length());
-        midgroundImgFilePath = lines.get(2).substring("midground".length());
-        foregroundImgFilePath = lines.get(3).substring("foreground".length());
+        bgLayerMap.put("background", new BackgroundLayer(lines.get(1).substring("background".length())));
+        bgLayerMap.put("midground", new BackgroundLayer(lines.get(2).substring("midground".length())));
+        bgLayerMap.put("foreground", new BackgroundLayer(lines.get(3).substring("foreground".length())));
         backgroundmusicFilePath = lines.get(4).substring("background_music".length());
         overlay = lines.get(5).substring("overlay".length());
         nextLevel = lines.get(6).substring("next_level".length());
@@ -232,6 +234,7 @@ public class Level {
                     addDecoration(type, spawnLoc);
                 }
 
+
             }
 
             y++;
@@ -246,18 +249,13 @@ public class Level {
         grid.applySets();
         grid.applySets();
 
-        if (!backgroundImgFilePath.isEmpty()) {
-            getManager().getEngine().getTextureBank().addTexture("background", new Texture((BufferedImage) getManager().getEngine().loadImage(backgroundImgFilePath)));
+        for (String layer : bgLayerMap.keySet()) {
+            bgLayerMap.get(layer).init(this);
         }
-        if (!midgroundImgFilePath.isEmpty()) {
-            getManager().getEngine().getTextureBank().addTexture("midground", new Texture((BufferedImage) getManager().getEngine().loadImage(midgroundImgFilePath)));
-        }
-        if (!foregroundImgFilePath.isEmpty()) {
-            getManager().getEngine().getTextureBank().addTexture("foreground", new Texture((BufferedImage) getManager().getEngine().loadImage(foregroundImgFilePath)));
-        }
-        if (!overlay.isEmpty()) {
-            getManager().getEngine().getTextureBank().addTexture("overlay", new Texture((BufferedImage) getManager().getEngine().loadImage(overlay)));
-        }
+
+        bgLayerMap.get("background").getTexture().image = scaleImage(bgLayerMap.get("background").getTexture().image, GameEngine.VIRTUAL_WIDTH, GameEngine.VIRTUAL_HEIGHT);
+        //getManager().getEngine().getTextureBank().addTexture("overlay", new Texture((BufferedImage) getManager().getEngine().loadImage(overlay)));
+
         if (!backgroundmusicFilePath.isEmpty()) {
             backgroundMusic = getManager().getEngine().loadAudio(backgroundmusicFilePath);
         }
@@ -279,6 +277,8 @@ public class Level {
         System.out.println(getActualWidth() + ", " + getActualHeight());
         gameObjects.addAll(getEntities());
 
+
+
         /*
         this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
         this.qtree.insert(getPlayer());
@@ -296,7 +296,39 @@ public class Level {
         }*/
 
         this.qtree = new QuadTree(new CollisionBox(0, 0, getActualWidth(), getActualHeight()), 4);
-        createImage();
+        //createImage();
+    }
+
+    private BufferedImage makePremultiplied(BufferedImage source) {
+        BufferedImage result = new BufferedImage(
+                source.getWidth(),
+                source.getHeight(),
+                BufferedImage.TYPE_INT_ARGB_PRE
+        );
+
+        Graphics2D g = result.createGraphics();
+        g.drawImage(source, 0, 0, null);
+        g.dispose();
+
+        return result;
+    }
+
+    private BufferedImage scaleImage(BufferedImage source, int width, int height) {
+        BufferedImage scaled = new BufferedImage(
+                width,
+                height,
+                BufferedImage.TYPE_INT_ARGB_PRE
+        );
+
+        Graphics2D g = scaled.createGraphics();
+        g.setRenderingHint(
+                RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR
+        );
+        g.drawImage(source, 0, 0, width, height, null);
+        g.dispose();
+
+        return scaled;
     }
 
 
@@ -632,8 +664,8 @@ public class Level {
         return isEditMode;
     }
 
-    public String getBackgroundImgFilePath() {
-        return backgroundImgFilePath;
+    public HashMap<String, BackgroundLayer> getBgLayerMap() {
+        return bgLayerMap;
     }
 
     public String getBackgroundmusicFilePath() {
@@ -642,14 +674,6 @@ public class Level {
 
     public String getOverlay() {
         return overlay;
-    }
-
-    public String getForegroundImgFilePath() {
-        return foregroundImgFilePath;
-    }
-
-    public String getMidgroundImgFilePath() {
-        return midgroundImgFilePath;
     }
 
     public QuadTree getQuadTree() {
@@ -777,5 +801,13 @@ public class Level {
 
     public void setBossBar(BossBar bossBar) {
         this.bossBar = bossBar;
+    }
+
+    public double getScaleX() {
+        return scaleX;
+    }
+
+    public double getScaleY() {
+        return scaleY;
     }
 }

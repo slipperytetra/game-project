@@ -308,7 +308,7 @@ public class Player extends EntityLiving {
                 }
 
                 Location spawnLoc = new Location(getLocation().getX(), getLocation().getY());
-                ProjectileArrow proj = new ProjectileArrow(this, getLevel(), spawnLoc, getLevel().getManager().getEngine().mouseX, getLevel().getManager().getEngine().mouseY);
+                ProjectileArrow proj = new ProjectileArrow(this, getLevel(), spawnLoc, getLevel().getManager().getEngine().getMouseX(), getLevel().getManager().getEngine().getMouseY());
                 proj.setLocation(getLocation().getX() + (getHitboxWidth() / 2) - (proj.getWidth() / 2), getLocation().getY());
                 proj.offsetTrajectory(32);
                 proj.setDamage((int)getDamage());

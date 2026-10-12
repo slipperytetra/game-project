@@ -29,7 +29,6 @@ public class Game extends GameEngine {
     public long currentTime;
     public Set<Integer> keysPressed = new HashSet();
     public CollisionBox mouseBox;
-    public double mouseX, mouseY;
 
     public JPanel editingPanel;
     public JComboBox<ComboBoxItem> cBoxBlocks;
@@ -38,7 +37,7 @@ public class Game extends GameEngine {
 
     private ConfigManager configManager;
     private LevelEditor levelEditor;
-    private static GameMenuNew titleMenu;
+    private static Game titleMenu;
 
     LevelManager lvlManager;
     private Level activeLevel;
@@ -47,13 +46,13 @@ public class Game extends GameEngine {
     Location tempLoc;
 
     public static void main(String[] args) {
-        titleMenu = new GameMenuNew();
-        createGame(titleMenu,  60);
+        titleMenu = new Game();
+        createGame(titleMenu);
         //SwingUtilities.invokeLater(GameMenuNew::new);
     }
 
     public void startGame(){
-        createGame(this,  60);
+        createGame(this);
         initComboBoxes();
     }
 
@@ -71,16 +70,17 @@ public class Game extends GameEngine {
         setActiveLevel(lvlManager.FOREST);
         this.levelEditor = new LevelEditorBlocks(getActiveLevel());
         tempLoc = new Location(getActiveLevel().getActualWidth() / 2, getActiveLevel().getActualWidth() / 2);
-        this.mouseBox = new CollisionBox(mouseX, mouseY, 2, 2);
+        this.mouseBox = new CollisionBox(getMouseX(), getMouseY(), 2, 2);
 
         this.configManager = new ConfigManager();
         for (ConfigAttribute att : ConfigAttribute.values()) {
             configManager.addItem(att, att.getDefaultValue());
         }
 
+        /*
         if (titleMenu != null && titleMenu.sMenu != null) {
             configManager.addItem(ConfigAttribute.TITLE_SETTINGS_GRAPHICS_SHADERS, titleMenu.sMenu.shaders.isSelected());
-        }
+        }*/
     }
 
     public Level getActiveLevel() {

@@ -8,15 +8,14 @@ import entity.Entity;
 import entity.EntityLiving;
 import entity.Player;
 import entity.utils.BossBar;
+import level.Level;
 import level.Particle;
 import level.TextMessage;
 import level.item.Inventory;
-import utils.CollisionBox;
-import utils.Location;
-import utils.Texture;
-import utils.Vector;
+import utils.*;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,9 +57,9 @@ public class Camera {
     private Location focusPoint;
     private GameObject focusObj;
 
-    private Texture textBg;
-    private Texture textMg;
-    private Texture textFg;
+    private BackgroundLayer layerBackground;
+    private BackgroundLayer layerMidground;
+    private BackgroundLayer layerForeground;
     public Vector velocity;
 
     private double deadZoneX, deadZoneY;
@@ -71,12 +70,12 @@ public class Camera {
         this.player = p;
         this.loc = new Location(0, 0);
 
-        this.camWidth = 1280;
-        this.camHeight = 720;
+        this.camWidth = GameEngine.VIRTUAL_WIDTH;
+        this.camHeight = GameEngine.VIRTUAL_HEIGHT;
 
-        this.textBg = game.getTextureBank().getTexture("background");
-        this.textMg = game.getTextureBank().getTexture("midground");
-        this.textFg = game.getTextureBank().getTexture("foreground");
+        this.layerBackground = game.getActiveLevel().getBgLayerMap().get("background");
+        this.layerMidground = game.getActiveLevel().getBgLayerMap().get("midground");
+        this.layerForeground = game.getActiveLevel().getBgLayerMap().get("foreground");
         this.rand = new Random();
         /*
          *   'point1' is the top left location of the screen.
@@ -211,11 +210,23 @@ public class Camera {
      *   It also checks if the object is viewable on the camera before drawing it by comparing its collision
      *   box to the camera's collision box (width and height of the screen)
      * */
+
     private void renderDecorations() {
         DEBUG_DECORATIONS_ON_SCREEN = 0;
+
+
         for (Decoration deco : game.getActiveLevel().getDecorations()) {
-            if (deco.getCollisionBox().collidesWith(this.getCollisionBox())) {
+            long start = System.nanoTime();
+
+            boolean visible = deco.getCollisionBox()
+                    .collidesWith(this.getCollisionBox());
+
+
+            if (visible) {
+                start = System.nanoTime();
+
                 deco.render(this);
+
                 DEBUG_DECORATIONS_ON_SCREEN++;
             }
         }
@@ -234,6 +245,7 @@ public class Camera {
      *   between our point1 and point2. If they are, this means they are visible to the camera and should be drawn.
      *
      * */
+
     private void renderBlocks() {
         DEBUG_BLOCKS_ON_SCREEN = 0;
 
@@ -241,41 +253,31 @@ public class Camera {
         int startY = getPoint1().getTileY();
         int endX = getPoint2().getTileX();
         int endY = getPoint2().getTileY();
+
         if (endX < game.getActiveLevel().getBlockGrid().getWidth()) {
-            endX += 1;
-        }
-        if (endY < game.getActiveLevel().getBlockGrid().getHeight()) {
-            endY += 1;
+            endX++;
         }
 
-        HashMap<BlockTypes, List<Block>> renderMap = game.getActiveLevel().getBlockGrid().getRenderMap();
+        if (endY < game.getActiveLevel().getBlockGrid().getHeight()) {
+            endY++;
+        }
+
         for (int x = startX; x < endX; x++) {
-            for (int y = startY; y < endY; y++) { //Iterating over all the blocks
-                Block b = game.getActiveLevel().getBlockGrid().getBlockAt(x, y); //Getting the block from the grid based on the coordinates
+            for (int y = startY; y < endY; y++) {
+                Block b = game.getActiveLevel()
+                        .getBlockGrid()
+                        .getBlockAt(x, y);
+
                 if (b == null || b.getType() == BlockTypes.VOID) {
                     continue;
                 }
 
-                if (renderMap.containsKey(b.getType())) {
-                    renderMap.get(b.getType()).add(b);
-                } else {
-                    List<Block> listLoc = new ArrayList<>();
-                    listLoc.add(b);
-                    renderMap.put(b.getType(), listLoc);
-                }
-
                 DEBUG_BLOCKS_ON_SCREEN++;
+                b.render(this);
             }
         }
-
-        for (BlockTypes type : renderMap.keySet()) {
-            for (Block block : renderMap.get(type)) {
-                block.render(this);
-            }
-        }
-
-        renderMap.clear();
     }
+
 
 
     /*
@@ -289,6 +291,7 @@ public class Camera {
                     entity.render(this);
                     double offsetX = toScreenX(entity.getLocation().getX());
                     double offsetY = toScreenY(entity.getLocation().getY());
+
 
                     if (entity.getHealth() < entity.getMaxHealth() && !entity.isDead()) {
                         drawHealthBar(entity, offsetX, offsetY - 20);
@@ -443,47 +446,64 @@ public class Camera {
             }
         }
 
+        /* DISCONTINUED FEATURE - TOO PERFORMANCE HEAVY
+            Saw about a ~33% reduction in fps
+            Tried an overlay tint colour filter but performance was even worse
+
+            SUGGESTED REASONING:
+            Calculates on the CPU. Ideally need to use some kind of shader that utilises the process on the GPU instead.
+
         if (game.getTextureBank().getTexture("overlay") != null) {
-            game.drawImage(game.getTextureBank().getTexture("overlay").getImage(), 0, 0, game.getWidth(), game.getHeight());
-        }
+            game.getGraphics().drawImage(game.getTextureBank().getTexture("overlay").getImage(), 0, 0, null);
+        }*/
     }
 
     private void renderBackground() {
-        if (textBg != null) {
-            game.drawImage(textBg.getImage(), 0, 0, game.getWidth() , game.getHeight() );
+        if (layerBackground.getTexture() != null) {
+            game.drawImage(layerBackground.getTexture().getImage(), 0, 0, GameEngine.VIRTUAL_WIDTH , GameEngine.VIRTUAL_HEIGHT);
         }
 
-        drawParallaxImage(textMg, 0.5);
-        drawParallaxImage(textFg, 0.85);
+        drawParallaxImage(layerMidground, 0.5, "midground");
+        drawParallaxImage(layerForeground, 0.85, "foreground");
     }
 
-    private void drawParallaxImage(Texture bg, double paraZoom) {
-        if (bg != null) {
-            double scaleX = (double) game.getActiveLevel().getActualWidth() / bg.getWidth(); //remember to do this only once somewhere else
-            double scaleY = (double) game.getActiveLevel().getActualHeight() / bg.getHeight();
+    private void drawParallaxImage(BackgroundLayer layer, double paraZoom, String name) {
+        Level lvl = game.getActiveLevel();
+        if (lvl != null && layer != null) {
+            double camBotLeftX = Math.round((0 + ((0 + getCollisionBox().getLocation().getX()) * paraZoom)) / layer.getScaleX());
+            double camBotLeftY = Math.round((0 + ((0 + getCollisionBox().getLocation().getY()) * paraZoom)) / layer.getScaleY());
+            double camTopRightX = Math.round((lvl.getActualWidth() - ((lvl.getActualWidth() - getCollisionBox().getCorner().getX()) * paraZoom)) / layer.getScaleX());
+            double camTopRightY = Math.round((lvl.getActualHeight() - ((lvl.getActualHeight() - getCollisionBox().getCorner().getY()) * paraZoom)) / layer.getScaleY());
 
-            double camBotLeftX = Math.round((0 + ((0 + getCollisionBox().getLocation().getX()) * paraZoom)) / scaleX);
-            double camBotLeftY = Math.round((0 + ((0 + getCollisionBox().getLocation().getY()) * paraZoom)) / scaleY);
-            double camTopRightX = Math.round((game.getActiveLevel().getActualWidth() - ((game.getActiveLevel().getActualWidth() - getCollisionBox().getCorner().getX()) * paraZoom)) / scaleX);
-            double camTopRightY = Math.round((game.getActiveLevel().getActualHeight() - ((game.getActiveLevel().getActualHeight() - getCollisionBox().getCorner().getY()) * paraZoom)) / scaleY);
 
-            int width = (int) ((camTopRightX - camBotLeftX));
-            int height = (int) ((camTopRightY - camBotLeftY));
+            BufferedImage image = layer.getTexture().getImage();
 
-            if (camBotLeftX < 0) {
-                camBotLeftX = 0;
-            }
-            if (camBotLeftY < 0) {
-                camBotLeftY = 0;
-            }
-            if (width > bg.getImage().getWidth()) {
-                width = bg.getImage().getWidth();
-            }
-            if (height > bg.getImage().getHeight()) {
-                height = bg.getImage().getHeight();
+            int srcX = Math.max(0, (int) camBotLeftX);
+            int srcY = Math.max(0, (int) camBotLeftY);
+
+            int srcRight = Math.min(image.getWidth(), (int) camTopRightX);
+            int srcBottom = Math.min(image.getHeight(), (int) camTopRightY);
+
+            int width = srcRight - srcX;
+            int height = srcBottom - srcY;
+
+            if (width <= 0 || height <= 0) {
+                return;
             }
 
-            game.drawImage(bg.getImage().getSubimage((int) camBotLeftX, (int) camBotLeftY, width, height), 0, 0, game.getWidth(), game.getHeight());
+            game.drawImage(
+                    image,
+                    srcX,
+                    srcY,
+                    width,
+                    height,
+                    0,
+                    0,
+                    game.getWidth(),
+                    game.getHeight()
+            );
+
+            //game.drawImage(bg.getImage().getSubimage((int) camBotLeftX, (int) camBotLeftY, width, height), 0, 0, game.getWidth(), game.getHeight());
         }
     }
 
@@ -553,11 +573,11 @@ public class Camera {
     }
 
     public double toScreenX(double worldX) {
-        return Math.round(worldX) - loc.getX();
+        return worldX - Math.round(loc.getX());
     }
 
     public double toScreenY(double worldY) {
-        return Math.round(worldY) - loc.getY();
+        return worldY - Math.round(loc.getY());
     }
 
     public double toWorldX(double screenX) {
@@ -591,5 +611,9 @@ public class Camera {
 
     public void setFixed(boolean fixed) {
         isFixed = fixed;
+    }
+
+    public int getStatisticDecorations() {
+        return DEBUG_DECORATIONS_ON_SCREEN;
     }
 }

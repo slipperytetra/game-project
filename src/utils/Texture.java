@@ -68,4 +68,8 @@ public class Texture {
     public int getHeight() {
         return image.getHeight();
     }
+
+    public void optimise() {
+        image = GameUtils.toCompatibleImage(image);
+    }
 }

@@ -55,9 +55,9 @@ public class LevelJFileChooserSave extends JPanel implements ActionListener {
         }
 
         lines.add("name: " + file.getName().replaceAll(".txt", "").toUpperCase());
-        lines.add("background: " + game.getActiveLevel().getBackgroundImgFilePath());
-        lines.add("midground: " + game.getActiveLevel().getMidgroundImgFilePath());
-        lines.add("foreground: " + game.getActiveLevel().getForegroundImgFilePath());
+        lines.add("background: " + game.getActiveLevel().getBgLayerMap().get("background").getImageFilePath());
+        lines.add("midground: " + game.getActiveLevel().getBgLayerMap().get("midground").getImageFilePath());
+        lines.add("foreground: " + game.getActiveLevel().getBgLayerMap().get("foreground").getImageFilePath());
         lines.add("background_music: " + game.getActiveLevel().getBackgroundmusicFilePath());
         lines.add("overlay: " + game.getActiveLevel().getOverlay());
         lines.add("next_level: " + game.getActiveLevel().getNextLevel());
